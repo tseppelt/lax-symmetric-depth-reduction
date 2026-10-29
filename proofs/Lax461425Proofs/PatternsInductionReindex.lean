@@ -294,6 +294,25 @@ theorem inClass_padGraph {G : LabelledPattern ℓ₀ r₀} {Δ k : ℕ} (h : InC
       | inl x1 => exact absurd hw1eq Sum.inl_ne_inr
       | inr y1 => exact absurd (Sum.inr_injective hw1eq) Sum.inl_ne_inr
 
+/-- **`padGraph` preserves `InClassP`, transporting the label-position restriction along
+`Sum.map ι κ`.** If `G`'s labelled non-isolated vertices are labelled only at positions in `P₀`,
+the same holds for `padGraph G ι κ`, at positions in the image of `P₀` under `Sum.map ι κ`. -/
+theorem inClassP_padGraph {G : LabelledPattern ℓ₀ r₀} {Δ k : ℕ} {P₀ : Finset (Fin ℓ₀ ⊕ Fin r₀)}
+    (h : InClassP Δ k P₀ G) (ι : Fin ℓ₀ ↪ Fin ℓ₁) (κ : Fin r₀ ↪ Fin r₁) :
+    InClassP Δ k (P₀.image (Sum.map (⇑ι) (⇑κ))) (padGraph G ι κ) := by
+  refine ⟨inClass_padGraph h.1 ι κ, ?_⟩
+  rw [labelSupport_padGraph]
+  intro w hw
+  obtain ⟨w0, hw0, rfl⟩ := Finset.mem_image.mp hw
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp (h.2 hw0)
+  refine Finset.mem_image.mpr
+    ⟨⟨Sum.map (⇑ι) (⇑κ) p.1, Finset.mem_image.mpr ⟨p.1, p.2, rfl⟩⟩, Finset.mem_univ _, ?_⟩
+  rcases p with ⟨i | j, hmem⟩
+  · show (padGraph G ι κ).labelVertex (Sum.inl (ι i)) = embPad G ι κ w0
+    rw [labelVertex_padGraph_inl_ι, hp]
+  · show (padGraph G ι κ).labelVertex (Sum.inr (κ j)) = embPad G ι κ w0
+    rw [labelVertex_padGraph_inr_κ, hp]
+
 /-! ### The polynomial identity -/
 
 /-- Splitting a universally quantified statement over `Fin ℓ₁` into the "hit by `ι`" and
@@ -461,6 +480,42 @@ theorem span𝔗P_pad_mem {K : Type*} [Field K] {Δ k n : ℕ} (ι : Fin ℓ₀ 
       rw [heq]
       exact Submodule.subset_span
         ⟨padGraph G ι κ, inClassP_univ_of_inClass (inClass_padGraph hG.1 ι κ), rfl⟩
+  | zero =>
+      have heq : (fun v w => (0 : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) →
+          MvPolynomial (Fin n × Fin n) K) (v ∘ ι) (w ∘ κ)) =
+          (0 : (Fin ℓ₁ → Fin n) → (Fin r₁ → Fin n) → MvPolynomial (Fin n × Fin n) K) := by
+        funext v w; rfl
+      rw [heq]; exact Submodule.zero_mem _
+  | add x y _ _ ihx ihy =>
+      have heq : (fun v w => (x + y) (v ∘ ι) (w ∘ κ)) =
+          (fun v w => x (v ∘ ι) (w ∘ κ)) + (fun v w => y (v ∘ ι) (w ∘ κ)) := by
+        funext v w; rfl
+      rw [heq]; exact Submodule.add_mem _ ihx ihy
+  | smul c x _ ih =>
+      have heq : (fun v w => (c • x) (v ∘ ι) (w ∘ κ)) = c • (fun v w => x (v ∘ ι) (w ∘ κ)) := by
+        funext v w; rfl
+      rw [heq]; exact Submodule.smul_mem _ c ih
+
+/-- **The `P`-restricted reindexing lemma, at the span level.** If `φ ∈ 𝔗^{Δ,k}_{n,P₀}(ℓ₀,r₀)`
+and `ι, κ` are injective, then the reindexed function lies in `𝔗^{Δ,k}_{n,P}(ℓ₁,r₁)` for
+`P := P₀.image (Sum.map ι κ)`, at the *same* depth bound `Δ`: unlike `span𝔗P_pad_mem`, this
+tracks exactly which label positions of the padded arity are actually used, which is needed
+whenever a subsequent step (e.g. `PatternsRestrictedSum.exists_ψSum`) requires `P.card ≤ k`
+at the padded arity, not merely at the original one. -/
+theorem span𝔗P_pad_mem_restrict {K : Type*} [Field K] {Δ k n : ℕ} {P₀ : Finset (Fin ℓ₀ ⊕ Fin r₀)}
+    (ι : Fin ℓ₀ ↪ Fin ℓ₁) (κ : Fin r₀ ↪ Fin r₁)
+    (φ : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (hφ : φ ∈ span𝔗P K Δ k n P₀) :
+    (fun v w => φ (v ∘ ι) (w ∘ κ)) ∈ span𝔗P K Δ k n (P₀.image (Sum.map (⇑ι) (⇑κ))) := by
+  induction hφ using Submodule.span_induction with
+  | mem x hx =>
+      obtain ⟨G, hG, rfl⟩ := hx
+      have heq : (fun v w => labelledHom K G n (v ∘ ι) (w ∘ κ)) =
+          labelledHom K (padGraph G ι κ) n := by
+        funext v w
+        exact (labelledHom_padGraph G ι κ n K v w).symm
+      rw [heq]
+      exact Submodule.subset_span ⟨padGraph G ι κ, inClassP_padGraph hG ι κ, rfl⟩
   | zero =>
       have heq : (fun v w => (0 : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) →
           MvPolynomial (Fin n × Fin n) K) (v ∘ ι) (w ∘ κ)) =
