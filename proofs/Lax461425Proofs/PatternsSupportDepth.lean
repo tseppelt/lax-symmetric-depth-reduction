@@ -200,3 +200,81 @@ theorem sc_mono {g h : C.Gate} (hwire : 0 < C.wire g h) : sc C h ≤ sc C g := b
   calc sc C h = supportChanges C p := hpc.symm
     _ ≤ supportChanges C p' := hle
     _ ≤ sc C g := supportChanges_le_sc hp'0 hp'path
+
+/-- The sharper recursive bound: if `h` is a child of `g` (`0 < C.wire g h`) via a
+support-changing wire (`¬ minSupport C h ⊆ minSupport C g`), then `sc C h + 1 ≤ sc C g`. Unlike
+`sc_mono`, this tracks that the prepended wire `g → h` itself contributes a *new*
+support-changing index (index `0`) to the extended path, disjoint from the indices inherited
+(via `Fin.succ`) from the witnessing path for `h`, since `0` is never in the range of
+`Fin.succ`. -/
+theorem sc_succ_le_of_changing {g h : C.Gate} (hwire : 0 < C.wire g h)
+    (hchg : ¬ minSupport C h ⊆ minSupport C g) : sc C h + 1 ≤ sc C g := by
+  obtain ⟨m, p, hp0, hpath, hpc⟩ := sc_spec h
+  set p' : Fin (m + 2) → C.Gate := Fin.cons g p with hp'def
+  have hp'0 : p' 0 = g := by simp [hp'def]
+  have hp'1 : p' (1 : Fin (m + 2)) = h := by
+    have e : (1 : Fin (m + 2)) = (0 : Fin (m + 1)).succ := rfl
+    rw [e, hp'def, Fin.cons_succ, hp0]
+  have hp'path : C.IsPath p' := by
+    intro i
+    rcases Fin.eq_zero_or_eq_succ i with rfl | ⟨j, rfl⟩
+    · have e1 : (0 : Fin (m + 1)).castSucc = (0 : Fin (m + 2)) := rfl
+      have e2 : (0 : Fin (m + 1)).succ = (1 : Fin (m + 2)) := rfl
+      show 0 < C.wire (p' (0 : Fin (m + 1)).castSucc) (p' (0 : Fin (m + 1)).succ)
+      rw [e1, e2, hp'0, hp'1]
+      exact hwire
+    · have e1 : (j.succ).castSucc = (j.castSucc).succ := by
+        apply Fin.ext
+        simp
+      show 0 < C.wire (p' (j.succ).castSucc) (p' (j.succ).succ)
+      rw [e1, hp'def, Fin.cons_succ, Fin.cons_succ]
+      exact hpath j
+  have hsub : (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)})
+      ⊆ {i : Fin (m + 1) | ¬ minSupport C (p' i.succ) ⊆ minSupport C (p' i.castSucc)} := by
+    rintro _ ⟨j, hj, rfl⟩
+    have e1 : (j.succ).castSucc = (j.castSucc).succ := by
+      apply Fin.ext
+      simp
+    show ¬ minSupport C (p' (j.succ).succ) ⊆ minSupport C (p' (j.succ).castSucc)
+    rw [e1, hp'def, Fin.cons_succ, Fin.cons_succ]
+    exact hj
+  have h0mem : (0 : Fin (m + 1)) ∈
+      {i : Fin (m + 1) | ¬ minSupport C (p' i.succ) ⊆ minSupport C (p' i.castSucc)} := by
+    have e1 : (0 : Fin (m + 1)).castSucc = (0 : Fin (m + 2)) := rfl
+    have e2 : (0 : Fin (m + 1)).succ = (1 : Fin (m + 2)) := rfl
+    show ¬ minSupport C (p' (0 : Fin (m + 1)).succ) ⊆ minSupport C (p' (0 : Fin (m + 1)).castSucc)
+    rw [e1, e2, hp'0, hp'1]
+    exact hchg
+  have h0notmem : (0 : Fin (m + 1)) ∉
+      (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)}) := by
+    rintro ⟨j, -, hj⟩
+    exact Fin.succ_ne_zero j hj
+  have hinsub : insert (0 : Fin (m + 1))
+      (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)})
+      ⊆ {i : Fin (m + 1) | ¬ minSupport C (p' i.succ) ⊆ minSupport C (p' i.castSucc)} := by
+    intro x hx
+    rcases hx with rfl | hx
+    · exact h0mem
+    · exact hsub hx
+  have hcard : (insert (0 : Fin (m + 1))
+      (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)})).ncard
+      ≤ ({i : Fin (m + 1) | ¬ minSupport C (p' i.succ) ⊆ minSupport C (p' i.castSucc)} :
+        Set (Fin (m + 1))).ncard :=
+    Set.ncard_le_ncard hinsub (Set.toFinite _)
+  have hinsertcard : (insert (0 : Fin (m + 1))
+      (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)})).ncard
+      = (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆
+          minSupport C (p j.castSucc)}).ncard + 1 :=
+    Set.ncard_insert_of_notMem h0notmem (Set.toFinite _)
+  have himgcard : (Fin.succ '' {j : Fin m | ¬ minSupport C (p j.succ) ⊆
+      minSupport C (p j.castSucc)}).ncard
+      = ({j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)} :
+        Set (Fin m)).ncard :=
+    Set.ncard_image_of_injective _ (Fin.succ_injective m)
+  have hfinal : ({j : Fin m | ¬ minSupport C (p j.succ) ⊆ minSupport C (p j.castSucc)} :
+      Set (Fin m)).ncard + 1
+      ≤ ({i : Fin (m + 1) | ¬ minSupport C (p' i.succ) ⊆ minSupport C (p' i.castSucc)} :
+        Set (Fin (m + 1))).ncard := by omega
+  calc sc C h + 1 = supportChanges C p + 1 := by rw [hpc]
+    _ ≤ supportChanges C p' := hfinal
+    _ ≤ sc C g := supportChanges_le_sc hp'0 hp'path
