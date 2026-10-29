@@ -1,6 +1,7 @@
 import Mathlib.Data.Finset.Sort
 import Lax461425Proofs.PatternsSupportBasic
 import Lax461425Proofs.PatternsSupportDepth
+import Lax461425Proofs.ConverseOrbitSupport
 
 /-!
 Setup for `lem:induction` (the gate-by-gate induction underlying `mem_span_hom`).
@@ -173,6 +174,18 @@ omit [Field K] in
 theorem rightCard_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
     rightCard hrig hn g ≤ supportSize C :=
   ncard_rightPart_supOf_le hrig hn g
+
+omit [Field K] in
+/-- `leftCard g + rightCard g = |sup(g)| ≤ supportSize C`: the combined bound needed whenever a
+label-position `Finset` at `g`'s own canonical arity (typically `Finset.univ`) is required to
+have `card ≤ k`, for `k` with `supportSize C ≤ k`. -/
+theorem leftCard_add_rightCard_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate)
+    {k : ℕ} (hsize : supportSize C ≤ k) :
+    leftCard hrig hn g + rightCard hrig hn g ≤ k := by
+  have heq : leftCard hrig hn g + rightCard hrig hn g = (supOf hrig hn g).ncard :=
+    (Lax461425Proofs.ncard_eq_leftPart_add_rightPart (supOf hrig hn g)).symm
+  rw [heq]
+  exact (ncard_supOf_le hrig hn g).trans hsize
 
 /-! ### `sc` vanishes at gates with no children -/
 
