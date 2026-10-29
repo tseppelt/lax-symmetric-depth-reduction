@@ -311,6 +311,79 @@ theorem sum_wireOut_S_le (hn0 : 0 < n) :
           _ ≤ n ^ k := card_Adm_le n (N.card_bag_le c.1) hn0
     _ = Fintype.card (NonRoot N) * n ^ k := by rw [Finset.sum_const, smul_eq_mul, Finset.card_univ]
 
+/-- **Item 2 (size bound).** The constructed circuit has size at most
+`5 * n ^ k * (|F.A| + |F.B| + |E(F)|)`, where `|E(F)| = ∑ a, ∑ b, F.mult a b` counts edges with
+multiplicity. -/
+theorem circuit_size_le (K : Type*) (hn0 : 0 < n) (hk : 2 ≤ k) (hE : ∃ a b, F.mult a b ≠ 0) :
+    (circuit N n K hn0 hE).size
+      ≤ 5 * n ^ k * (Fintype.card F.A + Fintype.card F.B + ∑ a, ∑ b, F.mult a b) := by
+  show Fintype.card (CGate N n) + ∑ g : CGate N n, ∑ h, wire N n g h ≤ _
+  rw [sum_CGate_eq N n (fun g => ∑ h, wire N n g h)]
+  have hR := sum_wireOut_R_le N n hn0
+  have hS := sum_wireOut_S_le N n hn0
+  have hI := sum_wireOut_inp_eq N n
+  have hgates := card_CGate_le N n hn0 hk
+  have hnonroot : Fintype.card (NonRoot N) ≤ Fintype.card N.Node := Fintype.card_subtype_le _
+  have hnode : Fintype.card N.Node ≤ Fintype.card F.A + Fintype.card F.B + 1 := by
+    have := N.card_node_le
+    rwa [Fintype.card_sum] at this
+  obtain ⟨a0, b0, hmult⟩ := hE
+  have hA1 : 1 ≤ Fintype.card F.A := Fintype.card_pos_iff.mpr ⟨a0⟩
+  have hB1 : 1 ≤ Fintype.card F.B := Fintype.card_pos_iff.mpr ⟨b0⟩
+  have hE1 : 1 ≤ ∑ a : F.A, ∑ b : F.B, F.mult a b := by
+    have hb : F.mult a0 b0 ≤ ∑ b, F.mult a0 b :=
+      Finset.single_le_sum (fun b _ => Nat.zero_le _) (Finset.mem_univ b0)
+    have ha : (∑ b, F.mult a0 b) ≤ ∑ a : F.A, ∑ b, F.mult a b :=
+      Finset.single_le_sum (f := fun a => ∑ b, F.mult a b) (fun a _ => Nat.zero_le _)
+        (Finset.mem_univ a0)
+    omega
+  set P := n ^ k with hP
+  set Nd := Fintype.card N.Node with hNd
+  set Nd' := Fintype.card (NonRoot N) with hNd'
+  set A := Fintype.card F.A with hA
+  set B := Fintype.card F.B with hB
+  set E := ∑ a : F.A, ∑ b : F.B, F.mult a b with hE2
+  -- Step 1: combine the gate-count and wire-out bounds into `4 * Nd * P + P + P * E`.
+  have e1 : P * (Nd' + E) = P * Nd' + P * E := by ring
+  have e2 : Nd' * P = P * Nd' := mul_comm _ _
+  have e3 : 2 * Nd * P = 2 * (Nd * P) := by ring
+  have e4 : 4 * Nd * P = 4 * (Nd * P) := by ring
+  have key1 : Nd' * P ≤ Nd * P := Nat.mul_le_mul_right P hnonroot
+  have step1 : Fintype.card (CGate N n) +
+      (∑ t, ∑ γ, ∑ h, wire N n (CGate.R t γ) h + ∑ c, ∑ δ, ∑ h, wire N n (CGate.S c δ) h +
+        ∑ i, ∑ j, ∑ h, wire N n (CGate.inp i j) h) ≤ 4 * Nd * P + P + P * E := by
+    omega
+  -- Step 2: `4 * Nd * P + P + P * E ≤ 5 * P * (A + B + E)`, using `Nd ≤ A + B + 1` and
+  -- `A, B, E ≥ 1`.
+  have key2 : Nd * P ≤ A * P + B * P + P := by
+    have := Nat.mul_le_mul_right P hnode
+    rwa [add_mul, add_mul, one_mul] at this
+  have key2' : 4 * (Nd * P) ≤ 4 * (A * P) + 4 * (B * P) + 4 * P := by
+    have := Nat.mul_le_mul_left 4 key2
+    rwa [Nat.mul_add, Nat.mul_add] at this
+  have key4 : P * 6 ≤ P * (A + B + 4 * E) := Nat.mul_le_mul_left P (by omega)
+  have key4' : 6 * P ≤ A * P + B * P + 4 * (P * E) := by
+    have e5 : P * 6 = 6 * P := by ring
+    have e6 : P * (A + B + 4 * E) = A * P + B * P + 4 * (P * E) := by ring
+    rwa [e5, e6] at key4
+  have step2 : 4 * Nd * P + P + P * E ≤ 5 * P * (A + B + E) := by
+    have goalEq : 5 * P * (A + B + E)
+        = 4 * (A * P) + 4 * (B * P) + (A * P + B * P + 4 * (P * E)) + P * E := by ring
+    have hfinal : 5 * P ≤ A * P + B * P + 4 * (P * E) := by
+      have h5P6P : 5 * P ≤ 6 * P := by omega
+      omega
+    calc 4 * Nd * P + P + P * E
+        = 4 * (Nd * P) + P + P * E := by rw [e4]
+      _ ≤ (4 * (A * P) + 4 * (B * P) + 4 * P) + P + P * E := by omega
+      _ = 4 * (A * P) + 4 * (B * P) + 5 * P + P * E := by ring
+      _ ≤ 4 * (A * P) + 4 * (B * P) + (A * P + B * P + 4 * (P * E)) + P * E := by omega
+      _ = 5 * P * (A + B + E) := goalEq.symm
+  calc Fintype.card (CGate N n) +
+        (∑ t, ∑ γ, ∑ h, wire N n (CGate.R t γ) h + ∑ c, ∑ δ, ∑ h, wire N n (CGate.S c δ) h +
+          ∑ i, ∑ j, ∑ h, wire N n (CGate.inp i j) h)
+      ≤ 4 * Nd * P + P + P * E := step1
+    _ ≤ 5 * P * (A + B + E) := step2
+
 end SizeBound
 
 end Lax461425Proofs
