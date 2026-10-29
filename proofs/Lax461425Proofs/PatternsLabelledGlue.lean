@@ -191,4 +191,74 @@ theorem prod_pow_glueMult'_eq_mul (n : ℕ) (K : Type*) [CommSemiring K]
       fun _ => rfl
     simp only [h1, h2, pow_zero, Finset.prod_const_one, one_mul]
 
+/-! ### Functions on the glued vertex sets, as compatible pairs -/
+
+/-- Functions on the glued `A`-side vertex set correspond exactly to pairs of functions on the
+two original `A`-sides that agree at every identified label pair `(a_i, a'_i)`. This is the
+"crux" bijection: built directly via the universal property of `Quot` (never via the closure of
+`GlueRelA` under symmetry/transitivity). -/
+noncomputable def glueLabelEquivA (γ : Type*) :
+    (GlueA G G' → γ) ≃
+      {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)} where
+  toFun H := ⟨(H ∘ glueπA G G' ∘ Sum.inl, H ∘ glueπA G G' ∘ Sum.inr), fun i => by
+    simp [glueπA_sound G G' i]⟩
+  invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
+    rintro a b ⟨i, rfl, rfl⟩
+    simpa using p.2 i)
+  left_inv H := funext fun q => Quot.inductionOn q (fun a => by cases a <;> rfl)
+  right_inv p := by
+    apply Subtype.ext
+    apply Prod.ext <;> rfl
+
+/-- The `B`-side analogue of `glueLabelEquivA`. -/
+noncomputable def glueLabelEquivB (γ : Type*) :
+    (GlueB G G' → γ) ≃
+      {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)} where
+  toFun H := ⟨(H ∘ glueπB G G' ∘ Sum.inl, H ∘ glueπB G G' ∘ Sum.inr), fun j => by
+    simp [glueπB_sound G G' j]⟩
+  invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
+    rintro a b ⟨j, rfl, rfl⟩
+    simpa using p.2 j)
+  left_inv H := funext fun q => Quot.inductionOn q (fun a => by cases a <;> rfl)
+  right_inv p := by
+    apply Subtype.ext
+    apply Prod.ext <;> rfl
+
+@[simp] theorem glueLabelEquivA_symm_apply_inl (γ : Type*)
+    (p : {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}) (x : G.F.A) :
+    (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inl x)) = p.1.1 x := rfl
+
+@[simp] theorem glueLabelEquivA_symm_apply_inr (γ : Type*)
+    (p : {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}) (x' : G'.F.A) :
+    (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inr x')) = p.1.2 x' := rfl
+
+@[simp] theorem glueLabelEquivB_symm_apply_inl (γ : Type*)
+    (p : {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}) (y : G.F.B) :
+    (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inl y)) = p.1.1 y := rfl
+
+@[simp] theorem glueLabelEquivB_symm_apply_inr (γ : Type*)
+    (p : {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}) (y' : G'.F.B) :
+    (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inr y')) = p.1.2 y' := rfl
+
+/-! ### Dropping the compatibility constraint under a matching label condition -/
+
+/-- If `hα` and `hα'` are *each independently* required to match a prescribed labelling `v` at
+positions `p`, `p'` respectively, then they are automatically compatible (agree wherever `p i`
+and `p' i` are identified); so an "outer" compatibility check, guarding an "inner" check of only
+one side's condition, can be replaced by the conjunction of both sides' conditions (dropping
+compatibility, since it becomes redundant). This is the fact that lets the sum defining
+`labelledHom` of a glued graph split into independent choices on each side. -/
+theorem ite_compat_eq {ι α α' γ M : Type*} [Fintype ι] [DecidableEq γ] [Zero M]
+    (p : ι → α) (p' : ι → α') (v : ι → γ) (hα : α → γ) (hα' : α' → γ) (c : M) :
+    (if (∀ i, hα (p i) = hα' (p' i)) then (if (∀ i, hα (p i) = v i) then c else 0) else 0)
+      = if ((∀ i, hα (p i) = v i) ∧ ∀ i, hα' (p' i) = v i) then c else 0 := by
+  by_cases hcompat : ∀ i, hα (p i) = hα' (p' i)
+  · by_cases hcondA : ∀ i, hα (p i) = v i
+    · have hcondA' : ∀ i, hα' (p' i) = v i := fun i => (hcompat i).symm.trans (hcondA i)
+      simp [hcompat, hcondA']
+    · simp [hcompat]
+  · have hnand : ¬ ((∀ i, hα (p i) = v i) ∧ ∀ i, hα' (p' i) = v i) :=
+      fun ⟨hA, hA'⟩ => hcompat fun i => (hA i).trans (hA' i).symm
+    simp [hcompat, hnand]
+
 end Lax461425Proofs.PatternsLabelledGlue
