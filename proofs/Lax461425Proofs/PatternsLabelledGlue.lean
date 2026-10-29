@@ -193,13 +193,31 @@ theorem prod_pow_glueMult'_eq_mul (n : ℕ) (K : Type*) [CommSemiring K]
 
 /-! ### Functions on the glued vertex sets, as compatible pairs -/
 
+/-- The pairs of `A`-side functions that agree at every identified label pair `(a_i, a'_i)`. We
+route *every* use of this type through this fixed name, with its `Fintype` instance declared
+once below (via `Fintype.ofFinite`, needing no `DecidablePred`): this sidesteps the same hazard
+that `isolatedSet` in `PatternsLabelledBasic` was designed to avoid for `Finset.filter` --
+independently-elaborated `DecidablePred`/`Fintype` instances for the *same* underlying predicate
+are propositionally but not always syntactically/definitionally equal, which breaks naive `rw`
+across lemmas that are generic in the predicate. Naming the type once and fixing its instance
+here means every occurrence (in `glueLabelEquivA`'s codomain, and in every lemma about sums over
+it) resolves to the *same* instance. -/
+abbrev CompatA (γ : Type*) [Fintype γ] :=
+  {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}
+
+/-- The `B`-side analogue of `CompatA`. -/
+abbrev CompatB (γ : Type*) [Fintype γ] :=
+  {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}
+
+noncomputable instance (γ : Type*) [Fintype γ] : Fintype (CompatA G G' γ) := Fintype.ofFinite _
+noncomputable instance (γ : Type*) [Fintype γ] : Fintype (CompatB G G' γ) := Fintype.ofFinite _
+
 /-- Functions on the glued `A`-side vertex set correspond exactly to pairs of functions on the
 two original `A`-sides that agree at every identified label pair `(a_i, a'_i)`. This is the
 "crux" bijection: built directly via the universal property of `Quot` (never via the closure of
 `GlueRelA` under symmetry/transitivity). -/
-noncomputable def glueLabelEquivA (γ : Type*) :
-    (GlueA G G' → γ) ≃
-      {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)} where
+noncomputable def glueLabelEquivA (γ : Type*) [Fintype γ] :
+    (GlueA G G' → γ) ≃ CompatA G G' γ where
   toFun H := ⟨(H ∘ glueπA G G' ∘ Sum.inl, H ∘ glueπA G G' ∘ Sum.inr), fun i => by
     simp [glueπA_sound G G' i]⟩
   invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
@@ -211,9 +229,8 @@ noncomputable def glueLabelEquivA (γ : Type*) :
     apply Prod.ext <;> rfl
 
 /-- The `B`-side analogue of `glueLabelEquivA`. -/
-noncomputable def glueLabelEquivB (γ : Type*) :
-    (GlueB G G' → γ) ≃
-      {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)} where
+noncomputable def glueLabelEquivB (γ : Type*) [Fintype γ] :
+    (GlueB G G' → γ) ≃ CompatB G G' γ where
   toFun H := ⟨(H ∘ glueπB G G' ∘ Sum.inl, H ∘ glueπB G G' ∘ Sum.inr), fun j => by
     simp [glueπB_sound G G' j]⟩
   invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
@@ -224,20 +241,20 @@ noncomputable def glueLabelEquivB (γ : Type*) :
     apply Subtype.ext
     apply Prod.ext <;> rfl
 
-@[simp] theorem glueLabelEquivA_symm_apply_inl (γ : Type*)
-    (p : {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}) (x : G.F.A) :
+@[simp] theorem glueLabelEquivA_symm_apply_inl (γ : Type*) [Fintype γ] (p : CompatA G G' γ)
+    (x : G.F.A) :
     (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inl x)) = p.1.1 x := rfl
 
-@[simp] theorem glueLabelEquivA_symm_apply_inr (γ : Type*)
-    (p : {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}) (x' : G'.F.A) :
+@[simp] theorem glueLabelEquivA_symm_apply_inr (γ : Type*) [Fintype γ] (p : CompatA G G' γ)
+    (x' : G'.F.A) :
     (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inr x')) = p.1.2 x' := rfl
 
-@[simp] theorem glueLabelEquivB_symm_apply_inl (γ : Type*)
-    (p : {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}) (y : G.F.B) :
+@[simp] theorem glueLabelEquivB_symm_apply_inl (γ : Type*) [Fintype γ] (p : CompatB G G' γ)
+    (y : G.F.B) :
     (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inl y)) = p.1.1 y := rfl
 
-@[simp] theorem glueLabelEquivB_symm_apply_inr (γ : Type*)
-    (p : {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}) (y' : G'.F.B) :
+@[simp] theorem glueLabelEquivB_symm_apply_inr (γ : Type*) [Fintype γ] (p : CompatB G G' γ)
+    (y' : G'.F.B) :
     (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inr y')) = p.1.2 y' := rfl
 
 /-! ### Dropping the compatibility constraint under a matching label condition -/
@@ -260,5 +277,40 @@ theorem ite_compat_eq {ι α α' γ M : Type*} [Fintype ι] [DecidableEq γ] [Ze
   · have hnand : ¬ ((∀ i, hα (p i) = v i) ∧ ∀ i, hα' (p' i) = v i) :=
       fun ⟨hA, hA'⟩ => hcompat fun i => (hA i).trans (hA' i).symm
     simp [hcompat, hnand]
+
+/-! ### Converting a `CompatA`/`CompatB` sum into an ordinary double sum -/
+
+/-- A sum over `CompatA G G' γ` is the same as a double sum over the two sides, guarded by the
+compatibility condition. Stated specifically for the *named* type `CompatA` (never for a freshly
+written `Subtype` literal): this keeps every use of this fact anchored to the single `Fintype`
+instance declared for `CompatA`, avoiding a mismatch against some other, independently
+elaborated (though propositionally equal) `Fintype`/`DecidablePred` instance for the same
+underlying subtype. -/
+theorem sum_compatA_eq_sum_ite {γ : Type*} [Fintype γ] {M : Type*} [AddCommMonoid M]
+    (f : (G.F.A → γ) → (G'.F.A → γ) → M) :
+    ∑ pa : CompatA G G' γ, f pa.1.1 pa.1.2
+      = ∑ hAG : G.F.A → γ, ∑ hAG' : G'.F.A → γ,
+          if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then f hAG hAG' else 0 := by
+  have step1 : (∑ a ∈ Finset.univ.filter
+        (fun x : (G.F.A → γ) × (G'.F.A → γ) => ∀ i, x.1 (G.a i) = x.2 (G'.a i)), f a.1 a.2)
+      = ∑ x : CompatA G G' γ, f x.1.1 x.1.2 :=
+    Finset.sum_subtype _ (fun x => by simp) _
+  rw [← step1, Finset.sum_filter]
+  exact Fintype.sum_prod_type' (fun hAG hAG' => if (∀ i, hAG (G.a i) = hAG' (G'.a i))
+    then f hAG hAG' else 0)
+
+/-- The `B`-side analogue of `sum_compatA_eq_sum_ite`. -/
+theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] {M : Type*} [AddCommMonoid M]
+    (f : (G.F.B → γ) → (G'.F.B → γ) → M) :
+    ∑ pb : CompatB G G' γ, f pb.1.1 pb.1.2
+      = ∑ hBG : G.F.B → γ, ∑ hBG' : G'.F.B → γ,
+          if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then f hBG hBG' else 0 := by
+  have step1 : (∑ a ∈ Finset.univ.filter
+        (fun x : (G.F.B → γ) × (G'.F.B → γ) => ∀ j, x.1 (G.b j) = x.2 (G'.b j)), f a.1 a.2)
+      = ∑ x : CompatB G G' γ, f x.1.1 x.1.2 :=
+    Finset.sum_subtype _ (fun x => by simp) _
+  rw [← step1, Finset.sum_filter]
+  exact Fintype.sum_prod_type' (fun hBG hBG' => if (∀ j, hBG (G.b j) = hBG' (G'.b j))
+    then f hBG hBG' else 0)
 
 end Lax461425Proofs.PatternsLabelledGlue
