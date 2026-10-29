@@ -390,6 +390,27 @@ theorem minSupport_subset_of_isSupport {g : C.Gate} {T : Set (Fin n ⊕ Fin n)}
     (hT : IsSupport C g T) (hTc : T.ncard ≤ supportSize C) : minSupport C g ⊆ T :=
   fun _x hx => hx T hT hTc
 
+/-- A generalisation of `minSupport_subset_of_isSupport`: `minSupport C g ⊆ S` for *any*
+witnessed support `S` of size `≤ k`, for whatever `k` one has in hand (with `2 * k < n` and
+`supportSize C ≤ k`), even when `S.ncard` is not literally `≤ supportSize C` itself. This is
+the version to reach for when `S` comes from an explicit construction (e.g. `γ(β(t))`) sized
+against a fixed design parameter `k` rather than against the a priori unknown value of
+`supportSize C`. Proof idea: intersect `S` with *some* witnessed support of size `≤ supportSize
+C` (which exists by `supportSize_spec`); the intersection is again a support (by
+`isSupport_inter_of_card_le`, using `k` as the common bound), and it has size `≤ supportSize C`
+(being a subset of the second witness), so every point of `minSupport C g` lies in it, hence
+in `S`. -/
+theorem minSupport_subset_of_isSupport_le (hrig : IsRigid C) {g : C.Gate}
+    {S : Set (Fin n ⊕ Fin n)} {k : ℕ} (hS : IsSupport C g S) (hSc : S.ncard ≤ k)
+    (hks : supportSize C ≤ k) (hn : 2 * k < n) : minSupport C g ⊆ S := by
+  intro x hx
+  obtain ⟨S', hS', hS'c⟩ := supportSize_spec hrig g
+  have hinter : IsSupport C g (S ∩ S') :=
+    isSupport_inter_of_card_le hrig hS hS' hSc (hS'c.trans hks) hn
+  have hinterc : (S ∩ S').ncard ≤ supportSize C :=
+    (Set.ncard_le_ncard Set.inter_subset_right (Set.toFinite S')).trans hS'c
+  exact (hx (S ∩ S') hinter hinterc).1
+
 /-- `actPoint γ` is injective: it is `Sum.map γ.1 γ.2` applied to two bijections. -/
 theorem actPoint_injective (γ : Γ n) : Function.Injective (actPoint γ) :=
   γ.1.injective.sumMap γ.2.injective
