@@ -114,6 +114,17 @@ theorem supOf_subset (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate
   (exists_least_small_support hrig hn g).choose_spec.2.2 S hS hSc
 
 omit [Field K] in
+/-- **`supOf hrig hn g` is exactly `minSupport C g`.** The ⊆-least small support (`supOf`) is
+contained in every small support, hence in their intersection (`minSupport`); conversely
+`minSupport` is contained in any particular small support, in particular `supOf` itself. -/
+theorem supOf_eq_minSupport (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
+    supOf hrig hn g = minSupport C g := by
+  apply Set.Subset.antisymm
+  · intro x hx S hS hSc
+    exact supOf_subset hrig hn g hS hSc hx
+  · exact minSupport_subset_of_isSupport (isSupport_supOf hrig hn g) (ncard_supOf_le hrig hn g)
+
+omit [Field K] in
 /-- The left side of `supOf hrig hn g` has at most `supportSize C` elements. -/
 theorem ncard_leftPart_supOf_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
     (leftPart (supOf hrig hn g)).ncard ≤ supportSize C :=
