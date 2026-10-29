@@ -1,6 +1,7 @@
 import Mathlib.Algebra.MvPolynomial.Rename
 import Lax461425.MatrixSymmetry
 import Lax461425Proofs.PatternsLabelledBasic
+import Lax461425Proofs.PatternsLabelledOps
 
 /-!
 A general **equivariance fact about `labelledHom`**: relabelling the images of a labelled
@@ -66,5 +67,35 @@ theorem labelledHom_rename {ℓ r : ℕ} (K : Type*) [CommSemiring K] (G : Label
   · have hc' : ¬ ((∀ i, (eA hA) (G.a i) = (γ.1 ∘ v) i) ∧ ∀ j, (eB hB) (G.b j) = (γ.2 ∘ w) j) :=
       fun h => hc (hcondeq.mpr h)
     rw [if_neg hc, if_neg hc']
+
+/-! ### Extending the equivariance fact to the whole span -/
+
+open Lax461425Proofs.PatternsLabelledOps
+
+/-- **Every member of `𝔗^{Δ,k}_{n,P}(ℓ,r)` is equivariant under `Γ n`, via `MvPolynomial.rename`,**
+exactly as `labelledHom` itself: this is `labelledHom_rename` extended by linearity
+(`Submodule.span_induction`) from the generators of `span𝔗P` to the whole span. -/
+theorem span𝔗P_rename {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
+    (γ : Γ n) {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    (hφ : φ ∈ span𝔗P K Δ k n P) :
+    ∀ v w, φ (γ.1 ∘ v) (γ.2 ∘ w) = MvPolynomial.rename (actVar γ) (φ v w) := by
+  induction hφ using Submodule.span_induction with
+  | mem x hx =>
+      obtain ⟨G, hG, rfl⟩ := hx
+      intro v w
+      exact (labelledHom_rename K G γ v w).symm
+  | zero =>
+      intro v w
+      show (0 : MvPolynomial (Fin n × Fin n) K) = MvPolynomial.rename (actVar γ) 0
+      rw [map_zero]
+  | add x y _ _ ihx ihy =>
+      intro v w
+      show x (γ.1 ∘ v) (γ.2 ∘ w) + y (γ.1 ∘ v) (γ.2 ∘ w) =
+        MvPolynomial.rename (actVar γ) (x v w + y v w)
+      rw [map_add, ihx v w, ihy v w]
+  | smul c x _ ih =>
+      intro v w
+      show c • (x (γ.1 ∘ v) (γ.2 ∘ w)) = MvPolynomial.rename (actVar γ) (c • x v w)
+      rw [map_smul, ih v w]
 
 end Lax461425Proofs.PatternsInductionHomRename
