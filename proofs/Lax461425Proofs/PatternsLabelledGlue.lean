@@ -1078,4 +1078,106 @@ theorem glueCard_bag_le {P : Finset (Fin ℓ ⊕ Fin r)} (hP : P.card ≤ k) (hG
       exact Finset.card_image_le.trans ((Finset.card_le_card Finset.sdiff_subset).trans
         (D'.card_bag_le t0'))
 
+theorem glueExists_mem_bag (v : GlueA G G' ⊕ GlueB G G') (hv : ¬ isIsolated (gluePattern G G') v) :
+    ∃ t, v ∈ glueBag G G' D D' t := by
+  cases v with
+  | inl qa =>
+      obtain ⟨x, hx_qa, hcase⟩ := exists_not_isolated_source_inl G G' hv
+      rcases hcase with ⟨x0, hx_eq, hniso0⟩ | ⟨x0', hx_eq, hniso0⟩
+      · subst hx_eq
+        obtain ⟨t0, ht0⟩ := D.exists_mem_bag (Sum.inl x0) hniso0
+        by_cases hr : t0 = D.root
+        · refine ⟨glueRoot G G' D D', ?_⟩
+          rw [glueBag_root, ← hx_qa]
+          have hmem : Sum.inl x0 ∈ G.labelSupport := by rw [← D.bag_root, ← hr]; exact ht0
+          exact embG_mem_labelSupport_of_mem G G' hmem
+        · refine ⟨Sum.inl t0, ?_⟩
+          rw [glueBag_inl_of_ne G G' D D' hr, ← hx_qa]
+          exact Finset.mem_image.mpr ⟨Sum.inl x0, Finset.mem_sdiff.mpr ⟨ht0,
+            not_isIsolated_iff_notMem.mp hniso0⟩, rfl⟩
+      · subst hx_eq
+        obtain ⟨t0', ht0'⟩ := D'.exists_mem_bag (Sum.inl x0') hniso0
+        by_cases hr : t0' = D'.root
+        · refine ⟨glueRoot G G' D D', ?_⟩
+          rw [glueBag_root, ← hx_qa]
+          have hmem : Sum.inl x0' ∈ G'.labelSupport := by rw [← D'.bag_root, ← hr]; exact ht0'
+          exact embG'_mem_labelSupport_of_mem G G' hmem
+        · refine ⟨Sum.inr ⟨t0', hr⟩, ?_⟩
+          rw [glueBag_inr G G' D D' hr, ← hx_qa]
+          exact Finset.mem_image.mpr ⟨Sum.inl x0', Finset.mem_sdiff.mpr ⟨ht0',
+            not_isIsolated_iff_notMem.mp hniso0⟩, rfl⟩
+  | inr qb =>
+      obtain ⟨y, hy_qb, hcase⟩ := exists_not_isolated_source_inr G G' hv
+      rcases hcase with ⟨y0, hy_eq, hniso0⟩ | ⟨y0', hy_eq, hniso0⟩
+      · subst hy_eq
+        obtain ⟨t0, ht0⟩ := D.exists_mem_bag (Sum.inr y0) hniso0
+        by_cases hr : t0 = D.root
+        · refine ⟨glueRoot G G' D D', ?_⟩
+          rw [glueBag_root, ← hy_qb]
+          have hmem : Sum.inr y0 ∈ G.labelSupport := by rw [← D.bag_root, ← hr]; exact ht0
+          exact embG_mem_labelSupport_of_mem G G' hmem
+        · refine ⟨Sum.inl t0, ?_⟩
+          rw [glueBag_inl_of_ne G G' D D' hr, ← hy_qb]
+          exact Finset.mem_image.mpr ⟨Sum.inr y0, Finset.mem_sdiff.mpr ⟨ht0,
+            not_isIsolated_iff_notMem.mp hniso0⟩, rfl⟩
+      · subst hy_eq
+        obtain ⟨t0', ht0'⟩ := D'.exists_mem_bag (Sum.inr y0') hniso0
+        by_cases hr : t0' = D'.root
+        · refine ⟨glueRoot G G' D D', ?_⟩
+          rw [glueBag_root, ← hy_qb]
+          have hmem : Sum.inr y0' ∈ G'.labelSupport := by rw [← D'.bag_root, ← hr]; exact ht0'
+          exact embG'_mem_labelSupport_of_mem G G' hmem
+        · refine ⟨Sum.inr ⟨t0', hr⟩, ?_⟩
+          rw [glueBag_inr G G' D D' hr, ← hy_qb]
+          exact Finset.mem_image.mpr ⟨Sum.inr y0', Finset.mem_sdiff.mpr ⟨ht0',
+            not_isIsolated_iff_notMem.mp hniso0⟩, rfl⟩
+
+theorem glueExists_edge_mem_bag (x : GlueA G G') (y : GlueB G G') (hxy : glueMult' G G' x y ≠ 0) :
+    ∃ t, Sum.inl x ∈ glueBag G G' D D' t ∧ Sum.inr y ∈ glueBag G G' D D' t := by
+  have hex : ∃ p0 : {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) //
+      (glueπA G G' p.1, glueπB G G' p.2) = (x, y)}, glueMult0 G G' p0.1.1 p0.1.2 ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact hxy (Finset.sum_eq_zero fun p0 _ => hcon p0)
+  obtain ⟨⟨⟨x0, y0⟩, hxy0⟩, hne0⟩ := hex
+  have hx0 : glueπA G G' x0 = x := congrArg Prod.fst hxy0
+  have hy0 : glueπB G G' y0 = y := congrArg Prod.snd hxy0
+  rcases x0 with x0 | x0' <;> rcases y0 with y0 | y0'
+  · have hmul : G.F.mult x0 y0 ≠ 0 := hne0
+    obtain ⟨t0, ht0x, ht0y⟩ := D.exists_edge_mem_bag x0 y0 hmul
+    by_cases hr : t0 = D.root
+    · refine ⟨glueRoot G G' D D', ?_, ?_⟩
+      · rw [glueBag_root, ← hx0]
+        have hmem : Sum.inl x0 ∈ G.labelSupport := by rw [← D.bag_root, ← hr]; exact ht0x
+        exact embG_mem_labelSupport_of_mem G G' hmem
+      · rw [glueBag_root, ← hy0]
+        have hmem : Sum.inr y0 ∈ G.labelSupport := by rw [← D.bag_root, ← hr]; exact ht0y
+        exact embG_mem_labelSupport_of_mem G G' hmem
+    · refine ⟨Sum.inl t0, ?_, ?_⟩
+      · rw [glueBag_inl_of_ne G G' D D' hr, ← hx0]
+        exact Finset.mem_image.mpr ⟨Sum.inl x0, Finset.mem_sdiff.mpr ⟨ht0x,
+          not_isIsolated_iff_notMem.mp (fun hiso => hmul (hiso y0))⟩, rfl⟩
+      · rw [glueBag_inl_of_ne G G' D D' hr, ← hy0]
+        exact Finset.mem_image.mpr ⟨Sum.inr y0, Finset.mem_sdiff.mpr ⟨ht0y,
+          not_isIsolated_iff_notMem.mp (fun hiso => hmul (hiso x0))⟩, rfl⟩
+  · exact absurd rfl hne0
+  · exact absurd rfl hne0
+  · have hmul : G'.F.mult x0' y0' ≠ 0 := hne0
+    obtain ⟨t0', ht0x', ht0y'⟩ := D'.exists_edge_mem_bag x0' y0' hmul
+    by_cases hr : t0' = D'.root
+    · refine ⟨glueRoot G G' D D', ?_, ?_⟩
+      · rw [glueBag_root, ← hx0]
+        have hmem : Sum.inl x0' ∈ G'.labelSupport := by rw [← D'.bag_root, ← hr]; exact ht0x'
+        exact embG'_mem_labelSupport_of_mem G G' hmem
+      · rw [glueBag_root, ← hy0]
+        have hmem : Sum.inr y0' ∈ G'.labelSupport := by rw [← D'.bag_root, ← hr]; exact ht0y'
+        exact embG'_mem_labelSupport_of_mem G G' hmem
+    · refine ⟨Sum.inr ⟨t0', hr⟩, ?_, ?_⟩
+      · rw [glueBag_inr G G' D D' hr, ← hx0]
+        exact Finset.mem_image.mpr ⟨Sum.inl x0', Finset.mem_sdiff.mpr ⟨ht0x',
+          not_isIsolated_iff_notMem.mp (fun hiso => hmul (hiso y0'))⟩, rfl⟩
+      · rw [glueBag_inr G G' D D' hr, ← hy0]
+        exact Finset.mem_image.mpr ⟨Sum.inr y0', Finset.mem_sdiff.mpr ⟨ht0y',
+          not_isIsolated_iff_notMem.mp (fun hiso => hmul (hiso x0'))⟩, rfl⟩
+
 end Lax461425Proofs.PatternsLabelledGlue
