@@ -781,4 +781,176 @@ theorem card_labelSupport_glue_le (hG : InClassP Δ k P G) (hG' : InClassP Δ k 
     _ ≤ (Finset.univ : Finset P).card := Finset.card_image_le
     _ = P.card := by rw [Finset.card_univ, Fintype.card_coe]
 
+/-! ### `InClassP` closed under `glue`: the tree merge (item 2's depth/width step)
+
+A generic fact about any `RootExactDecomposition`: a vertex that is in the root bag propagates
+upward (towards the root) through every bag containing it. This is the key structural fact that
+lets us show label vertices can only ever be "genuine entries" (in the sense of `connected`) at
+the root, both before and after gluing. -/
+
+theorem RootExactDecomposition.mem_bag_parent_of_mem_bag_root {Δ k : ℕ}
+    (D : RootExactDecomposition G Δ k) {w : G.F.A ⊕ G.F.B} (hw : w ∈ D.bag D.root) {t : D.Node}
+    (ht : w ∈ D.bag t) : t = D.root ∨ w ∈ D.bag (D.parent t) := by
+  by_contra hcon
+  push_neg at hcon
+  exact hcon.1 (D.connected w t D.root ht (Or.inr hcon.2) hw (Or.inl rfl))
+
+/-- The natural embedding of `G`'s vertices into the glued vertex set. -/
+def embG : G.F.A ⊕ G.F.B → GlueA G G' ⊕ GlueB G G' :=
+  Sum.map (fun x0 => glueπA G G' (Sum.inl x0)) (fun y0 => glueπB G G' (Sum.inl y0))
+
+/-- The natural embedding of `G'`'s vertices into the glued vertex set. -/
+def embG' : G'.F.A ⊕ G'.F.B → GlueA G G' ⊕ GlueB G G' :=
+  Sum.map (fun x0' => glueπA G G' (Sum.inr x0')) (fun y0' => glueπB G G' (Sum.inr y0'))
+
+theorem embG_labelVertex (p : Fin ℓ ⊕ Fin r) :
+    embG G G' (G.labelVertex p) = (glue G G').labelVertex p := by cases p <;> rfl
+
+theorem embG'_labelVertex (p : Fin ℓ ⊕ Fin r) :
+    embG' G G' (G'.labelVertex p) = (glue G G').labelVertex p := by
+  cases p with
+  | inl i =>
+      show Sum.inl (glueπA G G' (Sum.inr (G'.a i))) = Sum.inl (glueπA G G' (Sum.inl (G.a i)))
+      rw [glueπA_sound]
+  | inr j =>
+      show Sum.inr (glueπB G G' (Sum.inr (G'.b j))) = Sum.inr (glueπB G G' (Sum.inl (G.b j)))
+      rw [glueπB_sound]
+
+theorem glueMult'_ne_zero_of_mult_ne_zero_left {x0 : G.F.A} {y0 : G.F.B} (h : G.F.mult x0 y0 ≠ 0) :
+    glueMult' G G' (glueπA G G' (Sum.inl x0)) (glueπB G G' (Sum.inl y0)) ≠ 0 := by
+  have hmem : (⟨(Sum.inl x0, Sum.inl y0), rfl⟩ :
+      {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) //
+        (glueπA G G' p.1, glueπB G G' p.2) =
+          (glueπA G G' (Sum.inl x0), glueπB G G' (Sum.inl y0))}) ∈ (Finset.univ : Finset _) :=
+    Finset.mem_univ _
+  have hle : glueMult0 G G' (Sum.inl x0) (Sum.inl y0) ≤
+      glueMult' G G' (glueπA G G' (Sum.inl x0)) (glueπB G G' (Sum.inl y0)) :=
+    Finset.single_le_sum (f := fun p0 => glueMult0 G G' p0.1.1 p0.1.2)
+      (fun p0 _ => Nat.zero_le _) hmem
+  intro hzero
+  rw [hzero] at hle
+  exact h (Nat.le_zero.mp hle)
+
+theorem glueMult'_ne_zero_of_mult_ne_zero_right {x0' : G'.F.A} {y0' : G'.F.B}
+    (h : G'.F.mult x0' y0' ≠ 0) :
+    glueMult' G G' (glueπA G G' (Sum.inr x0')) (glueπB G G' (Sum.inr y0')) ≠ 0 := by
+  have hmem : (⟨(Sum.inr x0', Sum.inr y0'), rfl⟩ :
+      {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) //
+        (glueπA G G' p.1, glueπB G G' p.2) =
+          (glueπA G G' (Sum.inr x0'), glueπB G G' (Sum.inr y0'))}) ∈ (Finset.univ : Finset _) :=
+    Finset.mem_univ _
+  have hle : glueMult0 G G' (Sum.inr x0') (Sum.inr y0') ≤
+      glueMult' G G' (glueπA G G' (Sum.inr x0')) (glueπB G G' (Sum.inr y0')) :=
+    Finset.single_le_sum (f := fun p0 => glueMult0 G G' p0.1.1 p0.1.2)
+      (fun p0 _ => Nat.zero_le _) hmem
+  intro hzero
+  rw [hzero] at hle
+  exact h (Nat.le_zero.mp hle)
+
+theorem not_isIsolated_embG_of_not_isIsolated {w : G.F.A ⊕ G.F.B} (hw : ¬ isIsolated G.F w) :
+    ¬ isIsolated (gluePattern G G') (embG G G' w) := by
+  cases w with
+  | inl x0 =>
+      have hw' : ¬ ∀ y0, G.F.mult x0 y0 = 0 := hw
+      push_neg at hw'
+      obtain ⟨y0, hy0⟩ := hw'
+      have hex : ¬ ∀ qb : GlueB G G', (gluePattern G G').mult (glueπA G G' (Sum.inl x0)) qb = 0 := by
+        push_neg
+        exact ⟨glueπB G G' (Sum.inl y0), glueMult'_ne_zero_of_mult_ne_zero_left G G' hy0⟩
+      exact hex
+  | inr y0 =>
+      have hw' : ¬ ∀ x0, G.F.mult x0 y0 = 0 := hw
+      push_neg at hw'
+      obtain ⟨x0, hx0⟩ := hw'
+      have hex : ¬ ∀ qa : GlueA G G', (gluePattern G G').mult qa (glueπB G G' (Sum.inl y0)) = 0 := by
+        push_neg
+        exact ⟨glueπA G G' (Sum.inl x0), glueMult'_ne_zero_of_mult_ne_zero_left G G' hx0⟩
+      exact hex
+
+theorem not_isIsolated_embG'_of_not_isIsolated {w : G'.F.A ⊕ G'.F.B} (hw : ¬ isIsolated G'.F w) :
+    ¬ isIsolated (gluePattern G G') (embG' G G' w) := by
+  cases w with
+  | inl x0' =>
+      have hw' : ¬ ∀ y0', G'.F.mult x0' y0' = 0 := hw
+      push_neg at hw'
+      obtain ⟨y0', hy0'⟩ := hw'
+      have hex : ¬ ∀ qb : GlueB G G', (gluePattern G G').mult (glueπA G G' (Sum.inr x0')) qb = 0 := by
+        push_neg
+        exact ⟨glueπB G G' (Sum.inr y0'), glueMult'_ne_zero_of_mult_ne_zero_right G G' hy0'⟩
+      exact hex
+  | inr y0' =>
+      have hw' : ¬ ∀ x0', G'.F.mult x0' y0' = 0 := hw
+      push_neg at hw'
+      obtain ⟨x0', hx0'⟩ := hw'
+      have hex : ¬ ∀ qa : GlueA G G', (gluePattern G G').mult qa (glueπB G G' (Sum.inr y0')) = 0 := by
+        push_neg
+        exact ⟨glueπA G G' (Sum.inr x0'), glueMult'_ne_zero_of_mult_ne_zero_right G G' hx0'⟩
+      exact hex
+
+theorem embG_mem_labelSupport_of_mem {w : G.F.A ⊕ G.F.B} (hw : w ∈ G.labelSupport) :
+    embG G G' w ∈ (glue G G').labelSupport := by
+  obtain ⟨hw1, hw2⟩ := Finset.mem_sdiff.mp hw
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp hw1
+  have hniso : ¬ isIsolated G.F w := not_isIsolated_iff_notMem.mpr hw2
+  refine Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨p, Finset.mem_univ _, ?_⟩,
+    not_isIsolated_iff_notMem.mp (not_isIsolated_embG_of_not_isIsolated G G' hniso)⟩
+  rw [← hp, embG_labelVertex]
+
+theorem embG'_mem_labelSupport_of_mem {w : G'.F.A ⊕ G'.F.B} (hw : w ∈ G'.labelSupport) :
+    embG' G G' w ∈ (glue G G').labelSupport := by
+  obtain ⟨hw1, hw2⟩ := Finset.mem_sdiff.mp hw
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp hw1
+  have hniso : ¬ isIsolated G'.F w := not_isIsolated_iff_notMem.mpr hw2
+  refine Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨p, Finset.mem_univ _, ?_⟩,
+    not_isIsolated_iff_notMem.mp (not_isIsolated_embG'_of_not_isIsolated G G' hniso)⟩
+  rw [← hp, embG'_labelVertex]
+
+/-- The stronger form of `eqvGen_glueRelA_isGlueLabelA_iff`: two related vertices are either
+literally equal, or both label vertices. Used to show that gluing can never accidentally
+identify two *non*-label vertices (on the same or on opposite sides). -/
+theorem eqvGen_glueRelA_eq_or_isGlueLabelA {x y : G.F.A ⊕ G'.F.A}
+    (h : Relation.EqvGen (GlueRelA G G') x y) :
+    x = y ∨ (IsGlueLabelA G G' x ∧ IsGlueLabelA G G' y) := by
+  induction h with
+  | rel a b hab => obtain ⟨i, ha, hb⟩ := hab; subst ha; subst hb; exact Or.inr ⟨⟨i, rfl⟩, ⟨i, rfl⟩⟩
+  | refl a => exact Or.inl rfl
+  | symm a b _ ih =>
+      rcases ih with h | ⟨h1, h2⟩
+      · exact Or.inl h.symm
+      · exact Or.inr ⟨h2, h1⟩
+  | trans a b c _ _ ih1 ih2 =>
+      rcases ih1 with hab | ⟨ha, hb⟩
+      · subst hab; exact ih2
+      · rcases ih2 with hbc | ⟨hb', hc⟩
+        · subst hbc; exact Or.inr ⟨ha, hb⟩
+        · exact Or.inr ⟨ha, hc⟩
+
+/-- The `B`-side analogue of `eqvGen_glueRelA_eq_or_isGlueLabelA`. -/
+theorem eqvGen_glueRelB_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B}
+    (h : Relation.EqvGen (GlueRelB G G') x y) :
+    x = y ∨ (IsGlueLabelB G G' x ∧ IsGlueLabelB G G' y) := by
+  induction h with
+  | rel a b hab => obtain ⟨j, ha, hb⟩ := hab; subst ha; subst hb; exact Or.inr ⟨⟨j, rfl⟩, ⟨j, rfl⟩⟩
+  | refl a => exact Or.inl rfl
+  | symm a b _ ih =>
+      rcases ih with h | ⟨h1, h2⟩
+      · exact Or.inl h.symm
+      · exact Or.inr ⟨h2, h1⟩
+  | trans a b c _ _ ih1 ih2 =>
+      rcases ih1 with hab | ⟨ha, hb⟩
+      · subst hab; exact ih2
+      · rcases ih2 with hbc | ⟨hb', hc⟩
+        · subst hbc; exact Or.inr ⟨ha, hb⟩
+        · exact Or.inr ⟨ha, hc⟩
+
+theorem glueπA_eq_iff_eq_or_isGlueLabelA {x y : G.F.A ⊕ G'.F.A} (h : glueπA G G' x = glueπA G G' y) :
+    x = y ∨ (IsGlueLabelA G G' x ∧ IsGlueLabelA G G' y) :=
+  eqvGen_glueRelA_eq_or_isGlueLabelA G G'
+    (Quot.eq.mp (show Quot.mk (GlueRelA G G') x = Quot.mk (GlueRelA G G') y from h))
+
+theorem glueπB_eq_iff_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B} (h : glueπB G G' x = glueπB G G' y) :
+    x = y ∨ (IsGlueLabelB G G' x ∧ IsGlueLabelB G G' y) :=
+  eqvGen_glueRelB_eq_or_isGlueLabelB G G'
+    (Quot.eq.mp (show Quot.mk (GlueRelB G G') x = Quot.mk (GlueRelB G G') y from h))
+
 end Lax461425Proofs.PatternsLabelledGlue
