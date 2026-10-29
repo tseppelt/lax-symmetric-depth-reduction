@@ -8,6 +8,30 @@ $$
   P\,t\,\gamma = \Big(\prod_{ab \text{ represented at } t} x_{\gamma(a),\gamma(b)}^{F(a,b)}\Big)
     \cdot \prod_{c \text{ child of } t} Q\,c\,(\gamma|_{\beta(t)\cap\beta(c)}), \qquad
   Q\,c\,\delta = \sum_{\gamma' \supseteq \delta \text{ admissible on } \beta(c)} P\,c\,\gamma'.
+$$
+
+**Status.** `P`/`Q` are defined (by well-founded recursion on the distance from the node to a
+leaf, matching the circuit's wiring), and the gate-by-gate correctness statement
+`computesAt_R`/`computesAt_S` (`R t γ` computes `P t γ`, `S c δ` computes `Q c δ`) is proved in
+full (`computesAt_RS`), via the generic `val`/`prod_val_wire_R`/`sum_val_wire_S` machinery built
+from `prod_cgate`/`sum_cgate` (splitting a sum/product over all gates by constructor) and the
+regrouping identities `prod_pow_wireRtoInp`, `prod_pow_wireRtoS`, `sum_wireStoR`.
+
+**Not yet done**, left for a follow-up: relating `P N.root rootAdm` (equivalently
+`(circuit ...).Computes`) to `hom K F n`. This needs (1) an induction, root-to-leaf, identifying
+`P t γ` with a sum over admissible maps on the "subtree vertex set" `V_t = ⋃_{t' ⪰ t} β(t')`
+extending `γ`, of the product over edges represented at-or-below `t`; the inductive step is an
+independence/gluing bijection between admissible maps on `V_t` and tuples of admissible maps on
+each child's `V_c`, which needs `V_c ∩ V_{c'} ⊆ β(t)` for distinct children `c, c'` and
+`V_c ∩ β(t) = β(c) ∩ β(t)` (provable from `connected`/`represented_below`/`not_subset_parent`,
+akin to `ConverseGap.lean`'s gap-free lemma); and (2) specializing at the root, where
+`V_{root} = ⋃_t β(t)` is exactly the set of non-isolated vertices of `F` (via
+`represented_below`/`rep_mem`), so `P root rootAdm` is `hom K F n` divided by a factor `n ^ j`
+for `j` the number of isolated vertices — handling this factor exactly (so that
+`(circuit ...).Computes (hom K F n)` holds on the nose, as `CircuitsForPatterns.exists_circuit`
+needs) may require new constant/power gate constructors in `CGate` (`ConverseGates.lean`), or a
+way to avoid ever producing isolated vertices in the first place; see the session report for a
+fuller discussion of the two options.
 -/
 
 namespace Lax461425Proofs
