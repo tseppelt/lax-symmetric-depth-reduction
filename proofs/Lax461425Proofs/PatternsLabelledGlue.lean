@@ -551,4 +551,234 @@ theorem labelledHom_glue (n : ℕ) (K : Type*) [CommSemiring K]
     rw [Finset.sum_mul_sum]
   · rw [← hhomG, ← hhomG']
 
+/-! ### `InClassP` closed under `glue` (item 2's remaining support-cardinality step)
+
+Every quotient class of `GlueRelA`/`GlueRelB` is either a singleton (an un-identified vertex)
+or consists *entirely* of label vertices (from both sides, at possibly several positions that
+all happen to coincide): `GlueRelA`/`GlueRelB` only ever relate `a_i` (from `G`) to `a'_i` (from
+`G'`), never two non-label vertices. We formalize this via `IsGlueLabelA`/`IsGlueLabelB`
+("`x` is a copy of some label vertex") and the fact that it is invariant along
+`Relation.EqvGen (GlueRelA G G')`/`Relation.EqvGen (GlueRelB G G')` (the relation `Quot` actually
+quotients by), hence along `glueπA`/`glueπB`-fibers. -/
+
+/-- `x` is (a copy of) an `A`-side label vertex: equal to `G.a i` on the left, or to `G'.a i` on
+the right, for some label index `i`. -/
+def IsGlueLabelA (x : G.F.A ⊕ G'.F.A) : Prop :=
+  Sum.elim (fun x0 => ∃ i : Fin ℓ, G.a i = x0) (fun x0' => ∃ i : Fin ℓ, G'.a i = x0') x
+
+/-- The `B`-side analogue of `IsGlueLabelA`. -/
+def IsGlueLabelB (y : G.F.B ⊕ G'.F.B) : Prop :=
+  Sum.elim (fun y0 => ∃ j : Fin r, G.b j = y0) (fun y0' => ∃ j : Fin r, G'.b j = y0') y
+
+/-- `IsGlueLabelA` is invariant along the equivalence closure of `GlueRelA`: the generating
+relation only ever connects two label vertices (at the same position), so being a label vertex
+transfers across any chain of identifications. -/
+theorem eqvGen_glueRelA_isGlueLabelA_iff {x y : G.F.A ⊕ G'.F.A}
+    (h : Relation.EqvGen (GlueRelA G G') x y) :
+    IsGlueLabelA G G' x ↔ IsGlueLabelA G G' y := by
+  induction h with
+  | rel a b hab =>
+      obtain ⟨i, ha, hb⟩ := hab
+      subst ha; subst hb
+      exact ⟨fun _ => ⟨i, rfl⟩, fun _ => ⟨i, rfl⟩⟩
+  | refl a => rfl
+  | symm a b _ ih => exact ih.symm
+  | trans a b c _ _ ih1 ih2 => exact ih1.trans ih2
+
+/-- The `B`-side analogue of `eqvGen_glueRelA_isGlueLabelA_iff`. -/
+theorem eqvGen_glueRelB_isGlueLabelB_iff {x y : G.F.B ⊕ G'.F.B}
+    (h : Relation.EqvGen (GlueRelB G G') x y) :
+    IsGlueLabelB G G' x ↔ IsGlueLabelB G G' y := by
+  induction h with
+  | rel a b hab =>
+      obtain ⟨j, ha, hb⟩ := hab
+      subst ha; subst hb
+      exact ⟨fun _ => ⟨j, rfl⟩, fun _ => ⟨j, rfl⟩⟩
+  | refl a => rfl
+  | symm a b _ ih => exact ih.symm
+  | trans a b c _ _ ih1 ih2 => exact ih1.trans ih2
+
+/-- `IsGlueLabelA` transfers backwards along a `glueπA`-coincidence: if `x, y` land on the same
+glued vertex and `y` is (known to be) a label vertex, so is `x`. -/
+theorem IsGlueLabelA.of_glueπA_eq {x y : G.F.A ⊕ G'.F.A} (h : glueπA G G' x = glueπA G G' y)
+    (hy : IsGlueLabelA G G' y) : IsGlueLabelA G G' x :=
+  (eqvGen_glueRelA_isGlueLabelA_iff G G'
+    (Quot.eq.mp (show Quot.mk (GlueRelA G G') x = Quot.mk (GlueRelA G G') y from h))).mpr hy
+
+/-- The `B`-side analogue of `IsGlueLabelA.of_glueπA_eq`. -/
+theorem IsGlueLabelB.of_glueπB_eq {x y : G.F.B ⊕ G'.F.B} (h : glueπB G G' x = glueπB G G' y)
+    (hy : IsGlueLabelB G G' y) : IsGlueLabelB G G' x :=
+  (eqvGen_glueRelB_isGlueLabelB_iff G G'
+    (Quot.eq.mp (show Quot.mk (GlueRelB G G') x = Quot.mk (GlueRelB G G') y from h))).mpr hy
+
+/-- If the glued `A`-side vertex `qa` is non-isolated in `gluePattern G G'`, some original
+`A`-side vertex projecting to it (on the matching original side) is non-isolated in its own
+original pattern: the only way to create new incidences by gluing is to sum the multiplicities
+of the (possibly several) original vertices landing in the same quotient class, so at least one
+of them must already carry a nonzero multiplicity. -/
+theorem exists_not_isolated_source_inl {qa : GlueA G G'}
+    (h : ¬ isIsolated (gluePattern G G') (Sum.inl qa)) :
+    ∃ x : G.F.A ⊕ G'.F.A, glueπA G G' x = qa ∧
+      ((∃ x0, x = Sum.inl x0 ∧ ¬ isIsolated G.F (Sum.inl x0)) ∨
+       (∃ x0', x = Sum.inr x0' ∧ ¬ isIsolated G'.F (Sum.inl x0'))) := by
+  have h' : ¬ ∀ y : GlueB G G', (gluePattern G G').mult qa y = 0 := h
+  push_neg at h'
+  obtain ⟨qb, hqb⟩ := h'
+  have hne : glueMult' G G' qa qb ≠ 0 := hqb
+  have hex : ∃ p0 : {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) //
+      (glueπA G G' p.1, glueπB G G' p.2) = (qa, qb)}, glueMult0 G G' p0.1.1 p0.1.2 ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact hne (Finset.sum_eq_zero fun p0 _ => hcon p0)
+  obtain ⟨⟨⟨x, y⟩, hxy⟩, hne0⟩ := hex
+  have hqa : glueπA G G' x = qa := congrArg Prod.fst hxy
+  refine ⟨x, hqa, ?_⟩
+  rcases x with x0 | x0' <;> rcases y with y0 | y0'
+  · exact Or.inl ⟨x0, rfl, fun hiso => hne0 (hiso y0)⟩
+  · exact absurd rfl hne0
+  · exact absurd rfl hne0
+  · exact Or.inr ⟨x0', rfl, fun hiso => hne0 (hiso y0')⟩
+
+/-- The `B`-side analogue of `exists_not_isolated_source_inl`. -/
+theorem exists_not_isolated_source_inr {qb : GlueB G G'}
+    (h : ¬ isIsolated (gluePattern G G') (Sum.inr qb)) :
+    ∃ y : G.F.B ⊕ G'.F.B, glueπB G G' y = qb ∧
+      ((∃ y0, y = Sum.inl y0 ∧ ¬ isIsolated G.F (Sum.inr y0)) ∨
+       (∃ y0', y = Sum.inr y0' ∧ ¬ isIsolated G'.F (Sum.inr y0'))) := by
+  have h' : ¬ ∀ x : GlueA G G', (gluePattern G G').mult x qb = 0 := h
+  push_neg at h'
+  obtain ⟨qa, hqa⟩ := h'
+  have hne : glueMult' G G' qa qb ≠ 0 := hqa
+  have hex : ∃ p0 : {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) //
+      (glueπA G G' p.1, glueπB G G' p.2) = (qa, qb)}, glueMult0 G G' p0.1.1 p0.1.2 ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact hne (Finset.sum_eq_zero fun p0 _ => hcon p0)
+  obtain ⟨⟨⟨x, y⟩, hxy⟩, hne0⟩ := hex
+  have hqb : glueπB G G' y = qb := congrArg Prod.snd hxy
+  refine ⟨y, hqb, ?_⟩
+  rcases x with x0 | x0' <;> rcases y with y0 | y0'
+  · exact Or.inl ⟨y0, rfl, fun hiso => hne0 (hiso x0)⟩
+  · exact absurd rfl hne0
+  · exact absurd rfl hne0
+  · exact Or.inr ⟨y0', rfl, fun hiso => hne0 (hiso x0')⟩
+
+variable {Δ k : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
+
+/-- If `x0` is a non-isolated `A`-side vertex of `G` that is labelled (`G.a i0 = x0`) and `hGP`
+witnesses `G ∈ 𝒯^{Δ,k}_P(ℓ,r)`, then the glued vertex it projects to (`qa`, via `glueπA`) is a
+label vertex of `glue G G'` at a position in `P`. -/
+theorem mem_image_of_label (hGP : InClassP Δ k P G) {x0 : G.F.A}
+    (hniso0 : ¬ isIsolated G.F (Sum.inl x0)) (i0 : Fin ℓ) (hi0 : G.a i0 = x0)
+    {qa : GlueA G G'} (hqa : glueπA G G' (Sum.inl x0) = qa) :
+    Sum.inl qa ∈ Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r)) := by
+  have hmemG : Sum.inl x0 ∈ G.labelSupport :=
+    Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i0, Finset.mem_univ _, by
+      show Sum.inl (G.a i0) = Sum.inl x0; rw [hi0]⟩, not_isIsolated_iff_notMem.mp hniso0⟩
+  obtain ⟨p0, -, hp0⟩ := Finset.mem_image.mp (hGP.2 hmemG)
+  rcases p0 with ⟨i1 | j1, hpP⟩
+  · have hx0 : G.a i1 = x0 := Sum.inl_injective hp0
+    refine Finset.mem_image.mpr ⟨⟨Sum.inl i1, hpP⟩, Finset.mem_univ _, ?_⟩
+    show Sum.inl (glueπA G G' (Sum.inl (G.a i1))) = Sum.inl qa
+    rw [hx0, hqa]
+  · simp [LabelledPattern.labelVertex] at hp0
+
+/-- The `G'`-sided analogue of `mem_image_of_label`, going through `glueπA (Sum.inr x0')`. -/
+theorem mem_image_of_label' (hGP' : InClassP Δ k P G') {x0' : G'.F.A}
+    (hniso0 : ¬ isIsolated G'.F (Sum.inl x0')) (i0 : Fin ℓ) (hi0 : G'.a i0 = x0')
+    {qa : GlueA G G'} (hqa : glueπA G G' (Sum.inr x0') = qa) :
+    Sum.inl qa ∈ Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r)) := by
+  have hmemG' : Sum.inl x0' ∈ G'.labelSupport :=
+    Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i0, Finset.mem_univ _, by
+      show Sum.inl (G'.a i0) = Sum.inl x0'; rw [hi0]⟩, not_isIsolated_iff_notMem.mp hniso0⟩
+  obtain ⟨p0, -, hp0⟩ := Finset.mem_image.mp (hGP'.2 hmemG')
+  rcases p0 with ⟨i1 | j1, hpP⟩
+  · have hx0' : G'.a i1 = x0' := Sum.inl_injective hp0
+    refine Finset.mem_image.mpr ⟨⟨Sum.inl i1, hpP⟩, Finset.mem_univ _, ?_⟩
+    show Sum.inl (glueπA G G' (Sum.inl (G.a i1))) = Sum.inl qa
+    rw [glueπA_sound G G' i1, hx0', hqa]
+  · simp [LabelledPattern.labelVertex] at hp0
+
+/-- The `B`-side analogue of `mem_image_of_label`. -/
+theorem mem_image_of_labelB (hGP : InClassP Δ k P G) {y0 : G.F.B}
+    (hniso0 : ¬ isIsolated G.F (Sum.inr y0)) (j0 : Fin r) (hj0 : G.b j0 = y0)
+    {qb : GlueB G G'} (hqb : glueπB G G' (Sum.inl y0) = qb) :
+    Sum.inr qb ∈ Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r)) := by
+  have hmemG : Sum.inr y0 ∈ G.labelSupport :=
+    Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j0, Finset.mem_univ _, by
+      show Sum.inr (G.b j0) = Sum.inr y0; rw [hj0]⟩, not_isIsolated_iff_notMem.mp hniso0⟩
+  obtain ⟨p0, -, hp0⟩ := Finset.mem_image.mp (hGP.2 hmemG)
+  rcases p0 with ⟨i1 | j1, hpP⟩
+  · simp [LabelledPattern.labelVertex] at hp0
+  · have hy0 : G.b j1 = y0 := Sum.inr_injective hp0
+    refine Finset.mem_image.mpr ⟨⟨Sum.inr j1, hpP⟩, Finset.mem_univ _, ?_⟩
+    show Sum.inr (glueπB G G' (Sum.inl (G.b j1))) = Sum.inr qb
+    rw [hy0, hqb]
+
+/-- The `G'`-sided analogue of `mem_image_of_labelB`. -/
+theorem mem_image_of_labelB' (hGP' : InClassP Δ k P G') {y0' : G'.F.B}
+    (hniso0 : ¬ isIsolated G'.F (Sum.inr y0')) (j0 : Fin r) (hj0 : G'.b j0 = y0')
+    {qb : GlueB G G'} (hqb : glueπB G G' (Sum.inr y0') = qb) :
+    Sum.inr qb ∈ Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r)) := by
+  have hmemG' : Sum.inr y0' ∈ G'.labelSupport :=
+    Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j0, Finset.mem_univ _, by
+      show Sum.inr (G'.b j0) = Sum.inr y0'; rw [hj0]⟩, not_isIsolated_iff_notMem.mp hniso0⟩
+  obtain ⟨p0, -, hp0⟩ := Finset.mem_image.mp (hGP'.2 hmemG')
+  rcases p0 with ⟨i1 | j1, hpP⟩
+  · simp [LabelledPattern.labelVertex] at hp0
+  · have hy0' : G'.b j1 = y0' := Sum.inr_injective hp0
+    refine Finset.mem_image.mpr ⟨⟨Sum.inr j1, hpP⟩, Finset.mem_univ _, ?_⟩
+    show Sum.inr (glueπB G G' (Sum.inl (G.b j1))) = Sum.inr qb
+    rw [glueπB_sound G G' j1, hy0', hqb]
+
+/-- **Item 2's support bound**: `(glue G G').labelSupport` is covered by the image, under
+`(glue G G').labelVertex`, of `P` alone (never needing a position outside `P`), given that `G`
+and `G'` both already enjoy this for the same `P`. -/
+theorem labelSupport_glue_subset (hG : InClassP Δ k P G) (hG' : InClassP Δ k P G') :
+    (glue G G').labelSupport ⊆
+      Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r)) := by
+  intro v hv
+  obtain ⟨hv1, hv2⟩ := Finset.mem_sdiff.mp hv
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp hv1
+  have hniso : ¬ isIsolated (gluePattern G G') v := not_isIsolated_iff_notMem.mpr hv2
+  rcases p with i | j
+  · have hv_eq : v = Sum.inl (glueπA G G' (Sum.inl (G.a i))) := hp.symm
+    subst hv_eq
+    obtain ⟨x, hx_qa, hcase⟩ := exists_not_isolated_source_inl G G' hniso
+    rcases hcase with ⟨x0, hx_eq, hniso0⟩ | ⟨x0', hx_eq, hniso0⟩
+    · subst hx_eq
+      have hlabel : IsGlueLabelA G G' (Sum.inl x0) :=
+        IsGlueLabelA.of_glueπA_eq G G' hx_qa ⟨i, rfl⟩
+      obtain ⟨i0, hi0⟩ := hlabel
+      exact mem_image_of_label G G' hG hniso0 i0 hi0 hx_qa
+    · subst hx_eq
+      have hlabel : IsGlueLabelA G G' (Sum.inr x0') :=
+        IsGlueLabelA.of_glueπA_eq G G' hx_qa ⟨i, rfl⟩
+      obtain ⟨i0, hi0⟩ := hlabel
+      exact mem_image_of_label' G G' hG' hniso0 i0 hi0 hx_qa
+  · have hv_eq : v = Sum.inr (glueπB G G' (Sum.inl (G.b j))) := hp.symm
+    subst hv_eq
+    obtain ⟨y, hy_qb, hcase⟩ := exists_not_isolated_source_inr G G' hniso
+    rcases hcase with ⟨y0, hy_eq, hniso0⟩ | ⟨y0', hy_eq, hniso0⟩
+    · subst hy_eq
+      have hlabel : IsGlueLabelB G G' (Sum.inl y0) :=
+        IsGlueLabelB.of_glueπB_eq G G' hy_qb ⟨j, rfl⟩
+      obtain ⟨j0, hj0⟩ := hlabel
+      exact mem_image_of_labelB G G' hG hniso0 j0 hj0 hy_qb
+    · subst hy_eq
+      have hlabel : IsGlueLabelB G G' (Sum.inr y0') :=
+        IsGlueLabelB.of_glueπB_eq G G' hy_qb ⟨j, rfl⟩
+      obtain ⟨j0, hj0⟩ := hlabel
+      exact mem_image_of_labelB' G G' hG' hniso0 j0 hj0 hy_qb
+
+/-- **Item 2's card bound** (`InClassP.card_labelSupport_le` specialized to `glue G G'`, via
+`labelSupport_glue_subset`): `|L⁺(glue G G')| ≤ |P|`. -/
+theorem card_labelSupport_glue_le (hG : InClassP Δ k P G) (hG' : InClassP Δ k P G') :
+    (glue G G').labelSupport.card ≤ P.card :=
+  calc (glue G G').labelSupport.card
+      ≤ (Finset.univ.image (fun p : P => (glue G G').labelVertex (p : Fin ℓ ⊕ Fin r))).card :=
+        Finset.card_le_card (labelSupport_glue_subset G G' hG hG')
+    _ ≤ (Finset.univ : Finset P).card := Finset.card_image_le
+    _ = P.card := by rw [Finset.card_univ, Fintype.card_coe]
+
 end Lax461425Proofs.PatternsLabelledGlue
