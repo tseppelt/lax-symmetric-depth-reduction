@@ -109,6 +109,19 @@ theorem toC'_self (p : (reduced C).Gate) : toC' C p.1 = p := by
   show rep C p.1 = p.1
   exact isLive_rep_self C p.2
 
+/-- If `g` is equivalent to the representative `b.1` of a reduced gate `b`, then `g` itself
+maps to `b`. This is the fact to reach for whenever a wire of `reduced C` (whose multiplicity
+is an aggregate `W C a.1 b.1 = ∑ h, if Equiv C h b.1 then C.wire a.1 h else 0` over `b.1`'s whole
+equivalence class) is known to be positive via *some specific* `C`-gate `h` with
+`0 < C.wire a.1 h`: one need not identify `b.1` itself, or any other member of its class — `h`
+alone already determines `b` via this lemma, so any fact already established uniformly for
+`toC' C g` (for every `g`, by its own structure) transfers to `b` through `h` directly. -/
+theorem toC'_eq_of_equiv {g : C.Gate} {b : (reduced C).Gate} (h : Equiv C g b.1) :
+    toC' C g = b := by
+  have hreq : rep C g = rep C b.1 := rep_eq_of_equiv C h
+  rw [show toC' C g = ⟨rep C g, isLive_rep C g⟩ from rfl, ← toC'_self C b]
+  exact Subtype.ext hreq
+
 /-- Aggregated weight into a gate only depends on the gate's equivalence class. -/
 theorem W_eq_rep_right (a b : C.Gate) : W C a b = W C a (rep C b) := by
   unfold W
