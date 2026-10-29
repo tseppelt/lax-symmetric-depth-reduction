@@ -1527,4 +1527,33 @@ theorem glueConnected (v : GlueA G G' ⊕ GlueB G G') (t1 t2 : GlueNode G G' D D
         · exact hd2r (by rw [← hw0eq]; exact glueBag_mem_of_mem_bag_parent' G G' D D' hw0niso hw0nl hmem)
     exact congrArg Sum.inr (Subtype.ext (D'.connected w0 t10' t20' hw0bag hd1' hw0bag' hd2'))
 
+/-! ### Assembling `inClassP_glue` -/
+
+/-- The merged root-exact decomposition of `glue G G'`, built from root-exact decompositions
+`D` of `G` and `D'` of `G'` by identifying their roots. -/
+noncomputable def glueDecomposition {Δ k : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)} (hP : P.card ≤ k)
+    (D : RootExactDecomposition G Δ k) (D' : RootExactDecomposition G' Δ k)
+    (hG : InClassP Δ k P G) (hG' : InClassP Δ k P G') :
+    RootExactDecomposition (glue G G') Δ k where
+  Node := GlueNode G G' D D'
+  root := glueRoot G G' D D'
+  parent := glueParent G G' D D'
+  parent_root := glueParent_root G G' D D'
+  depth_le := glueDepth_le G G' D D'
+  bag := glueBag G G' D D'
+  bag_root := glueBag_root G G' D D'
+  card_bag_le := glueCard_bag_le G G' D D' hP hG hG'
+  exists_mem_bag := glueExists_mem_bag G G' D D'
+  exists_edge_mem_bag := glueExists_edge_mem_bag G G' D D'
+  connected := glueConnected G G' D D'
+
+/-- **Item 2 of `lem:labelled-ops`**: `𝒯^{Δ,k}_P(ℓ,r)` is closed under `glue`. Combined with
+`labelledHom_glue`, this is what lets `span𝔗P` absorb the product of two generators (see
+`span𝔗P_mul_mem`). -/
+theorem inClassP_glue {Δ k : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)} (hP : P.card ≤ k)
+    (hG : InClassP Δ k P G) (hG' : InClassP Δ k P G') : InClassP Δ k P (glue G G') := by
+  obtain ⟨D⟩ := hG.1
+  obtain ⟨D'⟩ := hG'.1
+  exact ⟨⟨glueDecomposition G G' hP D D' hG hG'⟩, labelSupport_glue_subset G G' hG hG'⟩
+
 end Lax461425Proofs.PatternsLabelledGlue
