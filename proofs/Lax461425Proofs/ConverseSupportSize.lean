@@ -1,4 +1,5 @@
 import Lax461425Proofs.ConverseSymmetry
+import Lax461425Proofs.ConverseOrbitSupport
 import Lax461425Proofs.ReducedRigid
 import Lax461425Proofs.RigidReduced
 import Lax461425Proofs.RigidSymmetric
@@ -195,6 +196,20 @@ theorem supportSize_reduced_le' (hk2 : 2 ≤ k) :
   have hrig : IsRigid (reduced (circuit N n K hn0 hE)) :=
     Lax461425Proofs.ReducedRigid.isRigid hsym hred
   exact supportSize_reduced_le N n hn0 hE hk2 hrig
+
+/-- **Orbit size bound.** Combining `supportSize_reduced_le'` with the general
+support-size-to-orbit-size bound of `ConverseOrbitSupport.lean`: `orbitSize (reduced C₀) ≤ n ^ k`,
+given `k ≥ 2`. -/
+theorem orbitSize_reduced_le (hk2 : 2 ≤ k) :
+    orbitSize (reduced (circuit N n K hn0 hE)) ≤ n ^ k := by
+  have hsym₀ : IsMatrixSymmetric (circuit N n K hn0 hE) := isMatrixSymmetric_circuit N n hn0 hE
+  have hred : (reduced (circuit N n K hn0 hE)).IsReduced :=
+    Lax461425Proofs.RigidReduced.isReduced_reduced (circuit N n K hn0 hE)
+  have hsym : IsMatrixSymmetric (reduced (circuit N n K hn0 hE)) :=
+    isMatrixSymmetric_reduced (circuit N n K hn0 hE) hsym₀
+  have hrig : IsRigid (reduced (circuit N n K hn0 hE)) :=
+    Lax461425Proofs.ReducedRigid.isRigid hsym hred
+  exact orbitSize_le_pow_of_supportSize_le hrig hn0 (supportSize_reduced_le N n hn0 hE hk2 hrig)
 
 end SupportToC'
 
