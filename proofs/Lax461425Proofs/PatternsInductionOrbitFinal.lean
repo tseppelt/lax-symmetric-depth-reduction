@@ -195,4 +195,47 @@ theorem sum_parts_eq_sum_Ofinset
     exact (qfun_eq_of_mem hrig hn φh hφh_mem hφh_eval
       (exists_rep_of_mem_Qpart hrig hn hB).choose_spec.1).symm
 
+omit [CharZero K] in
+/-- The multiplicative analogue of `sum_parts_eq_sum_Ofinset`. -/
+theorem prod_parts_eq_prod_Ofinset
+    (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
+      (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
+    (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
+    (φB : Finset (Pairs hrig hn (g := g) (h := h)) → MvPolynomial (Fin n × Fin n) K)
+    (hφB : ∀ B (hB : B ∈ (Qpart hrig hn (g := g) (h := h)).parts),
+      φB B = ψh hrig hn φh
+        (Fin.append (leftEnum hrig hn g) (exists_rep_of_mem_Qpart hrig hn hB).choose.1)
+        (Fin.append (rightEnum hrig hn g) (exists_rep_of_mem_Qpart hrig hn hB).choose.2)) :
+    ∏ B ∈ (Qpart hrig hn (g := g) (h := h)).parts, φB B =
+      ∏ h' ∈ Ofinset hrig hn (g := g) (h := h), qfun hrig hn (g := g) φh h' := by
+  refine Finset.prod_bij'
+    (i := fun B hB => hYtot hrig hn (exists_rep_of_mem_Qpart hrig hn hB).choose.1
+      (exists_rep_of_mem_Qpart hrig hn hB).choose.2)
+    (j := fun h' _hh' => partOf hrig hn h')
+    (fun B hB => hYtot_rep_mem_Ofinset hrig hn hB)
+    (fun h' hh' => partOf_mem_parts hrig hn hh')
+    ?_ ?_ ?_
+  · intro B hB
+    generalize hdef : (exists_rep_of_mem_Qpart hrig hn hB).choose = rep1
+    have hspec := (exists_rep_of_mem_Qpart hrig hn hB).choose_spec
+    rw [hdef] at hspec
+    apply Finset.ext
+    intro y
+    constructor
+    · intro hy
+      rw [mem_partOf_iff hrig hn] at hy
+      rw [hspec.2]
+      exact Finset.mem_filter.mpr ⟨hy.1, hy.2⟩
+    · intro hy
+      rw [hspec.2] at hy
+      obtain ⟨hyY, hyeq⟩ := Finset.mem_filter.mp hy
+      rw [mem_partOf_iff hrig hn]
+      exact ⟨hyY, hyeq⟩
+  · intro h' hh'
+    exact hYtot_rep_eq_of_partOf hrig hn hh'
+  · intro B hB
+    rw [hφB B hB]
+    exact (qfun_eq_of_mem hrig hn φh hφh_mem hφh_eval
+      (exists_rep_of_mem_Qpart hrig hn hB).choose_spec.1).symm
+
 end Lax461425Proofs.PatternsInductionOrbitFinal
