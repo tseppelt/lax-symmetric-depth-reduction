@@ -198,6 +198,119 @@ theorem sum_wireStoR_le (c : NonRoot N) (t : N.Node) (γ : Adm F n (N.bag t)) :
     unfold wireStoR
     rw [dif_neg h]
 
+/-- The number of children of `t` among the non-root nodes. -/
+noncomputable def numChildren (t : N.Node) : ℕ :=
+  ∑ c : NonRoot N, if N.parent c.1 = t then 1 else 0
+
+theorem sum_numChildren_eq : ∑ t : N.Node, numChildren N t = Fintype.card (NonRoot N) := by
+  unfold numChildren
+  rw [Finset.sum_comm]
+  simp
+
+/-- The total multiplicity of wires out of a single `R`-gate is at most the number of children
+of its node plus the total edge multiplicity represented there. -/
+theorem wireOut_R_le (t : N.Node) (γ : Adm F n (N.bag t)) :
+    ∑ h : CGate N n, wire N n (CGate.R t γ) h
+      ≤ numChildren N t + ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2 := by
+  rw [sum_CGate_eq N n (wire N n (CGate.R t γ))]
+  have h1 : ∑ t' : N.Node, ∑ γ' : Adm F n (N.bag t'),
+      wire N n (CGate.R t γ) (CGate.R t' γ') = 0 := by
+    refine Finset.sum_eq_zero (fun t' _ => Finset.sum_eq_zero (fun γ' _ => ?_))
+    simp [wire]
+  have h2 : ∑ c : NonRoot N, ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+      wire N n (CGate.R t γ) (CGate.S c δ) ≤ numChildren N t := by
+    unfold numChildren
+    exact Finset.sum_le_sum (fun c _ => sum_wireRtoS_le N n t γ c)
+  have h3 : ∑ i : Fin n, ∑ j : Fin n, wire N n (CGate.R t γ) (CGate.inp i j)
+      = ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2 :=
+    sum_wireRtoInp_eq N n t γ
+  omega
+
+/-- Every input gate has no outgoing wires. -/
+theorem sum_wireOut_inp_eq :
+    ∑ i : Fin n, ∑ j : Fin n, ∑ h : CGate N n, wire N n (CGate.inp i j) h = 0 := by
+  refine Finset.sum_eq_zero (fun i _ => Finset.sum_eq_zero (fun j _ => ?_))
+  refine Finset.sum_eq_zero (fun h _ => ?_)
+  exact wire_eq_zero_of_isInput_aux N n (K := ℕ) (CGate.inp i j) h
+    (by simp [CGate.label, GateLabel.IsInput])
+
+/-- The total multiplicity of wires out of all `R`-gates is at most
+`n ^ k * (|non-root nodes| + total edge multiplicity)`. -/
+theorem sum_wireOut_R_le (hn0 : 0 < n) :
+    ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), ∑ h : CGate N n, wire N n (CGate.R t γ) h
+      ≤ n ^ k * (Fintype.card (NonRoot N) + ∑ a : F.A, ∑ b : F.B, F.mult a b) := by
+  calc ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), ∑ h : CGate N n, wire N n (CGate.R t γ) h
+      ≤ ∑ t : N.Node, ∑ _γ : Adm F n (N.bag t),
+          (numChildren N t + ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2) :=
+        Finset.sum_le_sum (fun t _ => Finset.sum_le_sum (fun γ _ => wireOut_R_le N n t γ))
+    _ = ∑ t : N.Node, Fintype.card (Adm F n (N.bag t)) *
+          (numChildren N t + ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2) :=
+        Finset.sum_congr rfl
+          (fun t _ => by rw [Finset.sum_const, smul_eq_mul, Finset.card_univ])
+    _ ≤ ∑ t : N.Node, n ^ k * (numChildren N t + ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2) :=
+        Finset.sum_le_sum
+          (fun t _ => Nat.mul_le_mul_right _ (card_Adm_le n (N.card_bag_le t) hn0))
+    _ = n ^ k * ∑ t : N.Node, (numChildren N t + ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2) := by
+        rw [Finset.mul_sum]
+    _ = n ^ k *
+          (∑ t : N.Node, numChildren N t + ∑ t : N.Node, ∑ ab ∈ edgesAt N t, F.mult ab.1 ab.2) := by
+        rw [Finset.sum_add_distrib]
+    _ = n ^ k * (Fintype.card (NonRoot N) + ∑ a : F.A, ∑ b : F.B, F.mult a b) := by
+        rw [sum_numChildren_eq, sum_edgesAt_eq]
+
+/-- The total multiplicity of wires out of all `S`-gates is at most `n ^ k` times the number of
+non-root nodes. -/
+theorem sum_wireOut_S_le (hn0 : 0 < n) :
+    ∑ c : NonRoot N, ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+      ∑ h : CGate N n, wire N n (CGate.S c δ) h
+      ≤ Fintype.card (NonRoot N) * n ^ k := by
+  have step1 : ∀ (c : NonRoot N) (δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1)),
+      ∑ h : CGate N n, wire N n (CGate.S c δ) h
+        = ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ := by
+    intro c δ
+    rw [sum_CGate_eq N n (wire N n (CGate.S c δ))]
+    have h2 : ∑ c' : NonRoot N, ∑ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1),
+        wire N n (CGate.S c δ) (CGate.S c' δ') = 0 := by
+      refine Finset.sum_eq_zero (fun c' _ => Finset.sum_eq_zero (fun δ' _ => ?_))
+      simp [wire]
+    have h3 : ∑ i : Fin n, ∑ j : Fin n, wire N n (CGate.S c δ) (CGate.inp i j) = 0 := by
+      refine Finset.sum_eq_zero (fun i _ => Finset.sum_eq_zero (fun j _ => ?_))
+      simp [wire]
+    have h1 : ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), wire N n (CGate.S c δ) (CGate.R t γ)
+        = ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ := rfl
+    omega
+  simp_rw [step1]
+  calc ∑ c : NonRoot N, ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+        ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ
+      ≤ ∑ _c : NonRoot N, n ^ k := by
+        refine Finset.sum_le_sum (fun c _ => ?_)
+        have swap1 : (∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1), ∑ t : N.Node,
+            ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ)
+            = ∑ t : N.Node, ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+                ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ :=
+          Finset.sum_comm
+        have swap2 : ∀ t : N.Node, (∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+            ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ)
+            = ∑ γ : Adm F n (N.bag t), ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1),
+                wireStoR N n c δ t γ := fun t => Finset.sum_comm
+        rw [show (∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1), ∑ t : N.Node,
+            ∑ γ : Adm F n (N.bag t), wireStoR N n c δ t γ)
+            = ∑ t : N.Node, ∑ γ : Adm F n (N.bag t),
+                ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1), wireStoR N n c δ t γ from
+          swap1.trans (Finset.sum_congr rfl (fun t _ => swap2 t))]
+        calc ∑ t : N.Node, ∑ γ : Adm F n (N.bag t),
+              ∑ δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1), wireStoR N n c δ t γ
+            ≤ ∑ t : N.Node, ∑ γ : Adm F n (N.bag t), (if c.1 = t then 1 else 0) :=
+              Finset.sum_le_sum
+                (fun t _ => Finset.sum_le_sum (fun γ _ => sum_wireStoR_le N n c t γ))
+          _ = ∑ t : N.Node, (if c.1 = t then Fintype.card (Adm F n (N.bag t)) else 0) :=
+              Finset.sum_congr rfl (fun t _ => by by_cases h : c.1 = t <;> simp [h])
+          _ = Fintype.card (Adm F n (N.bag c.1)) := by
+              rw [Finset.sum_ite_eq Finset.univ c.1 (fun t => Fintype.card (Adm F n (N.bag t)))]
+              simp
+          _ ≤ n ^ k := card_Adm_le n (N.card_bag_le c.1) hn0
+    _ = Fintype.card (NonRoot N) * n ^ k := by rw [Finset.sum_const, smul_eq_mul, Finset.card_univ]
+
 end SizeBound
 
 end Lax461425Proofs
