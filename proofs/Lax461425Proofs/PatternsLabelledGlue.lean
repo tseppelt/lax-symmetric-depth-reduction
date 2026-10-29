@@ -1180,4 +1180,351 @@ theorem glueExists_edge_mem_bag (x : GlueA G G') (y : GlueB G G') (hxy : glueMul
         exact Finset.mem_image.mpr ⟨Sum.inr y0', Finset.mem_sdiff.mpr ⟨ht0y',
           not_isIsolated_iff_notMem.mp (fun hiso => hmul (hiso x0'))⟩, rfl⟩
 
+/-! ### `connected` for the merged tree
+
+The crux: a label vertex can only ever be a "genuine entry" (in the sense of `connected`) at the
+merged root, since its own original root bag already equals the *whole* label support, and
+`RootExactDecomposition.mem_bag_parent_of_mem_bag_root` then forces it to propagate towards the
+root wherever it appears. A *non*-label vertex, on the other hand, never crosses sides (its
+`GlueRelA`/`GlueRelB`-class is a singleton, by `eq_of_glueπA_eq_of_not_isGlueLabelA` below), so
+its entry status transfers faithfully from `D`'s (or `D'`'s) own `connected`. -/
+
+theorem eq_of_glueπA_eq_of_not_isGlueLabelA {x y : G.F.A ⊕ G'.F.A}
+    (heq : glueπA G G' x = glueπA G G' y) (hx : ¬ IsGlueLabelA G G' x) : x = y := by
+  rcases glueπA_eq_iff_eq_or_isGlueLabelA G G' heq with h | ⟨hl, -⟩
+  · exact h
+  · exact absurd hl hx
+
+theorem eq_of_glueπB_eq_of_not_isGlueLabelB {x y : G.F.B ⊕ G'.F.B}
+    (heq : glueπB G G' x = glueπB G G' y) (hx : ¬ IsGlueLabelB G G' x) : x = y := by
+  rcases glueπB_eq_iff_eq_or_isGlueLabelB G G' heq with h | ⟨hl, -⟩
+  · exact h
+  · exact absurd hl hx
+
+theorem notMem_labelSupport_glue_inl_of_not_isGlueLabelA {x : G.F.A ⊕ G'.F.A}
+    (hx : ¬ IsGlueLabelA G G' x) : Sum.inl (glueπA G G' x) ∉ (glue G G').labelSupport := by
+  intro hmem
+  obtain ⟨hmem1, -⟩ := Finset.mem_sdiff.mp hmem
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp hmem1
+  rcases p with i | j
+  · have heq0 : glueπA G G' (Sum.inl (G.a i)) = glueπA G G' x := Sum.inl_injective hp
+    have heq : x = Sum.inl (G.a i) := eq_of_glueπA_eq_of_not_isGlueLabelA G G' heq0.symm hx
+    exact hx (by rw [heq]; exact ⟨i, rfl⟩)
+  · simp [LabelledPattern.labelVertex] at hp
+
+theorem notMem_labelSupport_glue_inr_of_not_isGlueLabelB {x : G.F.B ⊕ G'.F.B}
+    (hx : ¬ IsGlueLabelB G G' x) : Sum.inr (glueπB G G' x) ∉ (glue G G').labelSupport := by
+  intro hmem
+  obtain ⟨hmem1, -⟩ := Finset.mem_sdiff.mp hmem
+  obtain ⟨p, -, hp⟩ := Finset.mem_image.mp hmem1
+  rcases p with i | j
+  · simp [LabelledPattern.labelVertex] at hp
+  · have heq0 : glueπB G G' (Sum.inl (G.b j)) = glueπB G G' x := Sum.inr_injective hp
+    have heq : x = Sum.inl (G.b j) := eq_of_glueπB_eq_of_not_isGlueLabelB G G' heq0.symm hx
+    exact hx (by rw [heq]; exact ⟨j, rfl⟩)
+
+theorem notMem_labelSupport_glue_of_notMem_left {w0 : G.F.A ⊕ G.F.B}
+    (hniso : ¬ isIsolated G.F w0) (hnl : w0 ∉ G.labelSupport) :
+    embG G G' w0 ∉ (glue G G').labelSupport := by
+  cases w0 with
+  | inl x0 =>
+      apply notMem_labelSupport_glue_inl_of_not_isGlueLabelA G G' (x := Sum.inl x0)
+      intro ⟨i, hi⟩
+      exact hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i, Finset.mem_univ _, by
+        show Sum.inl (G.a i) = Sum.inl x0; rw [hi]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+  | inr y0 =>
+      apply notMem_labelSupport_glue_inr_of_not_isGlueLabelB G G' (x := Sum.inl y0)
+      intro ⟨j, hj⟩
+      exact hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j, Finset.mem_univ _, by
+        show Sum.inr (G.b j) = Sum.inr y0; rw [hj]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+
+theorem notMem_labelSupport_glue_of_notMem_right {w0' : G'.F.A ⊕ G'.F.B}
+    (hniso : ¬ isIsolated G'.F w0') (hnl : w0' ∉ G'.labelSupport) :
+    embG' G G' w0' ∉ (glue G G').labelSupport := by
+  cases w0' with
+  | inl x0' =>
+      apply notMem_labelSupport_glue_inl_of_not_isGlueLabelA G G' (x := Sum.inr x0')
+      intro ⟨i, hi⟩
+      exact hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i, Finset.mem_univ _, by
+        show Sum.inl (G'.a i) = Sum.inl x0'; rw [hi]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+  | inr y0' =>
+      apply notMem_labelSupport_glue_inr_of_not_isGlueLabelB G G' (x := Sum.inr y0')
+      intro ⟨j, hj⟩
+      exact hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j, Finset.mem_univ _, by
+        show Sum.inr (G'.b j) = Sum.inr y0'; rw [hj]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+
+theorem glueBag_propagate_inl {t0 : D.Node} {w0 : G.F.A ⊕ G.F.B} (hw0 : w0 ∈ G.labelSupport)
+    (ht0 : w0 ∈ D.bag t0) (hroot : t0 ≠ D.root) :
+    embG G G' w0 ∈ glueBag G G' D D' (glueParent G G' D D' (Sum.inl t0)) := by
+  rw [glueParent_inl]
+  rcases RootExactDecomposition.mem_bag_parent_of_mem_bag_root G D
+      (by rw [D.bag_root]; exact hw0) ht0 with h | h
+  · exact absurd h hroot
+  · by_cases hr : D.parent t0 = D.root
+    · rw [hr, glueBag_inl_root]
+      exact embG_mem_labelSupport_of_mem G G' hw0
+    · rw [glueBag_inl_of_ne G G' D D' hr]
+      have hniso : w0 ∉ isolatedSet G.F := (Finset.mem_sdiff.mp hw0).2
+      exact Finset.mem_image.mpr ⟨w0, Finset.mem_sdiff.mpr ⟨h, hniso⟩, rfl⟩
+
+theorem glueBag_propagate_inr {t0' : D'.Node} {h0 : t0' ≠ D'.root} {w0' : G'.F.A ⊕ G'.F.B}
+    (hw0' : w0' ∈ G'.labelSupport) (ht0' : w0' ∈ D'.bag t0') :
+    embG' G G' w0' ∈ glueBag G G' D D' (glueParent G G' D D' (Sum.inr ⟨t0', h0⟩)) := by
+  rcases RootExactDecomposition.mem_bag_parent_of_mem_bag_root G' D'
+      (by rw [D'.bag_root]; exact hw0') ht0' with h | h
+  · exact absurd h h0
+  · by_cases hr : D'.parent t0' = D'.root
+    · rw [glueParent_inr_root G G' D D' h0 hr, glueBag_root]
+      exact embG'_mem_labelSupport_of_mem G G' hw0'
+    · rw [glueParent_inr_of_ne G G' D D' h0 hr, glueBag_inr G G' D D' hr]
+      have hniso : w0' ∉ isolatedSet G'.F := (Finset.mem_sdiff.mp hw0').2
+      exact Finset.mem_image.mpr ⟨w0', Finset.mem_sdiff.mpr ⟨h, hniso⟩, rfl⟩
+
+/-- A non-isolated, non-label vertex present in a bag is present (via `embG`) in the
+corresponding merged bag of the *parent* node, regardless of whether that parent is the merged
+root: if it were, the vertex would (since the root bag is exactly `G.labelSupport`) have to be a
+label vertex, contradiction. This is the analogue of `glueBag_propagate_inl` for non-label
+vertices: it does not need `RootExactDecomposition.mem_bag_parent_of_mem_bag_root` (that fact is
+specific to label vertices), only the vertex's own non-isolation. -/
+theorem glueBag_mem_of_mem_bag_parent {t0 : D.Node} {w0 : G.F.A ⊕ G.F.B}
+    (hniso : ¬ isIsolated G.F w0) (hnl : w0 ∉ G.labelSupport) (hmem : w0 ∈ D.bag (D.parent t0)) :
+    embG G G' w0 ∈ glueBag G G' D D' (glueParent G G' D D' (Sum.inl t0)) := by
+  rw [glueParent_inl]
+  by_cases hr : D.parent t0 = D.root
+  · exact absurd (by rw [← D.bag_root, ← hr]; exact hmem) hnl
+  · rw [glueBag_inl_of_ne G G' D D' hr]
+    exact Finset.mem_image.mpr ⟨w0, Finset.mem_sdiff.mpr ⟨hmem,
+      not_isIsolated_iff_notMem.mp hniso⟩, rfl⟩
+
+/-- The `G'`-sided analogue of `glueBag_mem_of_mem_bag_parent`. -/
+theorem glueBag_mem_of_mem_bag_parent' {t0' : D'.Node} {h0 : t0' ≠ D'.root} {w0' : G'.F.A ⊕ G'.F.B}
+    (hniso : ¬ isIsolated G'.F w0') (hnl : w0' ∉ G'.labelSupport)
+    (hmem : w0' ∈ D'.bag (D'.parent t0')) :
+    embG' G G' w0' ∈ glueBag G G' D D' (glueParent G G' D D' (Sum.inr ⟨t0', h0⟩)) := by
+  by_cases hr : D'.parent t0' = D'.root
+  · exact absurd (by rw [← D'.bag_root, ← hr]; exact hmem) hnl
+  · rw [glueParent_inr_of_ne G G' D D' h0 hr, glueBag_inr G G' D D' hr]
+    exact Finset.mem_image.mpr ⟨w0', Finset.mem_sdiff.mpr ⟨hmem,
+      not_isIsolated_iff_notMem.mp hniso⟩, rfl⟩
+
+/-- If a vertex `t0`'s bag claims to be a "genuine entry" for `v` (non-root, with `v` absent
+from the parent's bag), its witness in the original decomposition `D` must be a non-isolated,
+*non*-label vertex of `G` (also exposing the fact that it is literally present in `D.bag t0`,
+needed later to invoke `D.connected` directly). A label-vertex witness would, by
+`glueBag_propagate_inl`, always propagate to the parent, contradicting the "genuine entry"
+hypothesis. -/
+theorem glueNoEntry_inl {t0 : D.Node} (h0 : t0 ≠ D.root) {v : GlueA G G' ⊕ GlueB G G'}
+    (hv : v ∈ glueBag G G' D D' (Sum.inl t0))
+    (hnv : v ∉ glueBag G G' D D' (glueParent G G' D D' (Sum.inl t0))) :
+    ∃ w0 : G.F.A ⊕ G.F.B, embG G G' w0 = v ∧ w0 ∈ D.bag t0 ∧ ¬ isIsolated G.F w0 ∧
+      w0 ∉ G.labelSupport := by
+  rw [glueBag_inl_of_ne G G' D D' h0] at hv
+  obtain ⟨w0, hw0mem, hw0eq⟩ := Finset.mem_image.mp hv
+  obtain ⟨hw0bag, hw0niso⟩ := Finset.mem_sdiff.mp hw0mem
+  refine ⟨w0, hw0eq, hw0bag, not_isIsolated_iff_notMem.mpr hw0niso, ?_⟩
+  intro hlabel
+  apply hnv
+  rw [← hw0eq]
+  exact glueBag_propagate_inl G G' D D' hlabel hw0bag h0
+
+/-- The `G'`-sided analogue of `glueNoEntry_inl`. -/
+theorem glueNoEntry_inr {t0' : D'.Node} (h0 : t0' ≠ D'.root) {v : GlueA G G' ⊕ GlueB G G'}
+    (hv : v ∈ glueBag G G' D D' (Sum.inr ⟨t0', h0⟩))
+    (hnv : v ∉ glueBag G G' D D' (glueParent G G' D D' (Sum.inr ⟨t0', h0⟩))) :
+    ∃ w0' : G'.F.A ⊕ G'.F.B, embG' G G' w0' = v ∧ w0' ∈ D'.bag t0' ∧ ¬ isIsolated G'.F w0' ∧
+      w0' ∉ G'.labelSupport := by
+  rw [glueBag_inr G G' D D' h0] at hv
+  obtain ⟨w0', hw0mem, hw0eq⟩ := Finset.mem_image.mp hv
+  obtain ⟨hw0bag, hw0niso⟩ := Finset.mem_sdiff.mp hw0mem
+  refine ⟨w0', hw0eq, hw0bag, not_isIsolated_iff_notMem.mpr hw0niso, ?_⟩
+  intro hlabel
+  apply hnv
+  rw [← hw0eq]
+  exact glueBag_propagate_inr G G' D D' hlabel hw0bag
+
+/-- Two non-isolated, non-label original `G`-vertices that land on the same glued vertex must
+already have been equal: a non-label vertex's `GlueRelA`/`GlueRelB`-class is a singleton (by
+`eq_of_glueπA_eq_of_not_isGlueLabelA`/`eq_of_glueπB_eq_of_not_isGlueLabelB`), so gluing can never
+identify it with anything else. -/
+theorem embG_injOn_not_label {w0 w1 : G.F.A ⊕ G.F.B} (hw0 : w0 ∉ G.labelSupport)
+    (hniso0 : ¬ isIsolated G.F w0) (heq : embG G G' w0 = embG G G' w1) : w0 = w1 := by
+  cases w0 with
+  | inl x0 =>
+      cases w1 with
+      | inl x1 =>
+          have hxeq : glueπA G G' (Sum.inl x0) = glueπA G G' (Sum.inl x1) := Sum.inl_injective heq
+          have hnl : ¬ IsGlueLabelA G G' (Sum.inl x0) := fun ⟨i, hi⟩ =>
+            hw0 (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i, Finset.mem_univ _, by
+              show Sum.inl (G.a i) = Sum.inl x0; rw [hi]⟩, not_isIsolated_iff_notMem.mp hniso0⟩)
+          have hxx : Sum.inl x0 = (Sum.inl x1 : G.F.A ⊕ G'.F.A) :=
+            eq_of_glueπA_eq_of_not_isGlueLabelA G G' hxeq hnl
+          rw [Sum.inl_injective hxx]
+      | inr y1 => simp [embG] at heq
+  | inr y0 =>
+      cases w1 with
+      | inl x1 => simp [embG] at heq
+      | inr y1 =>
+          have hyeq : glueπB G G' (Sum.inl y0) = glueπB G G' (Sum.inl y1) := Sum.inr_injective heq
+          have hnl : ¬ IsGlueLabelB G G' (Sum.inl y0) := fun ⟨j, hj⟩ =>
+            hw0 (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j, Finset.mem_univ _, by
+              show Sum.inr (G.b j) = Sum.inr y0; rw [hj]⟩, not_isIsolated_iff_notMem.mp hniso0⟩)
+          have hyy : Sum.inl y0 = (Sum.inl y1 : G.F.B ⊕ G'.F.B) :=
+            eq_of_glueπB_eq_of_not_isGlueLabelB G G' hyeq hnl
+          rw [Sum.inl_injective hyy]
+
+/-- The `G'`-sided analogue of `embG_injOn_not_label`. -/
+theorem embG'_injOn_not_label {w0' w1' : G'.F.A ⊕ G'.F.B} (hw0' : w0' ∉ G'.labelSupport)
+    (hniso0' : ¬ isIsolated G'.F w0') (heq : embG' G G' w0' = embG' G G' w1') : w0' = w1' := by
+  cases w0' with
+  | inl x0' =>
+      cases w1' with
+      | inl x1' =>
+          have hxeq : glueπA G G' (Sum.inr x0') = glueπA G G' (Sum.inr x1') := Sum.inl_injective heq
+          have hnl : ¬ IsGlueLabelA G G' (Sum.inr x0') := fun ⟨i, hi⟩ =>
+            hw0' (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i, Finset.mem_univ _, by
+              show Sum.inl (G'.a i) = Sum.inl x0'; rw [hi]⟩, not_isIsolated_iff_notMem.mp hniso0'⟩)
+          have hxx : Sum.inr x0' = (Sum.inr x1' : G.F.A ⊕ G'.F.A) :=
+            eq_of_glueπA_eq_of_not_isGlueLabelA G G' hxeq hnl
+          rw [Sum.inr_injective hxx]
+      | inr y1' => simp [embG'] at heq
+  | inr y0' =>
+      cases w1' with
+      | inl x1' => simp [embG'] at heq
+      | inr y1' =>
+          have hyeq : glueπB G G' (Sum.inr y0') = glueπB G G' (Sum.inr y1') := Sum.inr_injective heq
+          have hnl : ¬ IsGlueLabelB G G' (Sum.inr y0') := fun ⟨j, hj⟩ =>
+            hw0' (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j, Finset.mem_univ _, by
+              show Sum.inr (G'.b j) = Sum.inr y0'; rw [hj]⟩, not_isIsolated_iff_notMem.mp hniso0'⟩)
+          have hyy : Sum.inr y0' = (Sum.inr y1' : G.F.B ⊕ G'.F.B) :=
+            eq_of_glueπB_eq_of_not_isGlueLabelB G G' hyeq hnl
+          rw [Sum.inr_injective hyy]
+
+/-- A non-isolated, non-label `G`-vertex can never coincide (via gluing) with *any* `G'`-vertex:
+the cross-side case of the same singleton-class fact used by `embG_injOn_not_label`. -/
+theorem not_embG_eq_embG'_of_not_label {w0 : G.F.A ⊕ G.F.B} {w0' : G'.F.A ⊕ G'.F.B}
+    (hniso : ¬ isIsolated G.F w0) (hnl : w0 ∉ G.labelSupport) :
+    embG G G' w0 ≠ embG' G G' w0' := by
+  intro heq
+  cases w0 with
+  | inl x0 =>
+      cases w0' with
+      | inl x0' =>
+          have hxeq : glueπA G G' (Sum.inl x0) = glueπA G G' (Sum.inr x0') := Sum.inl_injective heq
+          have hnlA : ¬ IsGlueLabelA G G' (Sum.inl x0) := fun ⟨i, hi⟩ =>
+            hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inl i, Finset.mem_univ _, by
+              show Sum.inl (G.a i) = Sum.inl x0; rw [hi]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+          exact absurd (eq_of_glueπA_eq_of_not_isGlueLabelA G G' hxeq hnlA) (by simp)
+      | inr y0' => simp [embG, embG'] at heq
+  | inr y0 =>
+      cases w0' with
+      | inl x0' => simp [embG, embG'] at heq
+      | inr y0' =>
+          have hyeq : glueπB G G' (Sum.inl y0) = glueπB G G' (Sum.inr y0') := Sum.inr_injective heq
+          have hnlB : ¬ IsGlueLabelB G G' (Sum.inl y0) := fun ⟨j, hj⟩ =>
+            hnl (Finset.mem_sdiff.mpr ⟨Finset.mem_image.mpr ⟨Sum.inr j, Finset.mem_univ _, by
+              show Sum.inr (G.b j) = Sum.inr y0; rw [hj]⟩, not_isIsolated_iff_notMem.mp hniso⟩)
+          exact absurd (eq_of_glueπB_eq_of_not_isGlueLabelB G G' hyeq hnlB) (by simp)
+
+/-- **The merged tree's `connected` property.** Every genuine entry for `v` other than the
+merged root is witnessed by a non-isolated, non-label original vertex (`glueNoEntry_inl`/`_inr`);
+such witnesses never cross sides (`not_embG_eq_embG'_of_not_label`) and are unique on their own
+side (`embG_injOn_not_label`/`embG'_injOn_not_label`), so the whole statement reduces to `D`'s
+(or `D'`'s) own `connected`, except when one side claims the merged root as its entry, which
+forces `v` into `(glue G G').labelSupport` — contradicting any non-label witness on the other
+side via `notMem_labelSupport_glue_of_notMem_left`/`_right`. -/
+theorem glueConnected (v : GlueA G G' ⊕ GlueB G G') (t1 t2 : GlueNode G G' D D')
+    (ht1 : v ∈ glueBag G G' D D' t1)
+    (hd1 : t1 = glueRoot G G' D D' ∨ v ∉ glueBag G G' D D' (glueParent G G' D D' t1))
+    (ht2 : v ∈ glueBag G G' D D' t2)
+    (hd2 : t2 = glueRoot G G' D D' ∨ v ∉ glueBag G G' D D' (glueParent G G' D D' t2)) :
+    t1 = t2 := by
+  have key1 : ∀ {t0 : D.Node}, v ∈ glueBag G G' D D' (Sum.inl t0) →
+      ((Sum.inl t0 : GlueNode G G' D D') = glueRoot G G' D D' ∨
+        v ∉ glueBag G G' D D' (glueParent G G' D D' (Sum.inl t0))) →
+      t0 = D.root ∨ ∃ w0 : G.F.A ⊕ G.F.B, embG G G' w0 = v ∧ w0 ∈ D.bag t0 ∧
+        ¬ isIsolated G.F w0 ∧ w0 ∉ G.labelSupport := by
+    intro t0 hv hd
+    rcases hd with hd | hd
+    · exact Or.inl (Sum.inl_injective hd)
+    · by_cases hr : t0 = D.root
+      · exact Or.inl hr
+      · exact Or.inr (glueNoEntry_inl G G' D D' hr hv hd)
+  have key2 : ∀ {t0' : D'.Node} (h0 : t0' ≠ D'.root), v ∈ glueBag G G' D D' (Sum.inr ⟨t0', h0⟩) →
+      ((Sum.inr ⟨t0', h0⟩ : GlueNode G G' D D') = glueRoot G G' D D' ∨
+        v ∉ glueBag G G' D D' (glueParent G G' D D' (Sum.inr ⟨t0', h0⟩))) →
+      ∃ w0' : G'.F.A ⊕ G'.F.B, embG' G G' w0' = v ∧ w0' ∈ D'.bag t0' ∧ ¬ isIsolated G'.F w0' ∧
+        w0' ∉ G'.labelSupport := by
+    intro t0' h0 hv hd
+    rcases hd with hd | hd
+    · exact absurd hd (by simp [glueRoot])
+    · exact glueNoEntry_inr G G' D D' h0 hv hd
+  rcases t1 with t10 | ⟨t10', h10⟩ <;> rcases t2 with t20 | ⟨t20', h20⟩
+  · -- (inl, inl)
+    rcases key1 ht1 hd1 with hr1 | ⟨w0, hw0eq, hw0bag, hw0niso, hw0nl⟩
+    · rcases key1 ht2 hd2 with hr2 | ⟨w0', hw0eq', hw0bag', hw0niso', hw0nl'⟩
+      · rw [hr1, hr2]
+      · exfalso
+        rw [hr1, glueBag_inl_root] at ht1
+        exact notMem_labelSupport_glue_of_notMem_left G G' hw0niso' hw0nl'
+          (by rw [hw0eq']; exact ht1)
+    · rcases key1 ht2 hd2 with hr2 | ⟨w0', hw0eq', hw0bag', hw0niso', hw0nl'⟩
+      · exfalso
+        rw [hr2, glueBag_inl_root] at ht2
+        exact notMem_labelSupport_glue_of_notMem_left G G' hw0niso hw0nl
+          (by rw [hw0eq]; exact ht2)
+      · have heq : w0 = w0' := embG_injOn_not_label G G' hw0nl hw0niso (hw0eq.trans hw0eq'.symm)
+        subst heq
+        have hd1' : t10 = D.root ∨ w0 ∉ D.bag (D.parent t10) := by
+          by_cases hr : t10 = D.root
+          · exact Or.inl hr
+          · refine Or.inr (fun hmem => ?_)
+            rcases hd1 with hd1l | hd1r
+            · exact hr (Sum.inl_injective hd1l)
+            · exact hd1r (by rw [← hw0eq]; exact glueBag_mem_of_mem_bag_parent G G' D D' hw0niso hw0nl hmem)
+        have hd2' : t20 = D.root ∨ w0 ∉ D.bag (D.parent t20) := by
+          by_cases hr : t20 = D.root
+          · exact Or.inl hr
+          · refine Or.inr (fun hmem => ?_)
+            rcases hd2 with hd2l | hd2r
+            · exact hr (Sum.inl_injective hd2l)
+            · exact hd2r (by rw [← hw0eq]; exact glueBag_mem_of_mem_bag_parent G G' D D' hw0niso hw0nl hmem)
+        exact congrArg Sum.inl (D.connected w0 t10 t20 hw0bag hd1' hw0bag' hd2')
+  · -- (inl, inr): always contradictory.
+    exfalso
+    rcases key1 ht1 hd1 with hr1 | ⟨w0, hw0eq, hw0bag, hw0niso, hw0nl⟩
+    · obtain ⟨w0', hw0eq', -, hw0niso', hw0nl'⟩ := key2 h20 ht2 hd2
+      rw [hr1, glueBag_inl_root] at ht1
+      exact notMem_labelSupport_glue_of_notMem_right G G' hw0niso' hw0nl'
+        (by rw [hw0eq']; exact ht1)
+    · obtain ⟨w0', hw0eq', -, hw0niso', hw0nl'⟩ := key2 h20 ht2 hd2
+      exact not_embG_eq_embG'_of_not_label G G' hw0niso hw0nl (hw0eq.trans hw0eq'.symm)
+  · -- (inr, inl): always contradictory, symmetric to the above.
+    exfalso
+    obtain ⟨w0, hw0eq, -, hw0niso, hw0nl⟩ := key2 h10 ht1 hd1
+    rcases key1 ht2 hd2 with hr2 | ⟨w0', hw0eq', -, hw0niso', hw0nl'⟩
+    · rw [hr2, glueBag_inl_root] at ht2
+      exact notMem_labelSupport_glue_of_notMem_right G G' hw0niso hw0nl
+        (by rw [hw0eq]; exact ht2)
+    · exact not_embG_eq_embG'_of_not_label G G' hw0niso' hw0nl' (hw0eq'.trans hw0eq.symm)
+  · -- (inr, inr)
+    obtain ⟨w0, hw0eq, hw0bag, hw0niso, hw0nl⟩ := key2 h10 ht1 hd1
+    obtain ⟨w0', hw0eq', hw0bag', hw0niso', hw0nl'⟩ := key2 h20 ht2 hd2
+    have heq : w0 = w0' := embG'_injOn_not_label G G' hw0nl hw0niso (hw0eq.trans hw0eq'.symm)
+    subst heq
+    have hd1' : t10' = D'.root ∨ w0 ∉ D'.bag (D'.parent t10') := by
+      by_cases hr : t10' = D'.root
+      · exact Or.inl hr
+      · refine Or.inr (fun hmem => ?_)
+        rcases hd1 with hd1l | hd1r
+        · exact absurd hd1l (by simp [glueRoot])
+        · exact hd1r (by rw [← hw0eq]; exact glueBag_mem_of_mem_bag_parent' G G' D D' hw0niso hw0nl hmem)
+    have hd2' : t20' = D'.root ∨ w0 ∉ D'.bag (D'.parent t20') := by
+      by_cases hr : t20' = D'.root
+      · exact Or.inl hr
+      · refine Or.inr (fun hmem => ?_)
+        rcases hd2 with hd2l | hd2r
+        · exact absurd hd2l (by simp [glueRoot])
+        · exact hd2r (by rw [← hw0eq]; exact glueBag_mem_of_mem_bag_parent' G G' D D' hw0niso hw0nl hmem)
+    exact congrArg Sum.inr (Subtype.ext (D'.connected w0 t10' t20' hw0bag hd1' hw0bag' hd2'))
+
 end Lax461425Proofs.PatternsLabelledGlue
