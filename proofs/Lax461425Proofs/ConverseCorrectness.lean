@@ -12,7 +12,8 @@ $$
 
 namespace Lax461425Proofs
 
-open Classical Lax461425.Circuits Lax461425.HomomorphismPolynomials Lax461425.Forestwidth
+open Classical Lax461425.Circuits Lax461425.Circuits.Circuit Lax461425.HomomorphismPolynomials
+open Lax461425.Forestwidth
 open MvPolynomial
 
 variable {F : Pattern} {Δ k : ℕ}
@@ -241,5 +242,159 @@ theorem sum_wireStoR {M : Type*} [AddCommMonoid M] (c : NonRoot N)
     Finset.sum_filter]
 
 end ParentRegroup
+
+section ComputesAt
+
+variable (N : NormDecomp F Δ k) (n : ℕ) {K : Type*} [CommSemiring K]
+
+/-- The value the circuit should compute at each gate: `P` at `R`-gates, `Q` at `S`-gates, the
+corresponding variable at input gates. -/
+noncomputable def val : CGate N n → MvPolynomial (Fin n × Fin n) K
+  | .R t γ => P N n t γ
+  | .S c δ => Q N n c δ
+  | .inp i j => X (i, j)
+
+set_option maxHeartbeats 1000000 in
+/-- The generic wire-weighted product at `R t γ` equals `P t γ`. -/
+theorem prod_val_wire_R (t : N.Node) (γ : Adm F n (N.bag t)) :
+    ∏ h : CGate N n, (val N n (K := K) h) ^ (wire N n (CGate.R t γ) h) = P N n t γ := by
+  rw [prod_cgate]
+  have h1 : (∏ t' : N.Node, ∏ γ' : Adm F n (N.bag t'),
+      (val N n (K := K) (CGate.R t' γ')) ^ (wire N n (CGate.R t γ) (CGate.R t' γ'))) = 1 := by
+    apply Finset.prod_eq_one
+    intro t' _
+    apply Finset.prod_eq_one
+    intro γ' _
+    rw [show wire N n (CGate.R t γ) (CGate.R t' γ') = 0 from rfl, pow_zero]
+  have h2 : (∏ c' : NonRoot N, ∏ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1),
+      (val N n (K := K) (CGate.S c' δ')) ^ (wire N n (CGate.R t γ) (CGate.S c' δ'))) =
+      ∏ cc ∈ (children N t).attach,
+        Q N n cc.1 (restrictFromParent N n cc.1 ((mem_children N).mp cc.2) γ) :=
+    prod_pow_wireRtoS N n t γ (fun c' δ' => Q N n c' δ')
+  have h3 : (∏ i : Fin n, ∏ j : Fin n,
+      (val N n (K := K) (CGate.inp i j)) ^ (wire N n (CGate.R t γ) (CGate.inp i j))) =
+      ∏ ab ∈ (edgesAt N t).attach,
+        (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) :
+          MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 := by
+    have step1 : (∏ i : Fin n, ∏ j : Fin n,
+        (val N n (K := K) (CGate.inp i j)) ^ (wire N n (CGate.R t γ) (CGate.inp i j))) =
+        ∏ i : Fin n, ∏ j : Fin n,
+          (X (i, j) : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ i j :=
+      Finset.prod_congr rfl (fun i _ => Finset.prod_congr rfl (fun j _ => rfl))
+    have step2 : (∏ i : Fin n, ∏ j : Fin n,
+        (X (i, j) : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ i j) =
+        ∏ p : Fin n × Fin n, (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2 :=
+      (Fintype.prod_prod_type
+        (fun p : Fin n × Fin n => (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2)).symm
+    rw [step1, step2]
+    exact prod_pow_wireRtoInp N n t γ
+  rw [h1, h2, h3, one_mul, P_eq]
+  ring
+
+set_option maxHeartbeats 1000000 in
+/-- The generic wire-weighted sum at `S c δ` equals `Q c δ`. -/
+theorem sum_val_wire_S (c : NonRoot N) (δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1)) :
+    ∑ h : CGate N n, (wire N n (CGate.S c δ) h) • (val N n (K := K) h) = Q N n c δ := by
+  rw [sum_cgate]
+  have h1 : (∑ t' : N.Node, ∑ γ' : Adm F n (N.bag t'),
+      (wire N n (CGate.S c δ) (CGate.R t' γ')) • (val N n (K := K) (CGate.R t' γ'))) =
+      Q N n c δ := by
+    have step : (∑ t' : N.Node, ∑ γ' : Adm F n (N.bag t'),
+          (wire N n (CGate.S c δ) (CGate.R t' γ')) • (val N n (K := K) (CGate.R t' γ'))) =
+        ∑ t' : N.Node, ∑ γ' : Adm F n (N.bag t'), (wireStoR N n c δ t' γ') • (P N n t' γ') :=
+      Finset.sum_congr rfl (fun t' _ => Finset.sum_congr rfl (fun γ' _ => rfl))
+    rw [step, sum_wireStoR]
+    simp only [Q]
+  have h2 : (∑ c' : NonRoot N, ∑ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1),
+      (wire N n (CGate.S c δ) (CGate.S c' δ')) • (val N n (K := K) (CGate.S c' δ'))) = 0 := by
+    apply Finset.sum_eq_zero
+    intro c' _
+    apply Finset.sum_eq_zero
+    intro δ' _
+    rw [show wire N n (CGate.S c δ) (CGate.S c' δ') = 0 from rfl, zero_smul]
+  have h3 : (∑ i : Fin n, ∑ j : Fin n,
+      (wire N n (CGate.S c δ) (CGate.inp i j)) • (val N n (K := K) (CGate.inp i j))) = 0 := by
+    apply Finset.sum_eq_zero
+    intro i _
+    apply Finset.sum_eq_zero
+    intro j _
+    rw [show wire N n (CGate.S c δ) (CGate.inp i j) = 0 from rfl, zero_smul]
+  rw [h1, h2, h3, add_zero, add_zero]
+
+variable (hn0 : 0 < n) (hE : ∃ a b, F.mult a b ≠ 0)
+
+set_option maxHeartbeats 1000000 in
+/-- **Correctness, gate-by-gate.** Every `R`-gate `R t γ` computes `P t γ` and every `S`-gate
+`S c δ` computes `Q c δ`, proven by well-founded recursion on the distance from the node to a
+leaf (the same measure used to define `P`): the `R`-part uses the `S`-part at children, and the
+`S`-part (for the same node) uses the `R`-part just established. -/
+theorem computesAt_RS : ∀ t : N.Node,
+    (∀ γ : Adm F n (N.bag t), (circuit N n K hn0 hE).ComputesAt (CGate.R t γ) (P N n t γ)) ∧
+    (∀ (hroot : t ≠ N.root) (δ : Adm F n (N.bag (N.parent t) ∩ N.bag t)),
+      (circuit N n K hn0 hE).ComputesAt
+        (CGate.S (⟨t, hroot⟩ : NonRoot N) δ) (Q N n ⟨t, hroot⟩ δ))
+  | t => by
+      have hRpart : ∀ γ : Adm F n (N.bag t),
+          (circuit N n K hn0 hE).ComputesAt (CGate.R t γ) (P N n t γ) := by
+        intro γ
+        rw [← prod_val_wire_R N n t γ]
+        refine ComputesAt.mul (C := circuit N n K hn0 hE) (g := CGate.R t γ) (val N n (K := K))
+          rfl ?_
+        intro h hpos0
+        have hpos : 0 < wire N n (CGate.R t γ) h := hpos0
+        cases h with
+        | inp i j => exact ComputesAt.var rfl
+        | R t' γ' =>
+            exact absurd hpos (by rw [show wire N n (CGate.R t γ) (CGate.R t' γ') = 0 from rfl]; omega)
+        | S c' δ' =>
+            show (circuit N n K hn0 hE).ComputesAt (CGate.S c' δ') (val N n (K := K) (CGate.S c' δ'))
+            show (circuit N n K hn0 hE).ComputesAt (CGate.S c' δ') (Q N n c' δ')
+            have hlt : Δ - level N.depth_le c'.1 < Δ - level N.depth_le t := by
+              have hmu := wire_pos_lt N n hpos
+              simp only [mu] at hmu
+              omega
+            have := (computesAt_RS c'.1).2 c'.2 δ'
+            exact this
+      refine ⟨hRpart, ?_⟩
+      intro hroot δ
+      rw [← sum_val_wire_S N n (⟨t, hroot⟩ : NonRoot N) δ]
+      refine ComputesAt.add (C := circuit N n K hn0 hE) (g := CGate.S (⟨t, hroot⟩ : NonRoot N) δ)
+        (val N n (K := K)) rfl ?_
+      intro h hpos0
+      have hpos : 0 < wire N n (CGate.S (⟨t, hroot⟩ : NonRoot N) δ) h := hpos0
+      cases h with
+      | R t' γ' =>
+          show (circuit N n K hn0 hE).ComputesAt (CGate.R t' γ') (val N n (K := K) (CGate.R t' γ'))
+          show (circuit N n K hn0 hE).ComputesAt (CGate.R t' γ') (P N n t' γ')
+          have heq : (⟨t, hroot⟩ : NonRoot N).1 = t' := by
+            by_contra hne
+            exact absurd hpos (by
+              simp only [wire, wireStoR]
+              rw [dif_neg hne]
+              omega)
+          simp only at heq
+          subst heq
+          exact hRpart γ'
+      | S c' δ' =>
+          exact absurd hpos
+            (by rw [show wire N n (CGate.S (⟨t, hroot⟩ : NonRoot N) δ) (CGate.S c' δ') = 0 from rfl]; omega)
+      | inp i j =>
+          exact absurd hpos
+            (by rw [show wire N n (CGate.S (⟨t, hroot⟩ : NonRoot N) δ) (CGate.inp i j) = 0 from rfl]; omega)
+termination_by t => Δ - level N.depth_le t
+decreasing_by assumption
+
+/-- **Correctness.** The gate `R t γ` computes `P t γ`. -/
+theorem computesAt_R (t : N.Node) (γ : Adm F n (N.bag t)) :
+    (circuit N n K hn0 hE).ComputesAt (CGate.R t γ) (P N n t γ) :=
+  (computesAt_RS N n hn0 hE t).1 γ
+
+/-- **Correctness.** The gate `S c δ` computes `Q c δ`. -/
+theorem computesAt_S (c : NonRoot N) (δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1)) :
+    (circuit N n K hn0 hE).ComputesAt (CGate.S c δ) (Q N n c δ) := by
+  obtain ⟨t, hroot⟩ := c
+  exact (computesAt_RS N n hn0 hE t).2 hroot δ
+
+end ComputesAt
 
 end Lax461425Proofs

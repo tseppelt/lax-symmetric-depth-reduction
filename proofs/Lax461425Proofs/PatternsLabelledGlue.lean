@@ -119,4 +119,45 @@ noncomputable def glue : LabelledPattern ℓ r where
   a := fun i => glueπA G G' (Sum.inl (G.a i))
   b := fun j => glueπB G G' (Sum.inl (G.b j))
 
+/-! ### The product factors through `glueMult0` -/
+
+open MvPolynomial in
+/-- The core combinatorial fact behind the multiplicativity of homomorphism polynomials under
+gluing: the big product over the glued vertex sets, with `glueMult'`-many copies of each
+variable, equals the big product over the *original* (pre-quotient) vertex sets, with
+`glueMult0`-many copies of each variable. This holds for *any* choice of `hA, hB` on the glued
+vertex sets (no label-matching hypothesis is needed here): it is simply the statement that
+`glueMult'` is the pushforward, under the quotient maps, of `glueMult0`. -/
+theorem prod_pow_glueMult' (n : ℕ) (K : Type*) [CommSemiring K]
+    (hA : GlueA G G' → Fin n) (hB : GlueB G G' → Fin n) :
+    (∏ qa : GlueA G G', ∏ qb : GlueB G G',
+        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+      = ∏ x : G.F.A ⊕ G'.F.A, ∏ y : G.F.B ⊕ G'.F.B,
+          (X (hA (glueπA G G' x), hB (glueπB G G' y)) :
+              MvPolynomial (Fin n × Fin n) K) ^ glueMult0 G G' x y := by
+  set g : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) → GlueA G G' × GlueB G G' :=
+    fun p => (glueπA G G' p.1, glueπB G G' p.2) with hg
+  set f : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) → MvPolynomial (Fin n × Fin n) K :=
+    fun p => X (hA (glueπA G G' p.1), hB (glueπB G G' p.2)) ^ glueMult0 G G' p.1 p.2 with hf
+  calc (∏ qa : GlueA G G', ∏ qb : GlueB G G',
+        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+      = ∏ j : GlueA G G' × GlueB G G',
+          (X (hA j.1, hB j.2) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' j.1 j.2 :=
+        (Fintype.prod_prod_type' _).symm
+    _ = ∏ j : GlueA G G' × GlueB G G',
+          ∏ p : {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) // g p = j}, f p.1 := by
+        apply Finset.prod_congr rfl
+        intro j _
+        show (X (hA j.1, hB j.2) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' j.1 j.2 = _
+        rw [glueMult', ← Finset.prod_pow_eq_pow_sum]
+        apply Finset.prod_congr rfl
+        intro p _
+        have hp : g p.1 = j := p.2
+        show _ = f p.1
+        have h1 : glueπA G G' p.1.1 = j.1 := congrArg Prod.fst hp
+        have h2 : glueπB G G' p.1.2 = j.2 := congrArg Prod.snd hp
+        simp only [hf, h1, h2]
+    _ = ∏ p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B), f p := Fintype.prod_fiberwise g f
+    _ = ∏ x : G.F.A ⊕ G'.F.A, ∏ y : G.F.B ⊕ G'.F.B, f (x, y) := Fintype.prod_prod_type f
+
 end Lax461425Proofs.PatternsLabelledGlue
