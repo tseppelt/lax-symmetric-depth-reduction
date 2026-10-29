@@ -234,6 +234,51 @@ theorem restrictVchild'_glueBack {t : N.Node} (γ : Adm F n (N.bag t))
       exact hvt (V_inter_V_subset_bag N hp0 hp hne0 hboth)
     exact x_apply_eq_of_child_eq N n x hc0 hmem0 v.2
 
+/-- Extend a map defined only on the children of `t` to all of `NonRoot N`, using an arbitrary
+constant value (never actually consulted by `glueBack`) elsewhere. -/
+noncomputable def extendToNonRoot (hn0 : 0 < n) {t : N.Node}
+    (x : (c : ↥(children N t)) → Adm F n (V N c.1.1)) : (c : NonRoot N) → Adm F n (V N c.1) :=
+  fun c => if hc : c ∈ children N t then x ⟨c, hc⟩ else fun _ => ⟨0, hn0⟩
+
+theorem extendToNonRoot_apply_of_mem (hn0 : 0 < n) {t : N.Node}
+    (x : (c : ↥(children N t)) → Adm F n (V N c.1.1)) {c : NonRoot N} (hc : c ∈ children N t) :
+    extendToNonRoot N n hn0 x c = x ⟨c, hc⟩ := dif_pos hc
+
+/-- The restriction of `h` (admissible on `V t`) to every child's subtree, as a total map on
+`NonRoot N`, using the junk value outside the children of `t`. -/
+noncomputable def toChildrenFull (hn0 : 0 < n) {t : N.Node} (h : Adm F n (V N t)) :
+    (c : NonRoot N) → Adm F n (V N c.1) :=
+  fun c => if hc : c ∈ children N t then restrictVchild' N n ((mem_children N).mp hc) h
+    else fun _ => ⟨0, hn0⟩
+
+theorem toChildrenFull_apply_of_mem (hn0 : 0 < n) {t : N.Node} (h : Adm F n (V N t))
+    {c : NonRoot N} (hc : c ∈ children N t) :
+    toChildrenFull N n hn0 h c = restrictVchild' N n ((mem_children N).mp hc) h := dif_pos hc
+
+/-- The restriction of `h` to a child's subtree automatically extends the right restriction of
+`γ`, whenever `h` extends `γ` on `bag t`: the "maps into" half of the gluing bijection. -/
+theorem restrictVchild'_mem_ExtVchild {t : N.Node} (γ : Adm F n (N.bag t)) (h : Adm F n (V N t))
+    (hh : h ∈ ExtV N n t γ) (c : NonRoot N) (hp : N.parent c.1 = t) :
+    restrictVchild' N n hp h ∈ ExtVchild N n c (restrictFromParent N n c hp γ) := by
+  rw [mem_ExtVchild]
+  intro x hx
+  exact congrFun ((mem_ExtV N n).mp hh) ⟨x, hp ▸ Finset.mem_of_mem_inter_left hx⟩
+
+/-- **The gluing/restriction right inverse.** Restricting `h` to every child and gluing back
+recovers `h`, whenever `h` extends `γ` on `bag t`. -/
+theorem glueBack_toChildrenFull {t : N.Node} (hn0 : 0 < n) (γ : Adm F n (N.bag t))
+    (h : Adm F n (V N t)) (hh : h ∈ ExtV N n t γ) :
+    glueBack N n γ (toChildrenFull N n hn0 h) = h := by
+  funext v
+  by_cases hvt : v.1 ∈ N.bag t
+  · rw [glueBack_apply_mem_bag N n γ _ v.2 hvt]
+    exact (congrFun ((mem_ExtV N n).mp hh) ⟨v.1, hvt⟩).symm
+  · rw [glueBack_apply_not_mem_bag N n γ _ v.2 hvt]
+    have hp := childOf_parent N v.2 hvt
+    rw [toChildrenFull_apply_of_mem N n hn0 h ((mem_children N).mpr hp)]
+    show h ⟨v.1, V_subset_of_child N hp (mem_V_childOf N v.2 hvt)⟩ = h v
+    rfl
+
 end GlueMaps
 
 end Lax461425Proofs
