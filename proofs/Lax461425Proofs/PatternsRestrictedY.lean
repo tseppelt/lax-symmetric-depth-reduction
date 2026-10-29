@@ -235,4 +235,60 @@ theorem δ_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (w : Fin
       (y, z) ∈ Y ℓ' r' n v w := by rw [mem_Y]
   simp only [hiff]
 
+/-! ### `δ` lies in the span, for every `Δ`, `k`, `P` with `P.card ≤ k` -/
+
+/-- A pointwise product over an arbitrary finite index set of elements of `span𝔗P K Δ k n P`
+(all for the same `Δ, k, P`) again lies in `span𝔗P K Δ k n P`. -/
+theorem span𝔗P_prod_mem {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
+    (hP : P.card ≤ k) {ι : Type*} (s : Finset ι)
+    (f : ι → (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (hf : ∀ i ∈ s, f i ∈ span𝔗P K Δ k n P) :
+    (fun v w => ∏ i ∈ s, f i v w) ∈ span𝔗P K Δ k n P := by
+  classical
+  induction s using Finset.induction with
+  | empty => simpa using one_mem_span𝔗P K Δ k n P
+  | insert a s ha ih =>
+      have heq : (fun v w => ∏ i ∈ insert a s, f i v w) =
+          fun v w => f a v w * ∏ i ∈ s, f i v w := by
+        funext v w; rw [Finset.prod_insert ha]
+      rw [heq]
+      exact span𝔗P_mul_mem hP (hf a (Finset.mem_insert_self a s))
+        (ih (fun i hi => hf i (Finset.mem_insert_of_mem hi)))
+
+theorem factorA_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (p q : Fin L) (hpq : p ≠ q)
+    (P : Finset (Fin L ⊕ Fin R)) : factorA K L R n p q hpq ∈ span𝔗P K Δ k n P := by
+  have heq : factorA K L R n p q hpq =
+      (fun v w => labelledHom K (J L R) n v w) -
+        fun v w => labelledHom K (mergeA L R p q hpq) n v w := by
+    funext v w; rfl
+  rw [heq]
+  exact Submodule.sub_mem _
+    (Submodule.subset_span ⟨J L R, inClassP_of_edgeless' (J_isEdgeless L R) Δ k P, rfl⟩)
+    (Submodule.subset_span
+      ⟨mergeA L R p q hpq, inClassP_of_edgeless' (mergeA_isEdgeless L R p q hpq) Δ k P, rfl⟩)
+
+theorem factorB_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (p q : Fin R) (hpq : p ≠ q)
+    (P : Finset (Fin L ⊕ Fin R)) : factorB K L R n p q hpq ∈ span𝔗P K Δ k n P := by
+  have heq : factorB K L R n p q hpq =
+      (fun v w => labelledHom K (J L R) n v w) -
+        fun v w => labelledHom K (mergeB L R p q hpq) n v w := by
+    funext v w; rfl
+  rw [heq]
+  exact Submodule.sub_mem _
+    (Submodule.subset_span ⟨J L R, inClassP_of_edgeless' (J_isEdgeless L R) Δ k P, rfl⟩)
+    (Submodule.subset_span
+      ⟨mergeB L R p q hpq, inClassP_of_edgeless' (mergeB_isEdgeless L R p q hpq) Δ k P, rfl⟩)
+
+/-- **`δ` lies in `𝔗^{Δ,k}_{n,P}(ℓ+ℓ',r+r')`**, for *every* `Δ`, and every `k, P` with
+`P.card ≤ k`: each factor is edgeless (so lies in the span for any `Δ, k, P` at all by item 1 of
+`lem:labelled-ops`), and the span is closed under pointwise products (`span𝔗P_mul_mem`). -/
+theorem δ_mem_span (K : Type*) [Field K] (Δ k n : ℕ) (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r')))
+    (hP : P.card ≤ k) : δ K ℓ ℓ' r r' n ∈ span𝔗P K Δ k n P := by
+  unfold δ
+  refine span𝔗P_mul_mem hP (span𝔗P_mul_mem hP ?_ ?_) (span𝔗P_mul_mem hP ?_ ?_)
+  · exact span𝔗P_prod_mem hP _ _ (fun p _ => factorA_mem_span K Δ k n _ _ _ _ _ P)
+  · exact span𝔗P_prod_mem hP _ _ (fun p _ => factorA_mem_span K Δ k n _ _ _ _ _ P)
+  · exact span𝔗P_prod_mem hP _ _ (fun p _ => factorB_mem_span K Δ k n _ _ _ _ _ P)
+  · exact span𝔗P_prod_mem hP _ _ (fun p _ => factorB_mem_span K Δ k n _ _ _ _ _ P)
+
 end Lax461425Proofs.PatternsRestrictedY
