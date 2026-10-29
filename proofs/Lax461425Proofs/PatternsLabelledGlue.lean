@@ -160,4 +160,35 @@ theorem prod_pow_glueMult' (n : ℕ) (K : Type*) [CommSemiring K]
     _ = ∏ p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B), f p := Fintype.prod_fiberwise g f
     _ = ∏ x : G.F.A ⊕ G'.F.A, ∏ y : G.F.B ⊕ G'.F.B, f (x, y) := Fintype.prod_prod_type f
 
+open MvPolynomial in
+/-- The glued product factors as the product of the two original products: combining
+`prod_pow_glueMult'` with the fact that `glueMult0` vanishes on "cross" pairs (so the two
+mixed blocks of the fourfold split contribute only `1`s). This is the polynomial-level heart of
+item 2: it is exactly the statement that the inner product of `labelledHom` for `glue G G'`
+factors as a product of the inner products for `G` and for `G'`. -/
+theorem prod_pow_glueMult'_eq_mul (n : ℕ) (K : Type*) [CommSemiring K]
+    (hA : GlueA G G' → Fin n) (hB : GlueB G G' → Fin n) :
+    (∏ qa : GlueA G G', ∏ qb : GlueB G G',
+        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+      = (∏ x : G.F.A, ∏ y : G.F.B,
+          (X (hA (glueπA G G' (Sum.inl x)), hB (glueπB G G' (Sum.inl y))) :
+              MvPolynomial (Fin n × Fin n) K) ^ G.F.mult x y)
+        * ∏ x' : G'.F.A, ∏ y' : G'.F.B,
+            (X (hA (glueπA G G' (Sum.inr x')), hB (glueπB G G' (Sum.inr y'))) :
+                MvPolynomial (Fin n × Fin n) K) ^ G'.F.mult x' y' := by
+  rw [prod_pow_glueMult']
+  simp only [Fintype.prod_sum_type]
+  congr 1
+  · apply Finset.prod_congr rfl
+    intro x _
+    have h1 : ∀ y : G.F.B, glueMult0 G G' (Sum.inl x) (Sum.inl y) = G.F.mult x y := fun _ => rfl
+    have h2 : ∀ y' : G'.F.B, glueMult0 G G' (Sum.inl x) (Sum.inr y') = 0 := fun _ => rfl
+    simp only [h1, h2, pow_zero, Finset.prod_const_one, mul_one]
+  · apply Finset.prod_congr rfl
+    intro x' _
+    have h1 : ∀ y : G.F.B, glueMult0 G G' (Sum.inr x') (Sum.inl y) = 0 := fun _ => rfl
+    have h2 : ∀ y' : G'.F.B, glueMult0 G G' (Sum.inr x') (Sum.inr y') = G'.F.mult x' y' :=
+      fun _ => rfl
+    simp only [h1, h2, pow_zero, Finset.prod_const_one, one_mul]
+
 end Lax461425Proofs.PatternsLabelledGlue
