@@ -1,0 +1,10 @@
+specVersion: "1"
+id: lax-461425
+leanVersion: "v4.33.0"
+mathlibVersion: "db584cd6d46c92f209a44c0f1c829460d327499d"
+title: "Homomorphism polynomials and bounded-depth symmetric algebraic circuits"
+authors:
+  - name: Tim Seppelt
+    orcid: "0000-0002-6447-0568"
+    github: tseppelt
+bibEntries: []
