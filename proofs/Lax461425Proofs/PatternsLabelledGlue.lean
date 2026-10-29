@@ -286,7 +286,8 @@ written `Subtype` literal): this keeps every use of this fact anchored to the si
 instance declared for `CompatA`, avoiding a mismatch against some other, independently
 elaborated (though propositionally equal) `Fintype`/`DecidablePred` instance for the same
 underlying subtype. -/
-theorem sum_compatA_eq_sum_ite {γ : Type*} [Fintype γ] {M : Type*} [AddCommMonoid M]
+theorem sum_compatA_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : Type*}
+    [AddCommMonoid M]
     (f : (G.F.A → γ) → (G'.F.A → γ) → M) :
     ∑ pa : CompatA G G' γ, f pa.1.1 pa.1.2
       = ∑ hAG : G.F.A → γ, ∑ hAG' : G'.F.A → γ,
@@ -300,7 +301,8 @@ theorem sum_compatA_eq_sum_ite {γ : Type*} [Fintype γ] {M : Type*} [AddCommMon
     then f hAG hAG' else 0)
 
 /-- The `B`-side analogue of `sum_compatA_eq_sum_ite`. -/
-theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] {M : Type*} [AddCommMonoid M]
+theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : Type*}
+    [AddCommMonoid M]
     (f : (G.F.B → γ) → (G'.F.B → γ) → M) :
     ∑ pb : CompatB G G' γ, f pb.1.1 pb.1.2
       = ∑ hBG : G.F.B → γ, ∑ hBG' : G'.F.B → γ,
