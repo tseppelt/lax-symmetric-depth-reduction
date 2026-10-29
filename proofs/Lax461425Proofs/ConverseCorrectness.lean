@@ -80,4 +80,26 @@ theorem P_eq (t : N.Node) (γ : Adm F n (N.bag t)) :
 
 end Value
 
+section Decompose
+
+variable (N : NormDecomp F Δ k) (n : ℕ)
+
+/-- Any product over all gates splits into the product over `R`-gates, the product over
+`S`-gates, and the product over input gates. -/
+@[to_additive]
+theorem prod_cgate {M : Type*} [CommMonoid M] (f : CGate N n → M) :
+    ∏ h : CGate N n, f h =
+      (∏ t' : N.Node, ∏ γ' : Adm F n (N.bag t'), f (CGate.R t' γ')) *
+      (∏ c' : NonRoot N, ∏ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1), f (CGate.S c' δ')) *
+      (∏ i : Fin n, ∏ j : Fin n, f (CGate.inp i j)) := by
+  rw [Fintype.prod_equiv (CGate.equivSigma N n) f
+    (fun x => Sum.elim (fun p => f (CGate.R p.1 p.2))
+      (Sum.elim (fun p => f (CGate.S p.1 p.2)) (fun p => f (CGate.inp p.1 p.2))) x)
+    (fun x => by cases x <;> rfl),
+    Fintype.prod_sum_type, Fintype.prod_sum_type, Fintype.prod_sigma, Fintype.prod_sigma,
+    Fintype.prod_prod_type, mul_assoc]
+  rfl
+
+end Decompose
+
 end Lax461425Proofs
