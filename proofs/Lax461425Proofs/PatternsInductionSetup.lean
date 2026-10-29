@@ -1,5 +1,6 @@
 import Mathlib.Data.Finset.Sort
 import Lax461425Proofs.PatternsSupportBasic
+import Lax461425Proofs.PatternsSupportDepth
 
 /-!
 Setup for `lem:induction` (the gate-by-gate induction underlying `mem_span_hom`).
@@ -29,6 +30,7 @@ namespace Lax461425Proofs.PatternsInductionSetup
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
 open Lax461425Proofs.PatternsSupportAction Lax461425Proofs.PatternsSupportBasic
+open Lax461425Proofs.PatternsSupportDepth
 
 /-! ### Enumerating a finite subset of `Fin n` -/
 
@@ -171,5 +173,29 @@ omit [Field K] in
 theorem rightCard_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
     rightCard hrig hn g ≤ supportSize C :=
   ncard_rightPart_supOf_le hrig hn g
+
+/-! ### `sc` vanishes at gates with no children -/
+
+omit [Field K] in
+/-- An input gate (no children, since `C.wire_eq_zero_of_isInput`) has `sc C g = 0`: the only
+path starting at `g` is the trivial, length-`0` path. -/
+theorem sc_eq_zero_of_isInput {g : C.Gate} (hinput : (C.label g).IsInput) : sc C g = 0 := by
+  apply le_antisymm _ (Nat.zero_le _)
+  apply csSup_le (sc_set_nonempty g)
+  rintro c ⟨m, p, hp0, hpath, rfl⟩
+  match m with
+  | 0 =>
+      show ({i : Fin 0 | _} : Set (Fin 0)).ncard ≤ 0
+      rw [show ({i : Fin 0 | ¬ minSupport C (p i.succ) ⊆ minSupport C (p i.castSucc)} :
+          Set (Fin 0)) = ∅ from Set.eq_empty_iff_forall_notMem.mpr (fun i _ => i.elim0)]
+      simp
+  | (m' + 1) =>
+      exfalso
+      have hstep : 0 < C.wire (p (0 : Fin (m' + 1)).castSucc) (p (0 : Fin (m' + 1)).succ) :=
+        hpath 0
+      have hcast0 : (0 : Fin (m' + 1)).castSucc = (0 : Fin (m' + 2)) := rfl
+      rw [hcast0, hp0] at hstep
+      rw [C.wire_eq_zero_of_isInput g _ hinput] at hstep
+      exact absurd hstep (lt_irrefl 0)
 
 end Lax461425Proofs.PatternsInductionSetup
