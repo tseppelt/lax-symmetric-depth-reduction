@@ -315,4 +315,240 @@ theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : T
   exact Fintype.sum_prod_type' (fun hBG hBG' => if (∀ j, hBG (G.b j) = hBG' (G'.b j))
     then f hBG hBG' else 0)
 
+/-! ### The homomorphism-polynomial multiplicativity of gluing -/
+
+/-- A compatibility guard around a sum factors out of the sum: whenever the guard holds we get
+the sum unchanged, and whenever it fails both sides are `0`. -/
+theorem ite_sum_eq_sum_ite {ι M : Type*} [Fintype ι] [AddCommMonoid M] (p : Prop)
+    [Decidable p] (f : ι → M) : (if p then (∑ x, f x) else 0) = ∑ x, if p then f x else 0 := by
+  by_cases hp : p <;> simp [hp]
+
+/-- The pointwise identity underlying the final assembly of `labelledHom_glue`: once a
+compatibility guard is nested around a label condition on *each* side, and that label condition
+pins down the value at every identified point, the two compatibility guards become redundant and
+the whole thing splits as a product of the two independent "labelledHom"-style summands. Stated
+as a free-standing lemma (not inside the main proof) so that `simp`'s case analysis is not
+swamped by the ambient context of `labelledHom_glue`, and with the label index types fixed to
+`Fin ℓ`/`Fin r` (rather than kept abstract) to avoid a `Decidable`-instance mismatch between a
+quantifier over an abstract `Fintype` and the concrete `Nat.decidableForallFin` instance that
+Lean actually picks for `∀ i : Fin ℓ, ⋯` wherever this lemma gets *used*. -/
+theorem pointwise_glue_ite {α α' β β' γ M : Type*} [DecidableEq γ] [MulZeroClass M]
+    (lab : Fin ℓ → α) (lab' : Fin ℓ → α') (target : Fin ℓ → γ)
+    (labB : Fin r → β) (labB' : Fin r → β') (targetB : Fin r → γ)
+    (hAG : α → γ) (hAG' : α' → γ) (hBG : β → γ) (hBG' : β' → γ) (c1 c2 : M) :
+    (if (∀ i, hAG (lab i) = hAG' (lab' i)) then
+        (if (∀ j, hBG (labB j) = hBG' (labB' j)) then
+          (if (∀ i, hAG (lab i) = target i) ∧ (∀ j, hBG (labB j) = targetB j) then c1 * c2
+          else 0)
+        else 0)
+      else 0)
+      = (if (∀ i, hAG (lab i) = target i) ∧ (∀ j, hBG (labB j) = targetB j) then c1 else 0) *
+        (if (∀ i, hAG' (lab' i) = target i) ∧ (∀ j, hBG' (labB' j) = targetB j) then c2 else 0) := by
+  have hfA : (∀ i, hAG (lab i) = target i) → (∀ i, hAG' (lab' i) = target i) →
+      (∀ i, hAG (lab i) = hAG' (lab' i)) := fun h h' i => (h i).trans (h' i).symm
+  have hfB : (∀ j, hBG (labB j) = targetB j) → (∀ j, hBG' (labB' j) = targetB j) →
+      (∀ j, hBG (labB j) = hBG' (labB' j)) := fun h h' j => (h j).trans (h' j).symm
+  have hbA : (∀ i, hAG (lab i) = hAG' (lab' i)) → (∀ i, hAG (lab i) = target i) →
+      (∀ i, hAG' (lab' i) = target i) := fun h h' i => (h i).symm.trans (h' i)
+  have hbB : (∀ j, hBG (labB j) = hBG' (labB' j)) → (∀ j, hBG (labB j) = targetB j) →
+      (∀ j, hBG' (labB' j) = targetB j) := fun h h' j => (h j).symm.trans (h' j)
+  have hAiff : (∀ i, hAG (lab i) = target i) →
+      ((∀ i, hAG (lab i) = hAG' (lab' i)) ↔ (∀ i, hAG' (lab' i) = target i)) :=
+    fun hpa => ⟨fun hcA => hbA hcA hpa, hfA hpa⟩
+  have hBiff : (∀ j, hBG (labB j) = targetB j) →
+      ((∀ j, hBG (labB j) = hBG' (labB' j)) ↔ (∀ j, hBG' (labB' j) = targetB j)) :=
+    fun hpb => ⟨fun hcB => hbB hcB hpb, hfB hpb⟩
+  by_cases hpa : ∀ i, hAG (lab i) = target i
+  · by_cases hpb : ∀ j, hBG (labB j) = targetB j
+    · by_cases hcA : ∀ i, hAG (lab i) = hAG' (lab' i)
+      · have hpa' : ∀ i, hAG' (lab' i) = target i := (hAiff hpa).mp hcA
+        by_cases hcB : ∀ j, hBG (labB j) = hBG' (labB' j)
+        · have hpb' : ∀ j, hBG' (labB' j) = targetB j := (hBiff hpb).mp hcB
+          simp [hpa, hpb, hpa', hpb']
+        · have hpb'_neg : ¬ (∀ j, hBG' (labB' j) = targetB j) :=
+            fun h => hcB ((hBiff hpb).mpr h)
+          have hpb'_neg' : ¬ (∀ j, targetB j = hBG' (labB' j)) :=
+            fun h => hpb'_neg (fun j => (h j).symm)
+          simp [hpa, hpb, hpa', hpb'_neg, hpb'_neg']
+      · have hpa'_neg : ¬ (∀ i, hAG' (lab' i) = target i) :=
+          fun h => hcA ((hAiff hpa).mpr h)
+        have hpa'_neg' : ¬ (∀ i, target i = hAG' (lab' i)) :=
+          fun h => hpa'_neg (fun i => (h i).symm)
+        simp [hpa, hpb, hpa'_neg, hpa'_neg']
+    · simp [hpb]
+  · simp [hpa]
+
+open MvPolynomial in
+/-- **Item 2's polynomial identity**: the homomorphism polynomial of a gluing is the *product*
+of the two original homomorphism polynomials. This is the heart of item 2 of `lem:labelled-ops`:
+`F ⊙ F' ∈ 𝒯^{Δ,k}_P(ℓ,r)` relies on this to show the generator-level product lands back in the
+span, once combined with `InClassP` closure under `glue` (depth/width + support bound, not yet
+established here). -/
+theorem labelledHom_glue (n : ℕ) (K : Type*) [CommSemiring K]
+    (v : Fin ℓ → Fin n) (w : Fin r → Fin n) :
+    labelledHom K (glue G G') n v w = labelledHom K G n v w * labelledHom K G' n v w := by
+  set ΦG : (G.F.A → Fin n) → (G.F.B → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+    fun hAG hBG => ∏ x, ∏ y, X (hAG x, hBG y) ^ G.F.mult x y with hΦG
+  set ΦG' : (G'.F.A → Fin n) → (G'.F.B → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+    fun hAG' hBG' => ∏ x', ∏ y', X (hAG' x', hBG' y') ^ G'.F.mult x' y' with hΦG'
+  have hhomG : labelledHom K G n v w =
+      ∑ hAG : G.F.A → Fin n, ∑ hBG : G.F.B → Fin n,
+        if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then ΦG hAG hBG else 0 := rfl
+  have hhomG' : labelledHom K G' n v w =
+      ∑ hAG' : G'.F.A → Fin n, ∑ hBG' : G'.F.B → Fin n,
+        if (∀ i, hAG' (G'.a i) = v i) ∧ (∀ j, hBG' (G'.b j) = w j) then ΦG' hAG' hBG' else 0 := rfl
+  have hhomGlue : labelledHom K (glue G G') n v w =
+      ∑ hA : GlueA G G' → Fin n, ∑ hB : GlueB G G' → Fin n,
+        if (∀ i, hA (glueπA G G' (Sum.inl (G.a i))) = v i) ∧
+            (∀ j, hB (glueπB G G' (Sum.inl (G.b j))) = w j) then
+          ΦG (hA ∘ glueπA G G' ∘ Sum.inl) (hB ∘ glueπB G G' ∘ Sum.inl) *
+            ΦG' (hA ∘ glueπA G G' ∘ Sum.inr) (hB ∘ glueπB G G' ∘ Sum.inr)
+        else 0 := by
+    show (∑ hA : GlueA G G' → Fin n, ∑ hB : GlueB G G' → Fin n,
+        if (∀ i, hA ((glue G G').a i) = v i) ∧ (∀ j, hB ((glue G G').b j) = w j) then
+          (∏ x, ∏ y, X (hA x, hB y) ^ (glue G G').F.mult x y : MvPolynomial (Fin n × Fin n) K)
+        else 0) = _
+    apply Finset.sum_congr rfl
+    intro hA _
+    apply Finset.sum_congr rfl
+    intro hB _
+    congr 1
+    exact prod_pow_glueMult'_eq_mul G G' n K hA hB
+  rw [hhomGlue, hhomG, hhomG']
+  -- Reindex the `hA`-sum via `glueLabelEquivA`, then the `hB`-sum via `glueLabelEquivB`.
+  have hreindexA : (∑ hA : GlueA G G' → Fin n, ∑ hB : GlueB G G' → Fin n,
+        if (∀ i, hA (glueπA G G' (Sum.inl (G.a i))) = v i) ∧
+            (∀ j, hB (glueπB G G' (Sum.inl (G.b j))) = w j) then
+          ΦG (hA ∘ glueπA G G' ∘ Sum.inl) (hB ∘ glueπB G G' ∘ Sum.inl) *
+            ΦG' (hA ∘ glueπA G G' ∘ Sum.inr) (hB ∘ glueπB G G' ∘ Sum.inr)
+        else 0)
+      = ∑ pa : CompatA G G' (Fin n), ∑ hB : GlueB G G' → Fin n,
+          if (∀ i, pa.1.1 (G.a i) = v i) ∧ (∀ j, hB (glueπB G G' (Sum.inl (G.b j))) = w j) then
+              ΦG pa.1.1 (hB ∘ glueπB G G' ∘ Sum.inl) * ΦG' pa.1.2 (hB ∘ glueπB G G' ∘ Sum.inr)
+            else 0 := by
+    apply Fintype.sum_equiv (glueLabelEquivA G G' (Fin n))
+    intro hA
+    rfl
+  have hreindexB : ∀ (hAG1 : G.F.A → Fin n) (hAG1' : G'.F.A → Fin n) (cond1 : Prop)
+      [Decidable cond1],
+      (∑ hB : GlueB G G' → Fin n,
+          if cond1 ∧ (∀ j, hB (glueπB G G' (Sum.inl (G.b j))) = w j) then
+            ΦG hAG1 (hB ∘ glueπB G G' ∘ Sum.inl) * ΦG' hAG1' (hB ∘ glueπB G G' ∘ Sum.inr)
+          else 0)
+        = ∑ pb : CompatB G G' (Fin n),
+            if cond1 ∧ (∀ j, pb.1.1 (G.b j) = w j) then ΦG hAG1 pb.1.1 * ΦG' hAG1' pb.1.2
+            else 0 := by
+    intro hAG1 hAG1' cond1 _
+    apply Fintype.sum_equiv (glueLabelEquivB G G' (Fin n))
+    intro hB
+    rfl
+  rw [hreindexA]
+  rw [Finset.sum_congr rfl (fun pa (_ : pa ∈ Finset.univ) =>
+    hreindexB pa.1.1 pa.1.2 (∀ i, pa.1.1 (G.a i) = v i))]
+  rw [show (∑ pa : CompatA G G' (Fin n), ∑ pb : CompatB G G' (Fin n),
+        if (∀ i, pa.1.1 (G.a i) = v i) ∧ (∀ j, pb.1.1 (G.b j) = w j) then
+            ΦG pa.1.1 pb.1.1 * ΦG' pa.1.2 pb.1.2
+          else 0)
+      = ∑ hAG : G.F.A → Fin n, ∑ hAG' : G'.F.A → Fin n,
+          if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+            (∑ pb : CompatB G G' (Fin n),
+              if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, pb.1.1 (G.b j) = w j) then
+                ΦG hAG pb.1.1 * ΦG' hAG' pb.1.2
+              else 0)
+          else 0 from
+      sum_compatA_eq_sum_ite G G'
+        (fun hAG hAG' => ∑ pb : CompatB G G' (Fin n),
+          if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, pb.1.1 (G.b j) = w j) then
+            ΦG hAG pb.1.1 * ΦG' hAG' pb.1.2
+          else 0)]
+  trans (∑ hAG : G.F.A → Fin n, ∑ hAG' : G'.F.A → Fin n,
+      if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+        (∑ hBG : G.F.B → Fin n, ∑ hBG' : G'.F.B → Fin n,
+          if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+            (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+              ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+          else 0)
+      else 0)
+  · apply Finset.sum_congr rfl
+    intro hAG _
+    apply Finset.sum_congr rfl
+    intro hAG' _
+    by_cases hc : ∀ i, hAG (G.a i) = hAG' (G'.a i)
+    · rw [if_pos hc, if_pos hc,
+        sum_compatB_eq_sum_ite G G'
+          (fun hBG hBG' => if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+              ΦG hAG hBG * ΦG' hAG' hBG' else 0)]
+    · rw [if_neg hc, if_neg hc]
+  -- Now: ∑ hAG, ∑ hAG', if compatA then (∑ hBG, ∑ hBG', if compatB then (if AcondG∧BcondG then
+  -- ΦG*ΦG' else 0) else 0) else 0 = labelledHom G * labelledHom G'.
+  have pointwise : ∀ (hAG : G.F.A → Fin n) (hAG' : G'.F.A → Fin n) (hBG : G.F.B → Fin n)
+      (hBG' : G'.F.B → Fin n),
+      (if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+          (if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+            (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+              ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+          else 0)
+        else 0)
+      = (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then ΦG hAG hBG else 0) *
+        (if (∀ i, hAG' (G'.a i) = v i) ∧ (∀ j, hBG' (G'.b j) = w j) then ΦG' hAG' hBG' else 0) :=
+    fun hAG hAG' hBG hBG' => pointwise_glue_ite G.a G'.a v G.b G'.b w hAG hAG' hBG hBG'
+      (ΦG hAG hBG) (ΦG' hAG' hBG')
+  trans (∑ hAG : G.F.A → Fin n, ∑ hAG' : G'.F.A → Fin n, ∑ hBG : G.F.B → Fin n,
+      ∑ hBG' : G'.F.B → Fin n,
+        (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then ΦG hAG hBG else 0) *
+        (if (∀ i, hAG' (G'.a i) = v i) ∧ (∀ j, hBG' (G'.b j) = w j) then ΦG' hAG' hBG' else 0))
+  · apply Finset.sum_congr rfl
+    intro hAG _
+    apply Finset.sum_congr rfl
+    intro hAG' _
+    have step1 : (if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+          (∑ hBG : G.F.B → Fin n, ∑ hBG' : G'.F.B → Fin n,
+            if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+              (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+                ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+            else 0)
+        else 0)
+        = ∑ hBG : G.F.B → Fin n,
+            if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+              (∑ hBG' : G'.F.B → Fin n,
+                if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+                  (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+                    ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+                else 0)
+            else 0 :=
+      ite_sum_eq_sum_ite _ _
+    rw [step1]
+    apply Finset.sum_congr rfl
+    intro hBG _
+    have step2 : (if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+          (∑ hBG' : G'.F.B → Fin n,
+            if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+              (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+                ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+            else 0)
+        else 0)
+        = ∑ hBG' : G'.F.B → Fin n,
+            if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then
+              (if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then
+                (if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then
+                  ΦG hAG hBG * ΦG' hAG' hBG' else 0)
+              else 0)
+            else 0 :=
+      ite_sum_eq_sum_ite _ _
+    rw [step2]
+    apply Finset.sum_congr rfl
+    intro hBG' _
+    exact pointwise hAG hAG' hBG hBG'
+  trans ((∑ hAG : G.F.A → Fin n, ∑ hBG : G.F.B → Fin n,
+        if (∀ i, hAG (G.a i) = v i) ∧ (∀ j, hBG (G.b j) = w j) then ΦG hAG hBG else 0) *
+      ∑ hAG' : G'.F.A → Fin n, ∑ hBG' : G'.F.B → Fin n,
+        if (∀ i, hAG' (G'.a i) = v i) ∧ (∀ j, hBG' (G'.b j) = w j) then ΦG' hAG' hBG' else 0)
+  · rw [Finset.sum_mul_sum]
+    apply Finset.sum_congr rfl
+    intro hAG _
+    apply Finset.sum_congr rfl
+    intro hAG' _
+    rw [Finset.sum_mul_sum]
+  · rw [← hhomG, ← hhomG']
+
 end Lax461425Proofs.PatternsLabelledGlue
