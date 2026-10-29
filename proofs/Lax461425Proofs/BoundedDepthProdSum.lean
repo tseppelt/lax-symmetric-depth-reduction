@@ -23,12 +23,12 @@ theorem prod_eq_of_two_support {α V : Type*} [Fintype α] [CommMonoid V] (e : �
     rw [hrest x (fun h => hx (Or.inl h)) (fun h => hx (Or.inr h)), pow_zero]
   rw [hstep, Finset.prod_insert (by simp [hab]), Finset.prod_singleton]
 
-/-- A sum `∑ x, e x • qval x` where `e` is `1` on the image of an injective `ι : β → α` and
-vanishes elsewhere reduces to a sum over `β`. -/
-theorem sum_eq_of_support_image {α β V : Type*} [Fintype α] [Fintype β] [AddCommMonoid V]
-    (e : α → ℕ) (qval : α → V) (ι : β → α) (hι : Function.Injective ι) (h1 : ∀ j, e (ι j) = 1)
+/-- A sum `∑ x, e x • qval x` where `e` vanishes off the image of an injective `ι : β → α`
+reduces to a sum over `β`. -/
+theorem sum_eq_of_vanishing_outside_image {α β V : Type*} [Fintype α] [Fintype β]
+    [AddCommMonoid V] (e : α → ℕ) (qval : α → V) (ι : β → α) (hι : Function.Injective ι)
     (hrest : ∀ x, (∀ j, x ≠ ι j) → e x = 0) :
-    (∑ x, e x • qval x) = ∑ j : β, qval (ι j) := by
+    (∑ x, e x • qval x) = ∑ j : β, e (ι j) • qval (ι j) := by
   have hstep : (∑ x : α, e x • qval x) =
       ∑ x ∈ (Finset.univ : Finset β).image ι, e x • qval x := by
     symm
@@ -37,6 +37,28 @@ theorem sum_eq_of_support_image {α β V : Type*} [Fintype α] [Fintype β] [Add
     rw [hrest x (fun j hj => hx (by simp [hj]))]
     simp
   rw [hstep, Finset.sum_image (fun x _ y _ hxy => hι hxy)]
+
+/-- A sum `∑ x, e x • qval x` where `e` is `1` on the image of an injective `ι : β → α` and
+vanishes elsewhere reduces to a sum over `β`. -/
+theorem sum_eq_of_support_image {α β V : Type*} [Fintype α] [Fintype β] [AddCommMonoid V]
+    (e : α → ℕ) (qval : α → V) (ι : β → α) (hι : Function.Injective ι) (h1 : ∀ j, e (ι j) = 1)
+    (hrest : ∀ x, (∀ j, x ≠ ι j) → e x = 0) :
+    (∑ x, e x • qval x) = ∑ j : β, qval (ι j) := by
+  rw [sum_eq_of_vanishing_outside_image e qval ι hι hrest]
   exact Finset.sum_congr rfl (fun j _ => by rw [h1 j, one_nsmul])
+
+/-- A product `∏ x, qval x ^ e x` where `e` vanishes off the image of an injective `ι : β → α`
+reduces to a product over `β`. -/
+theorem prod_eq_of_vanishing_outside_image {α β V : Type*} [Fintype α] [Fintype β] [CommMonoid V]
+    (e : α → ℕ) (qval : α → V) (ι : β → α) (hι : Function.Injective ι)
+    (hrest : ∀ x, (∀ j, x ≠ ι j) → e x = 0) :
+    (∏ x, qval x ^ e x) = ∏ j : β, qval (ι j) ^ e (ι j) := by
+  have hstep : (∏ x : α, qval x ^ e x) =
+      ∏ x ∈ (Finset.univ : Finset β).image ι, qval x ^ e x := by
+    symm
+    apply Finset.prod_subset (Finset.subset_univ _)
+    intro x _ hx
+    rw [hrest x (fun j hj => hx (by simp [hj])), pow_zero]
+  rw [hstep, Finset.prod_image (fun x _ y _ hxy => hι hxy)]
 
 end Lax461425Proofs
