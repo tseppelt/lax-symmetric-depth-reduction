@@ -107,4 +107,31 @@ theorem exists_pad_of_child (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) :=
   exists_pad_of_subset_mono hrig hn hsub (sc_mono hwire) φ hφ
 
+/-- **Reindexing a witness at an arbitrary matching-range enumeration to `g`'s canonical one.**
+If `v, w` are injective with the *same* ranges as `leftPart (supOf hrig hn g)`,
+`rightPart (supOf hrig hn g)` (not just contained in them), any witness at arity `(v, w)`
+reindexes to a witness at `g`'s own canonical arity, at the same depth bound, with the same
+value. Used for the base case, where `exists_phi_input`'s witness is built against the constant
+enumerations `(fun _ => i), (fun _ => j)` rather than `g`'s own `leftEnum`/`rightEnum`. -/
+theorem exists_pad_of_range_eq (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g : C.Gate}
+    {m r : ℕ} {v : Fin m → Fin n} {w : Fin r → Fin n} (hv : Function.Injective v)
+    (hw : Function.Injective w) (hvrange : Set.range v = leftPart (supOf hrig hn g))
+    (hwrange : Set.range w = rightPart (supOf hrig hn g)) {Δ k : ℕ}
+    (φ : (Fin m → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (hφ : φ ∈ span𝔗P K Δ k n (Finset.univ : Finset (Fin m ⊕ Fin r))) :
+    ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
+      MvPolynomial (Fin n × Fin n) K,
+      ψ ∈ span𝔗P K Δ k n
+        (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
+      ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ v w := by
+  have hrangeL : Set.range v ⊆ Set.range (leftEnum hrig hn g) := by
+    rw [hvrange, range_leftEnum]
+  have hrangeR : Set.range w ⊆ Set.range (rightEnum hrig hn g) := by
+    rw [hwrange, range_rightEnum]
+  obtain ⟨ι, hι⟩ := embedding_of_range_subset hv (leftEnum_injective hrig hn g) hrangeL
+  obtain ⟨κ, hκ⟩ := embedding_of_range_subset hw (rightEnum_injective hrig hn g) hrangeR
+  refine ⟨fun v' w' => φ (v' ∘ ι) (w' ∘ κ), span𝔗P_pad_mem ι κ φ hφ, ?_⟩
+  show φ ((leftEnum hrig hn g) ∘ ι) ((rightEnum hrig hn g) ∘ κ) = φ v w
+  rw [hι, hκ]
+
 end Lax461425Proofs.PatternsInductionChild
