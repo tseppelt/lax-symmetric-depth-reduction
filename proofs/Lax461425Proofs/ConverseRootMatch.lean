@@ -157,6 +157,17 @@ theorem P_root_eq_hom (hn0 : 0 < n) (hNI : NoIsolatedVertices F) :
     Fintype.sum_prod_type]
   rfl
 
+variable (hE : ∃ a b, F.mult a b ≠ 0)
+
+/-- **The main correctness theorem.** The circuit built from a normalised decomposition of `F`
+computes `hom K F n`, provided `F` has no isolated vertices. -/
+theorem circuit_computes_hom (hn0 : 0 < n) (hNI : NoIsolatedVertices F) :
+    (circuit N n K hn0 hE).Computes (hom K F n) := by
+  show (circuit N n K hn0 hE).ComputesAt (out N n) (hom K F n)
+  show (circuit N n K hn0 hE).ComputesAt (CGate.R N.root (rootAdm N n)) (hom K F n)
+  rw [← P_root_eq_hom N n hn0 hNI]
+  exact computesAt_R N n hn0 hE N.root (rootAdm N n)
+
 end Hom
 
 end Lax461425Proofs
