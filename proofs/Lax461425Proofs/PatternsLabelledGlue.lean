@@ -953,4 +953,129 @@ theorem glueπB_eq_iff_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B} (h : glueπB 
   eqvGen_glueRelB_eq_or_isGlueLabelB G G'
     (Quot.eq.mp (show Quot.mk (GlueRelB G G') x = Quot.mk (GlueRelB G G') y from h))
 
+/-! ### The merged tree
+
+Given root-exact decompositions `D` of `G` and `D'` of `G'` (both of depth `≤ Δ`, width `≤ k`),
+we build a root-exact decomposition of `glue G G'` by *identifying* `D.root` and `D'.root`
+(rather than attaching a fresh root above both, as `PatternsLabelledOps.DelNode` does for item
+4): this keeps the depth bound at `Δ` (not `Δ + 1`). Since `G, G'` are parameters of `D, D'`'s
+very *type*, every definition/lemma about the merged tree must take `G G'` explicitly, ahead of
+`D D'` (there is no way around this: the elaborator needs `G, G'` in hand just to know `D, D'`'s
+type). -/
+
+variable {Δ k : ℕ} (D : RootExactDecomposition G Δ k) (D' : RootExactDecomposition G' Δ k)
+
+/-- The merged node type: `D`'s nodes, together with `D'`'s *non-root* nodes (`D'.root` is
+identified with `D.root`, so it is not a separate node here). -/
+abbrev GlueNode (G G' : LabelledPattern ℓ r) (D : RootExactDecomposition G Δ k)
+    (D' : RootExactDecomposition G' Δ k) := D.Node ⊕ {t' : D'.Node // t' ≠ D'.root}
+
+/-- The merged root: `D.root`, now playing the role of both original roots. -/
+def glueRoot : GlueNode G G' D D' := Sum.inl D.root
+
+/-- The merged parent map: `D`'s own parent map on the left; on the right, `D'`'s parent map,
+redirected into the merged root whenever it would otherwise reach `D'.root`. -/
+noncomputable def glueParent : GlueNode G G' D D' → GlueNode G G' D D' :=
+  Sum.elim (fun t => Sum.inl (D.parent t))
+    (fun p => if hr : D'.parent p.1 = D'.root then Sum.inl D.root
+      else Sum.inr ⟨D'.parent p.1, hr⟩)
+
+/-- The merged bag map: `D`'s non-root bags, pushed forward via `embG`; `D'`'s non-root bags,
+pushed forward via `embG'`; and the merged root's bag is `(glue G G').labelSupport` directly
+(absorbing both original root bags, by `labelSupport_glue_subset`/`embG_mem_labelSupport_of_mem`
+below). Isolated vertices are stripped before pushing a non-root bag forward: a vertex isolated
+in its own original pattern, even if (needlessly) present in some bag of `D`/`D'`, carries no
+edges to justify retaining it, and retaining it could otherwise break `connected` after gluing
+(it is never forced to propagate towards the root the way a genuine label vertex is). -/
+noncomputable def glueBag : GlueNode G G' D D' → Finset (GlueA G G' ⊕ GlueB G G')
+  | Sum.inl t => if t = D.root then (glue G G').labelSupport
+      else (D.bag t \ isolatedSet G.F).image (embG G G')
+  | Sum.inr p => (D'.bag p.1 \ isolatedSet G'.F).image (embG' G G')
+
+theorem glueParent_inl (t : D.Node) : glueParent G G' D D' (Sum.inl t) = Sum.inl (D.parent t) :=
+  rfl
+
+theorem glueParent_inr_root {t' : D'.Node} (h : t' ≠ D'.root) (hr : D'.parent t' = D'.root) :
+    glueParent G G' D D' (Sum.inr ⟨t', h⟩) = glueRoot G G' D D' := by
+  simp [glueParent, glueRoot, hr]
+
+theorem glueParent_inr_of_ne {t' : D'.Node} (h : t' ≠ D'.root) (hr : D'.parent t' ≠ D'.root) :
+    glueParent G G' D D' (Sum.inr ⟨t', h⟩) = Sum.inr ⟨D'.parent t', hr⟩ := by
+  simp [glueParent, hr]
+
+theorem glueParent_root : glueParent G G' D D' (glueRoot G G' D D') = glueRoot G G' D D' := by
+  show Sum.inl (D.parent D.root) = Sum.inl D.root
+  rw [D.parent_root]
+
+theorem glueBag_inl_root : glueBag G G' D D' (Sum.inl D.root) = (glue G G').labelSupport :=
+  if_pos rfl
+
+theorem glueBag_root : glueBag G G' D D' (glueRoot G G' D D') = (glue G G').labelSupport :=
+  glueBag_inl_root G G' D D'
+
+theorem glueBag_inl_of_ne {t : D.Node} (h : t ≠ D.root) :
+    glueBag G G' D D' (Sum.inl t) = (D.bag t \ isolatedSet G.F).image (embG G G') :=
+  if_neg h
+
+theorem glueBag_inr {t' : D'.Node} (h : t' ≠ D'.root) :
+    glueBag G G' D D' (Sum.inr ⟨t', h⟩) = (D'.bag t' \ isolatedSet G'.F).image (embG' G G') := rfl
+
+theorem glueParent_iterate_inl : ∀ (m : ℕ) (t : D.Node),
+    (glueParent G G' D D')^[m] (Sum.inl t) = Sum.inl (D.parent^[m] t) := by
+  intro m
+  induction m with
+  | zero => intro t; rfl
+  | succ m ih =>
+      intro t
+      rw [Function.iterate_succ_apply', Function.iterate_succ_apply', ih, glueParent_inl]
+
+theorem glueParent_iterate_root (m : ℕ) :
+    (glueParent G G' D D')^[m] (glueRoot G G' D D') = glueRoot G G' D D' := by
+  show (glueParent G G' D D')^[m] (Sum.inl D.root) = Sum.inl D.root
+  rw [glueParent_iterate_inl, Function.iterate_fixed D.parent_root m]
+
+theorem glueParent_iterate_of_root : ∀ (m : ℕ) (t0' : D'.Node) (h0 : t0' ≠ D'.root),
+    D'.parent^[m] t0' = D'.root →
+      (glueParent G G' D D')^[m] (Sum.inr ⟨t0', h0⟩) = glueRoot G G' D D' := by
+  intro m
+  induction m with
+  | zero => intro t0' h0 ht; exact absurd ht h0
+  | succ m ih =>
+      intro t0' h0 ht
+      rw [Function.iterate_succ_apply]
+      by_cases hr : D'.parent t0' = D'.root
+      · rw [glueParent_inr_root G G' D D' h0 hr]
+        exact glueParent_iterate_root G G' D D' m
+      · rw [glueParent_inr_of_ne G G' D D' h0 hr]
+        have ht' : D'.parent^[m] (D'.parent t0') = D'.root := by
+          rwa [Function.iterate_succ_apply] at ht
+        exact ih (D'.parent t0') hr ht'
+
+theorem glueDepth_le (t : GlueNode G G' D D') :
+    (glueParent G G' D D')^[Δ] t = glueRoot G G' D D' := by
+  cases t with
+  | inl t0 =>
+      show (glueParent G G' D D')^[Δ] (Sum.inl t0) = Sum.inl D.root
+      rw [glueParent_iterate_inl, D.depth_le]
+  | inr t0 =>
+      obtain ⟨t0', h0⟩ := t0
+      exact glueParent_iterate_of_root G G' D D' Δ t0' h0 (D'.depth_le t0')
+
+theorem glueCard_bag_le {P : Finset (Fin ℓ ⊕ Fin r)} (hP : P.card ≤ k) (hG : InClassP Δ k P G)
+    (hG' : InClassP Δ k P G') (t : GlueNode G G' D D') : (glueBag G G' D D' t).card ≤ k := by
+  cases t with
+  | inl t0 =>
+      by_cases hr : t0 = D.root
+      · subst hr
+        rw [glueBag_inl_root]
+        exact (card_labelSupport_glue_le G G' hG hG').trans hP
+      · rw [glueBag_inl_of_ne G G' D D' hr]
+        exact Finset.card_image_le.trans ((Finset.card_le_card Finset.sdiff_subset).trans
+          (D.card_bag_le t0))
+  | inr t0 =>
+      obtain ⟨t0', h0⟩ := t0
+      rw [glueBag_inr G G' D D' h0]
+      exact Finset.card_image_le.trans ((Finset.card_le_card Finset.sdiff_subset).trans
+        (D'.card_bag_le t0'))
+
 end Lax461425Proofs.PatternsLabelledGlue
