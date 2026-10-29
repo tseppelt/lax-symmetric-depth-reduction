@@ -31,18 +31,18 @@ open scoped Classical
 
 /-! ### A finite "product of 0/1 indicators" helper -/
 
-/-- The product, over a finite index set, of a family that is `0` whenever a side-condition `Q i`
-holds and `1` otherwise, is `1` if `Q` never holds and `0` if it holds somewhere. -/
-theorem prod_ite_zero_one {ι R : Type*} [Fintype ι] [CommMonoidWithZero R] (Q : ι → Prop)
-    [DecidablePred Q] :
-    (∏ i, if Q i then (0 : R) else 1) = if (∀ i, ¬ Q i) then 1 else 0 := by
-  by_cases h : ∀ i, ¬ Q i
+/-- The product, over a finite set `s`, of a family that is `0` whenever a side-condition `Q i`
+holds and `1` otherwise, is `1` if `Q` never holds on `s` and `0` if it holds somewhere on `s`. -/
+theorem prod_ite_zero_one {ι R : Type*} [DecidableEq ι] [CommMonoidWithZero R] (s : Finset ι)
+    (Q : ι → Prop) [DecidablePred Q] :
+    (∏ i ∈ s, if Q i then (0 : R) else 1) = if (∀ i ∈ s, ¬ Q i) then 1 else 0 := by
+  by_cases h : ∀ i ∈ s, ¬ Q i
   · rw [if_pos h]
-    exact Finset.prod_eq_one fun i _ => if_neg (h i)
+    exact Finset.prod_eq_one fun i hi => if_neg (h i hi)
   · rw [if_neg h]
     push_neg at h
-    obtain ⟨i0, hi0⟩ := h
-    exact Finset.prod_eq_zero (Finset.mem_univ i0) (if_pos hi0)
+    obtain ⟨i0, hi0, hQi0⟩ := h
+    exact Finset.prod_eq_zero hi0 (if_pos hQi0)
 
 /-- A function out of a linearly ordered type is injective iff it takes distinct values on every
 pair of indices `i < j`. -/
