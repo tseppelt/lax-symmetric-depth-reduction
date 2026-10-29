@@ -142,4 +142,63 @@ theorem prod_pow_wireRtoInp (t : N.Node) (γ : Adm F n (N.bag t)) :
 
 end EdgeRegroup
 
+section ChildRegroup
+
+variable (N : NormDecomp F Δ k) (n : ℕ)
+
+/-- Regrouping the product, over all non-root nodes `c'` and all admissible `δ'` on
+`β(parent c') ∩ β(c')`, of `(V c' δ')^(wireRtoS t γ c' δ')`, by picking out for each child `c'`
+of `t` the unique `δ'` agreeing with `γ`: this is the "nice form" of the `S`-gate
+contribution to `R t γ`. -/
+theorem prod_pow_wireRtoS {M : Type*} [CommMonoid M] (t : N.Node) (γ : Adm F n (N.bag t))
+    (V : (c' : NonRoot N) → Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1) → M) :
+    ∏ c' : NonRoot N, ∏ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1),
+        (V c' δ') ^ (wireRtoS N n t γ c' δ') =
+      ∏ cc ∈ (children N t).attach,
+        V cc.1 (restrictFromParent N n cc.1 ((mem_children N).mp cc.2) γ) := by
+  have hinner : ∀ c' : NonRoot N, (∏ δ' : Adm F n (N.bag (N.parent c'.1) ∩ N.bag c'.1),
+      (V c' δ') ^ (wireRtoS N n t γ c' δ')) =
+      if h : N.parent c'.1 = t then V c' (restrictFromParent N n c' h γ) else 1 := by
+    intro c'
+    by_cases hpc : N.parent c'.1 = t
+    · rw [dif_pos hpc]
+      have hone : wireRtoS N n t γ c' (restrictFromParent N n c' hpc γ) = 1 :=
+        wireRtoS_eq_one N n hpc (fun x hx => rfl)
+      rw [Fintype.prod_eq_single (restrictFromParent N n c' hpc γ) (fun δ' hne => by
+        have h0 : wireRtoS N n t γ c' δ' = 0 := by
+          unfold wireRtoS
+          rw [dif_pos hpc]
+          apply if_neg
+          intro hmatch
+          apply hne
+          funext x
+          exact (hmatch x.1 x.2).symm
+        rw [h0, pow_zero]), hone, pow_one]
+    · rw [dif_neg hpc]
+      apply Finset.prod_eq_one
+      intro δ' _
+      have h0 : wireRtoS N n t γ c' δ' = 0 := by
+        show wireRtoS N n t γ c' δ' = 0
+        unfold wireRtoS
+        rw [dif_neg hpc]
+      rw [h0, pow_zero]
+  calc ∏ c' : NonRoot N, ∏ δ', (V c' δ') ^ (wireRtoS N n t γ c' δ')
+      = ∏ c' : NonRoot N,
+          (if h : N.parent c'.1 = t then V c' (restrictFromParent N n c' h γ) else 1) :=
+        Finset.prod_congr rfl (fun c' _ => hinner c')
+    _ = ∏ c' ∈ children N t,
+          (if h : N.parent c'.1 = t then V c' (restrictFromParent N n c' h γ) else 1) := by
+        symm
+        apply Finset.prod_subset (Finset.subset_univ _)
+        intro x _ hx
+        exact dif_neg (fun h => hx ((mem_children N).mpr h))
+    _ = ∏ cc ∈ (children N t).attach,
+          (if h : N.parent cc.1.1 = t then V cc.1 (restrictFromParent N n cc.1 h γ) else 1) :=
+        (Finset.prod_attach _ _).symm
+    _ = ∏ cc ∈ (children N t).attach,
+          V cc.1 (restrictFromParent N n cc.1 ((mem_children N).mp cc.2) γ) :=
+        Finset.prod_congr rfl (fun cc _ => dif_pos ((mem_children N).mp cc.2))
+
+end ChildRegroup
+
 end Lax461425Proofs
