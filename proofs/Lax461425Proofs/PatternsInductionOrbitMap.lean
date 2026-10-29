@@ -106,4 +106,69 @@ theorem sup_subset_sup_union_N :
           rw [range_yReal]; exact ⟨hj, hmem⟩
         exact Or.inr (Or.inr ⟨j, this, rfl⟩)
 
+/-! ### Well-definedness -/
+
+omit [Field K] in
+/-- **Well-definedness of `σOf hrig γ h`, independent of the choice of `γ`.** Two choices of
+`γ` both fixing `sup g` pointwise and both sending the real `N`-tuple to the same `(y, z)`
+produce the same gate `σOf hrig γ h`. -/
+theorem σOf_eq_of_both_valid
+    {y : Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n}
+    {z : Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n}
+    {γ γ' : Γ n}
+    (hγmem : γ ∈ fixingSubgroup (Γ n) (supOf hrig hn g))
+    (hγ'mem : γ' ∈ fixingSubgroup (Γ n) (supOf hrig hn g))
+    (hγy : γ.1 ∘ yReal (leftEnum hrig hn g) (leftEnum hrig hn h) = y)
+    (hγ'y : γ'.1 ∘ yReal (leftEnum hrig hn g) (leftEnum hrig hn h) = y)
+    (hγz : γ.2 ∘ yReal (rightEnum hrig hn g) (rightEnum hrig hn h) = z)
+    (hγ'z : γ'.2 ∘ yReal (rightEnum hrig hn g) (rightEnum hrig hn h) = z) :
+    σOf hrig γ h = σOf hrig γ' h := by
+  set δ : Γ n := γ'⁻¹ * γ with hδ
+  have hδfixUnion : ∀ x ∈ supOf hrig hn g ∪
+      (Sum.inl '' Set.range (yReal (leftEnum hrig hn g) (leftEnum hrig hn h)) ∪
+        Sum.inr '' Set.range (yReal (rightEnum hrig hn g) (rightEnum hrig hn h))),
+      actPoint δ x = x := by
+    rintro x (hx | hx | hx)
+    · have h1 : actPoint γ x = x :=
+        (mem_fixingSubgroup_iff (M := Γ n) (s := supOf hrig hn g) (m := γ)).mp hγmem x hx
+      have h2 : actPoint γ' x = x :=
+        (mem_fixingSubgroup_iff (M := Γ n) (s := supOf hrig hn g) (m := γ')).mp hγ'mem x hx
+      have h3 : actPoint γ'⁻¹ x = x := by
+        have := actPoint_self_inv_apply γ' x
+        rwa [h2] at this
+      show actPoint δ x = x
+      rw [hδ, actPoint_mul, Function.comp_apply, h1, h3]
+    · obtain ⟨a, ⟨k, rfl⟩, rfl⟩ := hx
+      have h1 : actPoint γ (Sum.inl (yReal (leftEnum hrig hn g) (leftEnum hrig hn h) k)) =
+          Sum.inl (y k) := congrArg Sum.inl (congrFun hγy k)
+      have h2 : actPoint γ' (Sum.inl (yReal (leftEnum hrig hn g) (leftEnum hrig hn h) k)) =
+          Sum.inl (y k) := congrArg Sum.inl (congrFun hγ'y k)
+      show actPoint δ (Sum.inl (yReal (leftEnum hrig hn g) (leftEnum hrig hn h) k)) =
+          Sum.inl (yReal (leftEnum hrig hn g) (leftEnum hrig hn h) k)
+      rw [hδ, actPoint_mul, Function.comp_apply, h1, ← h2]
+      exact actPoint_self_inv_apply γ' _
+    · obtain ⟨a, ⟨k, rfl⟩, rfl⟩ := hx
+      have h1 : actPoint γ (Sum.inr (yReal (rightEnum hrig hn g) (rightEnum hrig hn h) k)) =
+          Sum.inr (z k) := congrArg Sum.inr (congrFun hγz k)
+      have h2 : actPoint γ' (Sum.inr (yReal (rightEnum hrig hn g) (rightEnum hrig hn h) k)) =
+          Sum.inr (z k) := congrArg Sum.inr (congrFun hγ'z k)
+      show actPoint δ (Sum.inr (yReal (rightEnum hrig hn g) (rightEnum hrig hn h) k)) =
+          Sum.inr (yReal (rightEnum hrig hn g) (rightEnum hrig hn h) k)
+      rw [hδ, actPoint_mul, Function.comp_apply, h1, ← h2]
+      exact actPoint_self_inv_apply γ' _
+  have hδmemBig : δ ∈ fixingSubgroup (Γ n) (supOf hrig hn g ∪
+      (Sum.inl '' Set.range (yReal (leftEnum hrig hn g) (leftEnum hrig hn h)) ∪
+        Sum.inr '' Set.range (yReal (rightEnum hrig hn g) (rightEnum hrig hn h)))) :=
+    (mem_fixingSubgroup_iff (M := Γ n) (m := δ)).mpr hδfixUnion
+  have hδmem0 : δ ∈ fixingSubgroup (Γ n) (supOf hrig hn h) :=
+    fixingSubgroup_mono (sup_subset_sup_union_N hrig hn) hδmemBig
+  have hδstab : σOf hrig δ h = h := by
+    have hle := (isSupport_iff_fixingSubgroup_le hrig h (supOf hrig hn h)).mp
+      (isSupport_supOf hrig hn h)
+    exact (mem_gateStabilizer_iff hrig).mp (hle hδmem0)
+  have hstep : σOf hrig γ'⁻¹ (σOf hrig γ h) = h := by
+    rwa [hδ, σOf_mul, Equiv.Perm.mul_apply] at hδstab
+  calc σOf hrig γ h = σOf hrig γ' (σOf hrig γ'⁻¹ (σOf hrig γ h)) := (σOf_σOf_inv hrig γ' _).symm
+    _ = σOf hrig γ' h := by rw [hstep]
+
 end Lax461425Proofs.PatternsInductionOrbitMap
