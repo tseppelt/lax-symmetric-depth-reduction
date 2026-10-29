@@ -146,6 +146,194 @@ theorem inClassP_relabel {G : LabelledPattern ℓ r} {Δ k : ℕ} {P : Finset (F
   rw [relabel_labelVertex_apply, Equiv.apply_symm_apply]
   exact hpv
 
+/-! ### Item 3b: adding labels on fresh isolated vertices -/
+
+/-- `G` extended by `m` fresh `A`-side and `m'` fresh `B`-side isolated vertices, carrying the
+new label positions (the last `m`/`m'` positions, via `Fin.natAdd`): no new edges are added, so
+the fresh vertices are genuinely isolated and the old vertices keep exactly their old
+multiplicities. -/
+def addFreshIsolated (G : LabelledPattern ℓ r) (m m' : ℕ) : LabelledPattern (ℓ + m) (r + m') where
+  F := { A := G.F.A ⊕ Fin m
+         B := G.F.B ⊕ Fin m'
+         mult := fun x y => Sum.elim (fun x0 => Sum.elim (G.F.mult x0) (fun _ => 0))
+           (fun _ => fun _ => 0) x y }
+  a := Fin.addCases (fun i => Sum.inl (G.a i)) (fun i => Sum.inr i)
+  b := Fin.addCases (fun j => Sum.inl (G.b j)) (fun j => Sum.inr j)
+
+variable (G : LabelledPattern ℓ r) {m m' : ℕ}
+
+/-- The natural embedding of `G`'s vertices into `addFreshIsolated G m m'`. -/
+def embAdd (G : LabelledPattern ℓ r) (m m' : ℕ) :
+    G.F.A ⊕ G.F.B → (addFreshIsolated G m m').F.A ⊕ (addFreshIsolated G m m').F.B :=
+  Sum.map Sum.inl Sum.inl
+
+theorem embAdd_injective : Function.Injective (embAdd G m m') := by
+  intro a b hab
+  cases a with
+  | inl x0 => cases b with
+    | inl x0' => exact congrArg Sum.inl (Sum.inl_injective (Sum.inl_injective hab))
+    | inr y0' => exact absurd hab Sum.inl_ne_inr
+  | inr y0 => cases b with
+    | inl x0' => exact absurd hab.symm Sum.inl_ne_inr
+    | inr y0' => exact congrArg Sum.inr (Sum.inl_injective (Sum.inr_injective hab))
+
+theorem isIsolated_embAdd_iff {w : G.F.A ⊕ G.F.B} :
+    isIsolated (addFreshIsolated G m m').F (embAdd G m m' w) ↔ isIsolated G.F w := by
+  cases w with
+  | inl x0 =>
+      constructor
+      · intro h y0; exact h (Sum.inl y0)
+      · intro h y
+        cases y with
+        | inl y0 => exact h y0
+        | inr j => rfl
+  | inr y0 =>
+      constructor
+      · intro h x0; exact h (Sum.inl x0)
+      · intro h x
+        cases x with
+        | inl x0 => exact h x0
+        | inr i => rfl
+
+theorem isIsolated_fresh_inl (i : Fin m) :
+    isIsolated (addFreshIsolated G m m').F (Sum.inl (Sum.inr i)) := fun _ => rfl
+
+theorem isIsolated_fresh_inr (j : Fin m') :
+    isIsolated (addFreshIsolated G m m').F (Sum.inr (Sum.inr j)) := by
+  intro x
+  cases x with
+  | inl x0 => rfl
+  | inr i => rfl
+
+theorem addFreshIsolated_labelVertex_castAdd (i : Fin ℓ) :
+    (addFreshIsolated G m m').labelVertex (Sum.inl (Fin.castAdd m i)) =
+      embAdd G m m' (G.labelVertex (Sum.inl i)) := by
+  simp [addFreshIsolated, LabelledPattern.labelVertex, embAdd]
+
+theorem addFreshIsolated_labelVertex_natAdd (i : Fin m) :
+    (addFreshIsolated G m m').labelVertex (Sum.inl (Fin.natAdd ℓ i)) = Sum.inl (Sum.inr i) := by
+  simp [addFreshIsolated, LabelledPattern.labelVertex]
+
+theorem addFreshIsolated_labelVertex_castAdd' (j : Fin r) :
+    (addFreshIsolated G m m').labelVertex (Sum.inr (Fin.castAdd m' j)) =
+      embAdd G m m' (G.labelVertex (Sum.inr j)) := by
+  simp [addFreshIsolated, LabelledPattern.labelVertex, embAdd]
+
+theorem addFreshIsolated_labelVertex_natAdd' (j : Fin m') :
+    (addFreshIsolated G m m').labelVertex (Sum.inr (Fin.natAdd r j)) = Sum.inr (Sum.inr j) := by
+  simp [addFreshIsolated, LabelledPattern.labelVertex]
+
+/-- The label support of `addFreshIsolated G m m'` is exactly the image, under `embAdd`, of
+`G`'s own label support: no fresh vertex ever carries a label on a non-isolated vertex, since
+every fresh vertex is (genuinely) isolated. -/
+theorem labelSupport_addFreshIsolated (G : LabelledPattern ℓ r) (m m' : ℕ) :
+    (addFreshIsolated G m m').labelSupport = G.labelSupport.image (embAdd G m m') := by
+  ext v
+  simp only [LabelledPattern.labelSupport, Finset.mem_sdiff, Finset.mem_image]
+  constructor
+  · rintro ⟨⟨p, -, hp⟩, hniso⟩
+    rcases p with i | j
+    · induction i using Fin.addCases with
+      | left i =>
+          rw [addFreshIsolated_labelVertex_castAdd] at hp
+          refine ⟨G.labelVertex (Sum.inl i), ⟨⟨Sum.inl i, Finset.mem_univ _, rfl⟩,
+            not_isIsolated_iff_notMem.mp ?_⟩, hp⟩
+          rw [← hp] at hniso
+          exact fun h => hniso (mem_isolatedSet.mpr ((isIsolated_embAdd_iff G).mpr h))
+      | right i =>
+          exfalso
+          rw [addFreshIsolated_labelVertex_natAdd] at hp
+          rw [← hp] at hniso
+          exact hniso (mem_isolatedSet.mpr (isIsolated_fresh_inl G i))
+    · induction j using Fin.addCases with
+      | left j =>
+          rw [addFreshIsolated_labelVertex_castAdd'] at hp
+          refine ⟨G.labelVertex (Sum.inr j), ⟨⟨Sum.inr j, Finset.mem_univ _, rfl⟩,
+            not_isIsolated_iff_notMem.mp ?_⟩, hp⟩
+          rw [← hp] at hniso
+          exact fun h => hniso (mem_isolatedSet.mpr ((isIsolated_embAdd_iff G).mpr h))
+      | right j =>
+          exfalso
+          rw [addFreshIsolated_labelVertex_natAdd'] at hp
+          rw [← hp] at hniso
+          exact hniso (mem_isolatedSet.mpr (isIsolated_fresh_inr G j))
+  · rintro ⟨w, ⟨⟨p, -, hp⟩, hniso⟩, rfl⟩
+    rcases p with i | j
+    · exact ⟨⟨Sum.inl (Fin.castAdd m i), Finset.mem_univ _, by
+        rw [addFreshIsolated_labelVertex_castAdd, hp]⟩,
+        not_isIsolated_iff_notMem.mp
+          (fun h => hniso (mem_isolatedSet.mpr ((isIsolated_embAdd_iff G).mp h)))⟩
+    · exact ⟨⟨Sum.inr (Fin.castAdd m' j), Finset.mem_univ _, by
+        rw [addFreshIsolated_labelVertex_castAdd', hp]⟩,
+        not_isIsolated_iff_notMem.mp
+          (fun h => hniso (mem_isolatedSet.mpr ((isIsolated_embAdd_iff G).mp h)))⟩
+
+/-- **Item 3b.** Adding fresh isolated vertices (carrying new label positions) preserves
+membership in `𝒯^{Δ,k}(ℓ,r)`: the same decomposition works, with bags pushed forward along
+`embAdd` (`L⁺` is unaffected up to this embedding, by `labelSupport_addFreshIsolated`, since
+fresh vertices never contribute to it). -/
+theorem inClass_addFreshIsolated {G : LabelledPattern ℓ r} {Δ k : ℕ} (h : InClass Δ k G)
+    (m m' : ℕ) : InClass Δ k (addFreshIsolated G m m') := by
+  obtain ⟨D⟩ := h
+  refine ⟨{ Node := D.Node
+            root := D.root
+            parent := D.parent
+            parent_root := D.parent_root
+            depth_le := D.depth_le
+            bag := fun t => (D.bag t).image (embAdd G m m')
+            bag_root := by rw [D.bag_root, labelSupport_addFreshIsolated G m m']
+            card_bag_le := fun t => Finset.card_image_le.trans (D.card_bag_le t)
+            exists_mem_bag := ?_
+            exists_edge_mem_bag := ?_
+            connected := ?_ }⟩
+  · rintro v hv
+    rcases v with (x0 | i) | (y0 | j)
+    · obtain ⟨t, ht⟩ := D.exists_mem_bag (Sum.inl x0) (fun h => hv ((isIsolated_embAdd_iff G).mpr h))
+      exact ⟨t, Finset.mem_image.mpr ⟨Sum.inl x0, ht, rfl⟩⟩
+    · exact absurd (isIsolated_fresh_inl G i) hv
+    · obtain ⟨t, ht⟩ := D.exists_mem_bag (Sum.inr y0) (fun h => hv ((isIsolated_embAdd_iff G).mpr h))
+      exact ⟨t, Finset.mem_image.mpr ⟨Sum.inr y0, ht, rfl⟩⟩
+    · exact absurd (isIsolated_fresh_inr G j) hv
+  · rintro (x0 | i) (y0 | j) hxy
+    · obtain ⟨t, htx, hty⟩ := D.exists_edge_mem_bag x0 y0 hxy
+      exact ⟨t, Finset.mem_image.mpr ⟨Sum.inl x0, htx, rfl⟩,
+        Finset.mem_image.mpr ⟨Sum.inr y0, hty, rfl⟩⟩
+    · exact absurd rfl hxy
+    · exact absurd rfl hxy
+    · exact absurd rfl hxy
+  · rintro v t1 t2 ht1 hd1 ht2 hd2
+    rcases v with (x0 | i) | (y0 | j)
+    · obtain ⟨w1, hw1mem, hw1eq⟩ := Finset.mem_image.mp ht1
+      obtain ⟨w2, hw2mem, hw2eq⟩ := Finset.mem_image.mp ht2
+      have hweq : w1 = w2 := embAdd_injective G (hw1eq.trans hw2eq.symm)
+      subst hweq
+      refine D.connected w1 t1 t2 hw1mem ?_ hw2mem ?_
+      · rcases hd1 with hd1 | hd1
+        · exact Or.inl hd1
+        · exact Or.inr (fun hc => hd1 (by rw [← hw1eq]; exact Finset.mem_image.mpr ⟨w1, hc, rfl⟩))
+      · rcases hd2 with hd2 | hd2
+        · exact Or.inl hd2
+        · exact Or.inr (fun hc => hd2 (by rw [← hw2eq]; exact Finset.mem_image.mpr ⟨w1, hc, rfl⟩))
+    · obtain ⟨w1, -, hw1eq⟩ := Finset.mem_image.mp ht1
+      cases w1 with
+      | inl x1 => exact absurd (Sum.inl_injective hw1eq) Sum.inl_ne_inr
+      | inr y1 => exact absurd hw1eq.symm Sum.inl_ne_inr
+    · obtain ⟨w1, hw1mem, hw1eq⟩ := Finset.mem_image.mp ht1
+      obtain ⟨w2, hw2mem, hw2eq⟩ := Finset.mem_image.mp ht2
+      have hweq : w1 = w2 := embAdd_injective G (hw1eq.trans hw2eq.symm)
+      subst hweq
+      refine D.connected w1 t1 t2 hw1mem ?_ hw2mem ?_
+      · rcases hd1 with hd1 | hd1
+        · exact Or.inl hd1
+        · exact Or.inr (fun hc => hd1 (by rw [← hw1eq]; exact Finset.mem_image.mpr ⟨w1, hc, rfl⟩))
+      · rcases hd2 with hd2 | hd2
+        · exact Or.inl hd2
+        · exact Or.inr (fun hc => hd2 (by rw [← hw2eq]; exact Finset.mem_image.mpr ⟨w1, hc, rfl⟩))
+    · obtain ⟨w1, -, hw1eq⟩ := Finset.mem_image.mp ht1
+      cases w1 with
+      | inl x1 => exact absurd hw1eq Sum.inl_ne_inr
+      | inr y1 => exact absurd (Sum.inr_injective hw1eq) Sum.inl_ne_inr
+
 /-! ### Item 4: deleting labels -/
 
 variable {ℓ' r' : ℕ}
