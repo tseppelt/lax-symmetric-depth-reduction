@@ -201,4 +201,45 @@ theorem prod_pow_wireRtoS {M : Type*} [CommMonoid M] (t : N.Node) (γ : Adm F n 
 
 end ChildRegroup
 
+section ParentRegroup
+
+variable (N : NormDecomp F Δ k) (n : ℕ)
+
+/-- Regrouping the sum, over all nodes `t'` and all admissible `γ'` on `β(t')`, of
+`(wireStoR c δ t' γ') • V t' γ'`, picks out the single node `c.1` and sums over the `γ'`
+extending `δ`: this is the "nice form" of the `S`-gate's unique child. -/
+theorem sum_wireStoR {M : Type*} [AddCommMonoid M] (c : NonRoot N)
+    (δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1))
+    (V : (t' : N.Node) → Adm F n (N.bag t') → M) :
+    ∑ t' : N.Node, ∑ γ' : Adm F n (N.bag t'), (wireStoR N n c δ t' γ') • V t' γ' =
+      ∑ γ' ∈ (Finset.univ : Finset (Adm F n (N.bag c.1))).filter
+          (fun γ' => ∀ (x : F.A ⊕ F.B) (hx : x ∈ N.bag (N.parent c.1) ∩ N.bag c.1),
+            γ' ⟨x, Finset.inter_subset_right hx⟩ = δ ⟨x, hx⟩),
+        V c.1 γ' := by
+  have hzero : ∀ t' : N.Node, t' ≠ c.1 →
+      (∑ γ' : Adm F n (N.bag t'), (wireStoR N n c δ t' γ') • V t' γ') = 0 := by
+    intro t' hne
+    apply Finset.sum_eq_zero
+    intro γ' _
+    have h0 : wireStoR N n c δ t' γ' = 0 := by
+      unfold wireStoR
+      exact dif_neg (fun h => hne h.symm)
+    rw [h0, zero_smul]
+  rw [Fintype.sum_eq_single c.1 hzero]
+  have hwire : ∀ γ' : Adm F n (N.bag c.1), wireStoR N n c δ c.1 γ' =
+      if (∀ (x : F.A ⊕ F.B) (hx : x ∈ N.bag (N.parent c.1) ∩ N.bag c.1),
+            γ' ⟨x, Finset.inter_subset_right hx⟩ = δ ⟨x, hx⟩) then 1 else 0 := by
+    intro γ'
+    show wireStoR N n c δ c.1 γ' = _
+    unfold wireStoR
+    rw [dif_pos rfl]
+  rw [show (∑ γ' : Adm F n (N.bag c.1), (wireStoR N n c δ c.1 γ') • V c.1 γ') =
+      ∑ γ' : Adm F n (N.bag c.1),
+        (if (∀ (x : F.A ⊕ F.B) (hx : x ∈ N.bag (N.parent c.1) ∩ N.bag c.1),
+              γ' ⟨x, Finset.inter_subset_right hx⟩ = δ ⟨x, hx⟩) then V c.1 γ' else 0) from
+    Finset.sum_congr rfl (fun γ' _ => by rw [hwire γ']; split <;> simp),
+    Finset.sum_filter]
+
+end ParentRegroup
+
 end Lax461425Proofs
