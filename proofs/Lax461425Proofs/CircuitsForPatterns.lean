@@ -1,4 +1,5 @@
 import Lax461425Proofs.ConverseIsolated
+import Lax461425.CircuitsForPatterns
 
 /-!
 Final assembly of `thm:converse`'s remaining goal: discharging the concept axiom

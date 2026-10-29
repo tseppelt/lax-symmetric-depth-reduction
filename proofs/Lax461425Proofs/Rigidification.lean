@@ -5,6 +5,7 @@ import Lax461425Proofs.RigidComputes
 import Lax461425Proofs.RigidSize
 import Lax461425Proofs.RigidDepth
 import Lax461425Proofs.RigidOrbit
+import Lax461425.Rigidification
 
 /-!
 The rigidification theorem: every matrix-symmetric circuit can be replaced by a reduced

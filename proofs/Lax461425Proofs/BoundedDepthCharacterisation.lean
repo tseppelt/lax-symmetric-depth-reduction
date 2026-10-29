@@ -10,33 +10,12 @@ import Lax461425Proofs.RigidReduced
 import Lax461425Proofs.RigidSymmetric
 import Lax461425Proofs.RigidComputes
 import Lax461425Proofs.ReducedRigid
+import Lax461425.BoundedDepthCharacterisation
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 
 /-!
----
-conclusion: Lax461425.BoundedDepthCharacterisation.characterisation
----
-The forward direction (1 → 2) is `PatternsFromCircuits.mem_span_hom` directly.
-
-For the backward direction (2 → 1), `Submodule.mem_span_set'` writes `p = ∑ i, f i • hom K
-(F i) n` for finitely many patterns `F i` with `ForestwidthLE Δ (k - 1) (F i)`. For each `i`, a
-circuit `D i` computing `hom K (F i) n` is obtained either from `CircuitsForPatterns.exists_circuit`
-(if `F i` has an edge) or, if not, from the single-gate `constCircuit` (since `hom K (F i) n` is
-then a bare constant, `BoundedDepthHomConst.hom_eq_const_of_no_edge`); either way `D i` is
-reduced, matrix-symmetric, with support size `≤ k` and support depth `≤ Δ`
-(`BoundedDepthConst`). These are glued (`BoundedDepthGlueCircuit.glueCircuit`) by scaling each
-block's output by `f i` (via a new `mul`-gate and a new `const (f i)` input gate) and summing
-all of these via a new output `add`-gate; the glue circuit computes `∑ i, f i • hom K (F i) n =
-p` (`BoundedDepthGlueComputes.glueCircuit_computes`) and is matrix-symmetric
-(`BoundedDepthGlueSymmetric.glueCircuit_isMatrixSymmetric`), since every block is. Rigidifying
-it (`RigidConstruction.reduced`) yields a reduced, matrix-symmetric circuit computing `p`
-(`RigidReduced.isReduced_reduced`, `RigidSymmetric.isMatrixSymmetric_reduced`,
-`RigidComputes.computes_transfer`) with support size `≤ k`
-(`BoundedDepthGlueSize.glueCircuit_reduced_supportSize_le`) and support depth `≤ Δ`
-(`BoundedDepthGlueSc.glueCircuit_reduced_supportDepth_le`), the latter via a potential built
-from each block's own `sc`, since every glue gate has empty minimal support and every block's
-own minimal support is unaffected by rigidifying the glue circuit as a whole
-(`BoundedDepthEmbed.embed_equiv_eq`, `BoundedDepthReducedFormula.reduced_σOf_eq`).
+Final assembly, discharging the concept axiom
+`Lax461425.BoundedDepthCharacterisation.characterisation`.
 -/
 
 namespace Lax461425Proofs
@@ -69,8 +48,32 @@ theorem exists_circuit_for_pattern {K : Type*} [Field K] [CharZero K] {Δ k n : 
     · rw [constCircuit_supportDepth _ hn0]; omega
 
 /--
+---
+conclusion: Lax461425.BoundedDepthCharacterisation.characterisation
+---
 The characterisation of bounded-depth matrix-symmetric circuits.
--/
+
+The forward direction (1 → 2) is `PatternsFromCircuits.mem_span_hom` directly.
+
+For the backward direction (2 → 1), `Submodule.mem_span_set'` writes `p = ∑ i, f i • hom K
+(F i) n` for finitely many patterns `F i` with `ForestwidthLE Δ (k - 1) (F i)`. For each `i`, a
+circuit `D i` computing `hom K (F i) n` is obtained either from `CircuitsForPatterns.exists_circuit`
+(if `F i` has an edge) or, if not, from the single-gate `constCircuit` (since `hom K (F i) n` is
+then a bare constant, `BoundedDepthHomConst.hom_eq_const_of_no_edge`); either way `D i` is
+reduced, matrix-symmetric, with support size `≤ k` and support depth `≤ Δ`
+(`BoundedDepthConst`). These are glued (`BoundedDepthGlueCircuit.glueCircuit`) by scaling each
+block's output by `f i` (via a new `mul`-gate and a new `const (f i)` input gate) and summing
+all of these via a new output `add`-gate; the glue circuit computes `∑ i, f i • hom K (F i) n =
+p` (`BoundedDepthGlueComputes.glueCircuit_computes`) and is matrix-symmetric
+(`BoundedDepthGlueSymmetric.glueCircuit_isMatrixSymmetric`), since every block is. Rigidifying
+it (`RigidConstruction.reduced`) yields a reduced, matrix-symmetric circuit computing `p`
+(`RigidReduced.isReduced_reduced`, `RigidSymmetric.isMatrixSymmetric_reduced`,
+`RigidComputes.computes_transfer`) with support size `≤ k`
+(`BoundedDepthGlueSize.glueCircuit_reduced_supportSize_le`) and support depth `≤ Δ`
+(`BoundedDepthGlueSc.glueCircuit_reduced_supportDepth_le`), the latter via a potential built
+from each block's own `sc`, since every glue gate has empty minimal support and every block's
+own minimal support is unaffected by rigidifying the glue circuit as a whole
+(`BoundedDepthEmbed.embed_equiv_eq`, `BoundedDepthReducedFormula.reduced_σOf_eq`). -/
 theorem characterisation {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ)
     (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) :
     (∃ C : Circuit (Fin n × Fin n) K,

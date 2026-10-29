@@ -1,26 +1,11 @@
 import Lax461425Proofs.PatternsInductionMain
 import Lax461425Proofs.PatternsLabelledUnlabelled
 import Lax461425Proofs.ReducedRigid
+import Lax461425.PatternsFromCircuits
 
 /-!
----
-conclusion: Lax461425.PatternsFromCircuits.mem_span_hom
----
-Applies `PatternsInductionMain.exists_phi` (`lem:induction`) at `g := C.out`. Since
-`minSupport C C.out = ∅` (`PatternsSupportBasic.minSupport_out`), `supOf hrig hn C.out = ∅` too
-(`supOf_eq_minSupport`), so `leftCard hrig hn C.out = rightCard hrig hn C.out = 0`; the witness
-`φ`, lifted from depth `sc C C.out` to `Δ` (`sc_le_supportDepth`, `hdepth`, `span𝔗P_mono`), is
-evaluated at the (unique, since the arities are `0`) canonical enumerations, giving `p`
-(`computesAt_unique`, since `C.Computes p` unfolds to `C.ComputesAt C.out p`). Every generator
-`labelledHom K G n` of `span𝔗P K Δ k n (Finset.univ : Finset (Fin 0 ⊕ Fin 0))`, evaluated at any
-point, is exactly the *unlabelled* homomorphism polynomial `hom K G.F n`
-(`labelledHom_eq_hom_of_zero`, since the defining `if`-condition of `labelledHom` is vacuously
-true at arity `(0,0)`), and `G ∈ 𝒯^{Δ,k}(0,0)` is exactly `ForestwidthLE Δ (k - 1) G.F`
-(`PatternsLabelledUnlabelled.inClass_ofPattern_iff`, using `G = ofPattern G.F` since both label
-maps out of `Fin 0` are forced to be `Fin.elim0`); `eval_mem_span_hom` packages this as a
-`Submodule.span_induction` argument, stated for an arbitrary arity `(ℓ, r)` with `ℓ = r = 0` as
-*hypotheses* (rather than literal `Fin 0`s) so that it can be `subst`ed in directly against
-`leftCard hrig hn C.out`/`rightCard hrig hn C.out`, with no further reindexing needed.
+Discharges the concept axiom `Lax461425.PatternsFromCircuits.mem_span_hom` (thm:patterns),
+via `lem:induction` (`PatternsInductionMain.exists_phi`).
 -/
 
 namespace Lax461425Proofs.PatternsFromCircuits
@@ -88,9 +73,29 @@ theorem eval_mem_span_hom {K : Type*} [Field K] {Δ k n ℓ r : ℕ} (hℓ : ℓ
       rw [this]
       exact Submodule.smul_mem _ c ih
 
-/-- **`mem_span_hom`.** A polynomial computed by a reduced matrix-symmetric circuit of support
+/--
+---
+conclusion: Lax461425.PatternsFromCircuits.mem_span_hom
+---
+**`mem_span_hom`.** A polynomial computed by a reduced matrix-symmetric circuit of support
 size `≤ k` and support depth `≤ Δ` is a linear combination of homomorphism polynomials of
-patterns of `Δ`-forestwidth at most `k - 1`. -/
+patterns of `Δ`-forestwidth at most `k - 1`.
+
+Applies `PatternsInductionMain.exists_phi` (`lem:induction`) at `g := C.out`. Since
+`minSupport C C.out = ∅` (`PatternsSupportBasic.minSupport_out`), `supOf hrig hn C.out = ∅` too
+(`supOf_eq_minSupport`), so `leftCard hrig hn C.out = rightCard hrig hn C.out = 0`; the witness
+`φ`, lifted from depth `sc C C.out` to `Δ` (`sc_le_supportDepth`, `hdepth`, `span𝔗P_mono`), is
+evaluated at the (unique, since the arities are `0`) canonical enumerations, giving `p`
+(`computesAt_unique`, since `C.Computes p` unfolds to `C.ComputesAt C.out p`). Every generator
+`labelledHom K G n` of `span𝔗P K Δ k n (Finset.univ : Finset (Fin 0 ⊕ Fin 0))`, evaluated at any
+point, is exactly the *unlabelled* homomorphism polynomial `hom K G.F n`
+(`labelledHom_eq_hom_of_zero`, since the defining `if`-condition of `labelledHom` is vacuously
+true at arity `(0,0)`), and `G ∈ 𝒯^{Δ,k}(0,0)` is exactly `ForestwidthLE Δ (k - 1) G.F`
+(`PatternsLabelledUnlabelled.inClass_ofPattern_iff`, using `G = ofPattern G.F` since both label
+maps out of `Fin 0` are forced to be `Fin.elim0`); `eval_mem_span_hom` packages this as a
+`Submodule.span_induction` argument, stated for an arbitrary arity `(ℓ, r)` with `ℓ = r = 0` as
+*hypotheses* (rather than literal `Fin 0`s) so that it can be `subst`ed in directly against
+`leftCard hrig hn C.out`/`rightCard hrig hn C.out`, with no further reindexing needed. -/
 theorem mem_span_hom {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ) (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
