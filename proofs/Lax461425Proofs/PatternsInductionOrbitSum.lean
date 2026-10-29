@@ -103,4 +103,79 @@ theorem hYtot_smul {γ : Γ n} (hγ : γ ∈ fixingSubgroup (Γ n) (supOf hrig h
   rw [hYtot_eq_of_valid hrig hn hmemYu' hγδmem hγδy hγδz, hx_eq, σOf_mul]
   rfl
 
+omit [Field K] [CharZero K] in
+theorem actOn_actOn (γ1 γ2 : Γ n)
+    (x : (Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) ×
+      (Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n)) :
+    actOn hrig hn γ1 (actOn hrig hn γ2 x) = actOn hrig hn (γ1 * γ2) x := by
+  show (γ1.1 ∘ (γ2.1 ∘ x.1), γ1.2 ∘ (γ2.2 ∘ x.2)) = ((γ1 * γ2).1 ∘ x.1, (γ1 * γ2).2 ∘ x.2)
+  rw [show (γ1 * γ2).1 = γ1.1 * γ2.1 from rfl, show (γ1 * γ2).2 = γ1.2 * γ2.2 from rfl,
+    Equiv.Perm.coe_mul, Equiv.Perm.coe_mul, Function.comp_assoc, Function.comp_assoc]
+
+omit [Field K] [CharZero K] in
+theorem actOn_one
+    (x : (Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) ×
+      (Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n)) :
+    actOn hrig hn (1 : Γ n) x = x := by
+  show ((1 : Equiv.Perm (Fin n)) ∘ x.1, (1 : Equiv.Perm (Fin n)) ∘ x.2) = x
+  simp
+
+omit [Field K] [CharZero K] in
+/-- **Equal fibre size.** All fibres of `hYtot` over `Yu` have the same cardinality. -/
+theorem card_filter_hYtot_eq
+    {a b : (Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) ×
+      (Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n)}
+    (ha : a ∈ Yu hrig hn) (hb : b ∈ Yu hrig hn) :
+    ((Yu hrig hn).filter (fun x : (Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) ×
+        (Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n) =>
+        hYtot hrig hn a.1 a.2 = hYtot hrig hn x.1 x.2)).card =
+      ((Yu hrig hn).filter (fun x : (Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) ×
+        (Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n) =>
+        hYtot hrig hn b.1 b.2 = hYtot hrig hn x.1 x.2)).card := by
+  obtain ⟨hainj1, hainj2⟩ := mem_Y.mp ha
+  obtain ⟨hbinj1, hbinj2⟩ := mem_Y.mp hb
+  obtain ⟨-, hainj1', hacross1⟩ := Fin.append_injective_iff.mp hainj1
+  obtain ⟨-, hainj2', hacross2⟩ := Fin.append_injective_iff.mp hainj2
+  obtain ⟨-, hbinj1', hbcross1⟩ := Fin.append_injective_iff.mp hbinj1
+  obtain ⟨-, hbinj2', hbcross2⟩ := Fin.append_injective_iff.mp hbinj2
+  have hadisj1 : ∀ k, a.1 k ∉ leftPart (supOf hrig hn g) := by
+    intro k hk; rw [← range_leftEnum] at hk; obtain ⟨i, hi⟩ := hk; exact hacross1 i k hi
+  have hadisj2 : ∀ k, a.2 k ∉ rightPart (supOf hrig hn g) := by
+    intro k hk; rw [← range_rightEnum] at hk; obtain ⟨j, hj⟩ := hk; exact hacross2 j k hj
+  have hbdisj1 : ∀ k, b.1 k ∉ leftPart (supOf hrig hn g) := by
+    intro k hk; rw [← range_leftEnum] at hk; obtain ⟨i, hi⟩ := hk; exact hbcross1 i k hi
+  have hbdisj2 : ∀ k, b.2 k ∉ rightPart (supOf hrig hn g) := by
+    intro k hk; rw [← range_rightEnum] at hk; obtain ⟨j, hj⟩ := hk; exact hbcross2 j k hj
+  obtain ⟨γ, hγmem, hγ1, hγ2⟩ := exists_fixing_Γ_of_notMem hainj1' hbinj1' hainj2' hbinj2'
+    hadisj1 hbdisj1 hadisj2 hbdisj2
+  have hab : actOn hrig hn γ a = b := by
+    show (γ.1 ∘ a.1, γ.2 ∘ a.2) = b
+    exact Prod.ext_iff.mpr ⟨funext hγ1, funext hγ2⟩
+  have hγinv : γ⁻¹ ∈ fixingSubgroup (Γ n) (supOf hrig hn g) := Subgroup.inv_mem _ hγmem
+  have hba : actOn hrig hn γ⁻¹ b = a := by
+    rw [← hab, actOn_actOn, inv_mul_cancel, actOn_one]
+  refine Finset.card_nbij' (actOn hrig hn γ) (actOn hrig hn γ⁻¹) ?_ ?_ ?_ ?_
+  · intro x hx
+    simp only [Finset.mem_coe, Finset.mem_filter] at hx ⊢
+    obtain ⟨hxmem, hxeq⟩ := hx
+    refine ⟨actOn_mem_Yu hrig hn hγmem hxmem, ?_⟩
+    have e1 := hYtot_smul hrig hn hγmem hxmem
+    have e2 := hYtot_smul hrig hn hγmem ha
+    rw [hab] at e2
+    rw [e1, ← hxeq]
+    exact e2
+  · intro x hx
+    simp only [Finset.mem_coe, Finset.mem_filter] at hx ⊢
+    obtain ⟨hxmem, hxeq⟩ := hx
+    refine ⟨actOn_mem_Yu hrig hn hγinv hxmem, ?_⟩
+    have e1 := hYtot_smul hrig hn hγinv hxmem
+    have e2 := hYtot_smul hrig hn hγinv hb
+    rw [hba] at e2
+    rw [e1, ← hxeq]
+    exact e2
+  · intro x _
+    rw [actOn_actOn, inv_mul_cancel, actOn_one]
+  · intro x _
+    rw [actOn_actOn, mul_inv_cancel, actOn_one]
+
 end Lax461425Proofs.PatternsInductionOrbitSum
