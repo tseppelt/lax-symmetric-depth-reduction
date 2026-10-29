@@ -146,3 +146,19 @@ theorem equiv_trans {g g' g'' : C.Gate} (h1 : Equiv C g g') (h2 : Equiv C g' g''
   have hgg' : height C g = height C g' := equiv_height_eq C h1
   have h2' : EquivRel C (height C g) g' g'' := by rw [hgg']; exact h2
   exact equivRel_trans C h1 h2'
+
+/-- Gates identified by `EquivRel` carry the same label. -/
+theorem equivRel_label_eq : ∀ {k : ℕ} {g g' : C.Gate}, EquivRel C k g g' →
+    C.label g = C.label g' := by
+  intro k
+  induction k with
+  | zero => intro g g' h; exact h.1
+  | succ k ih =>
+    intro g g' h
+    rcases h with h | h
+    · exact ih h
+    · exact h.1
+
+/-- Equivalent gates carry the same label. -/
+theorem equiv_label_eq {g g' : C.Gate} (h : Equiv C g g') : C.label g = C.label g' :=
+  equivRel_label_eq C h

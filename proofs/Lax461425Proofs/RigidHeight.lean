@@ -59,4 +59,41 @@ theorem height_lt_of_wire_pos {g h : C.Gate} (hw : 0 < C.wire g h) :
     height C h < height C g :=
   height_child_lt C hw
 
+/-- An input gate has no children, hence height `0`. -/
+theorem height_isInput {g : C.Gate} (hinput : (C.label g).IsInput) : height C g = 0 := by
+  rw [height_eq]
+  have hnc : ∀ h, ¬ Child C g h := fun h hc =>
+    absurd (C.wire_eq_zero_of_isInput g h hinput) (by simpa [Child] using hc.ne')
+  apply le_antisymm
+  · apply Finset.sup_le
+    intro h _
+    rw [dif_neg (hnc h)]
+  · exact Nat.zero_le _
+
+/-- The length of a path is bounded by the height of its starting gate. -/
+theorem path_length_le_height {m : ℕ} {p : Fin (m + 1) → C.Gate} (hp : C.IsPath p) :
+    m ≤ height C (p 0) := by
+  have key : ∀ i : Fin (m + 1), height C (p i) + (i : ℕ) ≤ height C (p 0) := by
+    intro i
+    induction i using Fin.induction with
+    | zero => simp
+    | succ i ih =>
+      have hc : Child C (p i.castSucc) (p i.succ) := hp i
+      have hlt : height C (p i.succ) < height C (p i.castSucc) := height_child_lt C hc
+      have hv : (i.succ : ℕ) = (i : ℕ) + 1 := by simp
+      have hv2 : (i.castSucc : ℕ) = (i : ℕ) := by simp
+      omega
+  have hlast := key (Fin.last m)
+  simp only [Fin.val_last] at hlast
+  omega
+
+/-- The set of achievable path lengths of `C` is bounded above, by the maximum height over all
+gates. -/
+theorem bddAbove_depth_set :
+    BddAbove {m : ℕ | ∃ p : Fin (m + 1) → C.Gate, C.IsPath p} := by
+  refine ⟨Finset.univ.sup (height C), ?_⟩
+  rintro m ⟨p, hp⟩
+  calc m ≤ height C (p 0) := path_length_le_height C hp
+    _ ≤ Finset.univ.sup (height C) := Finset.le_sup (Finset.mem_univ _)
+
 end Lax461425Proofs.RigidHeight
