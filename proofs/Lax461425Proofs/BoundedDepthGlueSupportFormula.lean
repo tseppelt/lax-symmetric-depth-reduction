@@ -88,16 +88,13 @@ theorem minSupport_reduced_blk_eq (hred : ∀ i, (D i).IsReduced)
     exact minSupport_subset_of_isSupport_le (hrigOf D hred hsym i) hT' (le_trans hTc hssE) hssD hn
       hz
 
-/-- Every glue gate (`scaledG`, `constG`, `outGG`) has empty minimal support in the rigidified
-glue circuit. -/
-theorem minSupport_reduced_glue_eq (hred : ∀ i, (D i).IsReduced)
+/-- Every glue gate (`scaledG`, `constG`, `outGG`) has the empty set as an honest support in
+the rigidified glue circuit. -/
+theorem isSupport_reduced_glue_empty (hred : ∀ i, (D i).IsReduced)
     (hsym : ∀ i, IsMatrixSymmetric (D i)) (hrigRed : IsRigid (reduced (glueCircuit D f)))
     {x : GGate D} (hx : ∀ i y, x ≠ blk D i y) :
-    minSupport (reduced (glueCircuit D f)) (toC' (glueCircuit D f) x) =
+    IsSupport (reduced (glueCircuit D f)) (toC' (glueCircuit D f) x)
       (∅ : Set (Fin n ⊕ Fin n)) := by
-  apply Set.subset_empty_iff.mp
-  intro z hz
-  refine hz ∅ ?_ (by simp)
   rw [isSupport_iff_fixingSubgroup_le hrigRed]
   intro γ _hγ
   rw [mem_gateStabilizer_iff, reduced_σOf_eq (τG D hred hsym) (τG_extends D f hred hsym) hrigRed]
@@ -107,5 +104,16 @@ theorem minSupport_reduced_glue_eq (hred : ∀ i, (D i).IsReduced)
   · exact τG_scaled D hred hsym γ i
   · exact τG_const D hred hsym γ i
   · exact τG_out D hred hsym γ
+
+/-- Every glue gate (`scaledG`, `constG`, `outGG`) has empty minimal support in the rigidified
+glue circuit. -/
+theorem minSupport_reduced_glue_eq (hred : ∀ i, (D i).IsReduced)
+    (hsym : ∀ i, IsMatrixSymmetric (D i)) (hrigRed : IsRigid (reduced (glueCircuit D f)))
+    {x : GGate D} (hx : ∀ i y, x ≠ blk D i y) :
+    minSupport (reduced (glueCircuit D f)) (toC' (glueCircuit D f) x) =
+      (∅ : Set (Fin n ⊕ Fin n)) := by
+  apply Set.subset_empty_iff.mp
+  intro z hz
+  exact hz ∅ (isSupport_reduced_glue_empty D f hred hsym hrigRed hx) (by simp)
 
 end Lax461425Proofs
