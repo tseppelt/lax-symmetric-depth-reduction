@@ -102,4 +102,44 @@ theorem prod_cgate {M : Type*} [CommMonoid M] (f : CGate N n → M) :
 
 end Decompose
 
+section EdgeRegroup
+
+variable (N : NormDecomp F Δ k) (n : ℕ) {K : Type*} [CommSemiring K]
+
+/-- Regrouping the product of input-gate values by the pair `(i, j)` they are wired to
+recovers the product over represented edges: this is the "nice form" of the input-gate
+contribution to `R t γ`. -/
+theorem prod_pow_wireRtoInp (t : N.Node) (γ : Adm F n (N.bag t)) :
+    ∏ p : Fin n × Fin n, (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2 =
+      ∏ ab ∈ (edgesAt N t).attach,
+        (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) :
+          MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 := by
+  classical
+  set g : {ab // ab ∈ edgesAt N t} → Fin n × Fin n :=
+    fun ab => (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩)
+    with hg
+  have hw : ∀ p : Fin n × Fin n, wireRtoInp N n t γ p.1 p.2 =
+      ∑ ab ∈ (edgesAt N t).attach.filter (fun ab => g ab = p), F.mult ab.1.1 ab.1.2 := by
+    intro p
+    rw [wireRtoInp, ← Finset.sum_filter]
+    apply Finset.sum_congr _ (fun _ _ => rfl)
+    apply Finset.filter_congr
+    intro ab _
+    simp [hg, Prod.ext_iff]
+  have hmaps : ∀ ab ∈ (edgesAt N t).attach, g ab ∈ (Finset.univ : Finset (Fin n × Fin n)) :=
+    fun ab _ => Finset.mem_univ _
+  rw [← Finset.prod_fiberwise_of_maps_to hmaps
+    (fun ab => (X (g ab) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2)]
+  apply Finset.prod_congr rfl
+  intro p _
+  rw [hw p]
+  rw [show (∏ ab ∈ (edgesAt N t).attach.filter (fun ab => g ab = p),
+        (X (g ab) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2) =
+      ∏ ab ∈ (edgesAt N t).attach.filter (fun ab => g ab = p),
+        (X p : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 from
+    Finset.prod_congr rfl (fun ab hab => by rw [(Finset.mem_filter.mp hab).2]),
+    Finset.prod_pow_eq_pow_sum]
+
+end EdgeRegroup
+
 end Lax461425Proofs
