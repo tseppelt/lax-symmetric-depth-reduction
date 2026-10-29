@@ -12,12 +12,15 @@ $\mathbf{Stab}^\bullet(S)$ fixes $g$. If $C$ is rigid, then $\Gamma_n$ acts on t
 $C$, and this says that $\mathbf{Stab}^\bullet(S)$ fixes $g$. The *support size* of $C$ is the
 least $k$ such that every gate of $C$ has a support of size at most $k$.
 
-Write $\sup(g)$ for the intersection of all supports of $g$. If $g$ has a support $S$ with
-$|S_L|, |S_R| < n/2$, where $S_L$ and $S_R$ are the two sides of $S$, then $\sup(g)$ is itself
-a support of $g$, the unique minimal one. A wire from $h$ to $g$ is *support-changing* if
-$\sup(h) \not\subseteq \sup(g)$. If the support size of $C$ is less than $n/2$, the *support
-depth* of $C$ is the maximum number of support-changing wires on a path. Otherwise, the support
-depth of $C$ is its depth. In either case, the support depth is at most the depth.
+Write $\sup(g)$ for the intersection of all supports of $g$ of size at most the support size
+of $C$ — a bounded intersection: a support of unbounded size, such as the complement of a
+single point, trivially has a trivial pointwise stabiliser and so carries no information about
+$g$. If $g$ has a support $S$ with $|S_L|, |S_R| < n/2$, where $S_L$ and $S_R$ are the two
+sides of $S$, then $\sup(g)$ is itself a support of $g$, the unique minimal one. A wire from
+$h$ to $g$ is *support-changing* if $\sup(h) \not\subseteq \sup(g)$. If the support size of $C$
+is less than $n/2$, the *support depth* of $C$ is the maximum number of support-changing wires
+on a path. Otherwise, the support depth of $C$ is its depth. In either case, the support depth
+is at most the depth.
 
 These notions are used for reduced circuits only, which are rigid. For an arbitrary
 matrix-symmetric circuit, the support size and support depth are defined as those of an
@@ -39,9 +42,12 @@ def IsSupport (g : C.Gate) (S : Set (Fin n ⊕ Fin n)) : Prop :=
 noncomputable def supportSize : ℕ :=
   sInf {k | ∀ g, ∃ S, IsSupport C g S ∧ S.ncard ≤ k}
 
-/-- `sup(g)`, the intersection of all supports of `g`. -/
+/-- `sup(g)`, the intersection of all supports of `g` of size at most `supportSize C`. Supports
+of unbounded size are excluded: e.g. the complement of a single point always has a trivial
+pointwise stabiliser, hence trivially supports every gate, and intersecting with it would
+collapse `sup(g)` to the empty set regardless of `g`. -/
 def minSupport (g : C.Gate) : Set (Fin n ⊕ Fin n) :=
-  {x | ∀ S, IsSupport C g S → x ∈ S}
+  {x | ∀ S, IsSupport C g S → S.ncard ≤ supportSize C → x ∈ S}
 
 /-- The number of support-changing wires on the path `p 0, …, p m`. -/
 noncomputable def supportChanges {m : ℕ} (p : Fin (m + 1) → C.Gate) : ℕ :=

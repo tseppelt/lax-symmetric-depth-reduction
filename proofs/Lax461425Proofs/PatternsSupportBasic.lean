@@ -83,7 +83,8 @@ theorem isSupport_out_empty (C : Circuit (Fin n × Fin n) K) :
 /-- The output gate has empty minimal support. -/
 theorem minSupport_out (C : Circuit (Fin n × Fin n) K) :
     minSupport C C.out = (∅ : Set (Fin n ⊕ Fin n)) :=
-  Set.subset_empty_iff.mp (fun _x hx => hx ∅ (isSupport_out_empty C))
+  Set.subset_empty_iff.mp
+    (fun _x hx => hx ∅ (isSupport_out_empty C) (by simp))
 
 variable {C : Circuit (Fin n × Fin n) K}
 
@@ -382,13 +383,21 @@ theorem exists_least_small_support (hrig : IsRigid C) (hn : 2 * supportSize C < 
   have hSmem' : S ∈ (↑sF : Set (Set (Fin n ⊕ Fin n))) := by rw [hsFeq]; exact hSmem
   exact Set.biInter_subset_of_mem (Finset.mem_coe.mp hSmem')
 
-/-- The intersection of all supports of `g` is contained in every support (in particular in
-every "least small support" as constructed by `exists_least_small_support`). The converse
-inclusion, which would show that `minSupport C g` itself is a support, is exactly the statement
-we were not able to prove; see the module docstring. -/
+/-- The intersection of all BOUNDED-size supports of `g` is contained in every bounded-size
+support (in particular in every "least small support" as constructed by
+`exists_least_small_support`). -/
 theorem minSupport_subset_of_isSupport {g : C.Gate} {T : Set (Fin n ⊕ Fin n)}
-    (hT : IsSupport C g T) : minSupport C g ⊆ T :=
-  fun _x hx => hx T hT
+    (hT : IsSupport C g T) (hTc : T.ncard ≤ supportSize C) : minSupport C g ⊆ T :=
+  fun _x hx => hx T hT hTc
+
+/-- `actPoint γ` is injective: it is `Sum.map γ.1 γ.2` applied to two bijections. -/
+theorem actPoint_injective (γ : Γ n) : Function.Injective (actPoint γ) :=
+  γ.1.injective.sumMap γ.2.injective
+
+/-- Applying `actPoint γ` to a set does not change its cardinality. -/
+theorem ncard_actPoint_image (γ : Γ n) (S : Set (Fin n ⊕ Fin n)) :
+    (actPoint γ '' S).ncard = S.ncard :=
+  Set.ncard_image_of_injective S (actPoint_injective γ)
 
 /-! ### Equivariance -/
 
@@ -425,17 +434,20 @@ theorem minSupport_smul (hrig : IsRigid C) (γ : Γ n) (g : C.Gate) :
   constructor
   · intro hx
     refine ⟨actPoint γ⁻¹ x, ?_, actPoint_inv_self_apply γ x⟩
-    intro S hS
+    intro S hS hSc
     have hS' : IsSupport C (σOf hrig γ g) (actPoint γ '' S) := isSupport_smul hrig γ hS
-    obtain ⟨z, hz, hzx⟩ := hx (actPoint γ '' S) hS'
+    have hS'c : (actPoint γ '' S).ncard ≤ supportSize C := (ncard_actPoint_image γ S).le.trans hSc
+    obtain ⟨z, hz, hzx⟩ := hx (actPoint γ '' S) hS' hS'c
     rw [← hzx, actPoint_self_inv_apply]
     exact hz
   · rintro ⟨y, hy, rfl⟩
-    intro S' hS'
+    intro S' hS' hS'c
     have hSγ : IsSupport C g (actPoint γ⁻¹ '' S') := by
       have hraw := isSupport_smul hrig γ⁻¹ hS'
       rwa [σOf_inv_σOf hrig γ g] at hraw
-    obtain ⟨z, hz, hzy⟩ := hy _ hSγ
+    have hSγc : (actPoint γ⁻¹ '' S').ncard ≤ supportSize C :=
+      (ncard_actPoint_image γ⁻¹ S').le.trans hS'c
+    obtain ⟨z, hz, hzy⟩ := hy _ hSγ hSγc
     rw [← hzy, actPoint_inv_self_apply]
     exact hz
 
