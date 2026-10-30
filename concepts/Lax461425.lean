@@ -1,6 +1,7 @@
 import Lax461425.BoundedDepthCharacterisation
 import Lax461425.Circuits
 import Lax461425.CircuitsForPatterns
+import Lax461425.DepthHierarchy
 import Lax461425.Forestwidth
 import Lax461425.HomomorphismPolynomials
 import Lax461425.MatrixSymmetry
@@ -9,4 +10,5 @@ import Lax461425.Oddomorphisms
 import Lax461425.PatternsFromCircuits
 import Lax461425.ReducedRigid
 import Lax461425.Rigidification
+import Lax461425.SupportTheorem
 import Lax461425.Supports
