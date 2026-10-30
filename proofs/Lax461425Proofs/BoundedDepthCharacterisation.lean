@@ -4,13 +4,13 @@ import Lax461425Proofs.BoundedDepthGlueSize
 import Lax461425Proofs.BoundedDepthGlueSc
 import Lax461425Proofs.BoundedDepthConst
 import Lax461425Proofs.BoundedDepthHomConst
-import Lax461425Proofs.CircuitsForPatterns
-import Lax461425Proofs.PatternsFromCircuits
 import Lax461425Proofs.RigidReduced
 import Lax461425Proofs.RigidSymmetric
 import Lax461425Proofs.RigidComputes
 import Lax461425Proofs.ReducedRigid
 import Lax461425.BoundedDepthCharacterisation
+import Lax461425.CircuitsForPatterns
+import Lax461425.PatternsFromCircuits
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 
 /-!
@@ -34,7 +34,7 @@ theorem exists_circuit_for_pattern {K : Type*} [Field K] [CharZero K] {Δ k n : 
       IsMatrixSymmetric C ∧ supportSize C ≤ k ∧ supportDepth C ≤ Δ := by
   by_cases hE : ∃ a b, F.mult a b ≠ 0
   · obtain ⟨C, hC1, hC2, hC3, hC4, hC5, -, -, -⟩ :=
-      Lax461425Proofs.exists_circuit (K := K) hΔ hk hn F hE hF
+      Lax461425.CircuitsForPatterns.exists_circuit (K := K) hΔ hk hn F hE hF
     exact ⟨C, hC1, hC2, hC3, hC4, hC5⟩
   · push Not at hE
     have hn0 : 0 < n := by omega
@@ -53,11 +53,11 @@ conclusion: Lax461425.BoundedDepthCharacterisation.characterisation
 ---
 The characterisation of bounded-depth matrix-symmetric circuits.
 
-The forward direction (1 → 2) is `PatternsFromCircuits.mem_span_hom` directly.
+The forward direction (1 → 2) is the concept `PatternsFromCircuits.mem_span_hom` directly.
 
 For the backward direction (2 → 1), `Submodule.mem_span_set'` writes `p = ∑ i, f i • hom K
 (F i) n` for finitely many patterns `F i` with `ForestwidthLE Δ (k - 1) (F i)`. For each `i`, a
-circuit `D i` computing `hom K (F i) n` is obtained either from `CircuitsForPatterns.exists_circuit`
+circuit `D i` computing `hom K (F i) n` is obtained either from the concept `CircuitsForPatterns.exists_circuit`
 (if `F i` has an edge) or, if not, from the single-gate `constCircuit` (since `hom K (F i) n` is
 then a bare constant, `BoundedDepthHomConst.hom_eq_const_of_no_edge`); either way `D i` is
 reduced, matrix-symmetric, with support size `≤ k` and support depth `≤ Δ`
@@ -73,7 +73,11 @@ it (`RigidConstruction.reduced`) yields a reduced, matrix-symmetric circuit comp
 (`BoundedDepthGlueSc.glueCircuit_reduced_supportDepth_le`), the latter via a potential built
 from each block's own `sc`, since every glue gate has empty minimal support and every block's
 own minimal support is unaffected by rigidifying the glue circuit as a whole
-(`BoundedDepthEmbed.embed_equiv_eq`, `BoundedDepthReducedFormula.reduced_σOf_eq`). -/
+(`BoundedDepthEmbed.embed_equiv_eq`, `BoundedDepthReducedFormula.reduced_σOf_eq`).
+
+The concept `Rigidification.exists_reduced` is deliberately not used: it does not preserve support
+size or support depth, so the proof rigidifies with `RigidConstruction.reduced` and tracks the
+supports of the block gates through it directly. -/
 theorem characterisation {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ)
     (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) :
     (∃ C : Circuit (Fin n × Fin n) K,
@@ -82,7 +86,7 @@ theorem characterisation {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ 
       p ∈ Submodule.span K {q | ∃ F : Pattern, ForestwidthLE Δ (k - 1) F ∧ hom K F n = q} := by
   constructor
   · rintro ⟨C, hCp, hCred, hCsym, hCss, hCsd⟩
-    exact Lax461425Proofs.PatternsFromCircuits.mem_span_hom hΔ hk hn C hCred hCsym hCss hCsd hCp
+    exact Lax461425.PatternsFromCircuits.mem_span_hom hΔ hk hn C hCred hCsym hCss hCsd hCp
   · intro hp
     obtain ⟨m, fcoef, g, hpeq⟩ := Submodule.mem_span_set'.mp hp
     choose F hFfw hFhom using fun i => (g i).2
