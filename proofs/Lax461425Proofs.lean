@@ -99,6 +99,11 @@ import Lax461425Proofs.STUpgrade
 import Lax461425Proofs.SupportTheorem
 import Lax461425Proofs.DepthHierarchyUpper
 import Lax461425Proofs.DepthHierarchyLower
+import Lax461425Proofs.DepthHierarchyArith
+import Lax461425Proofs.DepthHierarchyRichBasic
+import Lax461425Proofs.DepthHierarchyRichDefs
+import Lax461425Proofs.DepthHierarchyRichOddo
+import Lax461425Proofs.DepthHierarchyTree
 import Lax461425Proofs.NUDefs
 import Lax461425Proofs.NURobersonAlg
 import Lax461425Proofs.NURobersonOdd
