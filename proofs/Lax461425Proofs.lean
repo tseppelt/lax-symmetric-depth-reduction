@@ -34,6 +34,14 @@ import Lax461425Proofs.ConverseSubtreeInduction
 import Lax461425Proofs.ConverseSupportDepth
 import Lax461425Proofs.ConverseSupportSize
 import Lax461425Proofs.ConverseSymmetry
+import Lax461425Proofs.DMBochert
+import Lax461425Proofs.DMCore
+import Lax461425Proofs.DMGroups
+import Lax461425Proofs.DMImprimitive
+import Lax461425Proofs.DMMain
+import Lax461425Proofs.DMNumerics
+import Lax461425Proofs.DMRestrict
+import Lax461425Proofs.DixonMortimer
 import Lax461425Proofs.PatternsFromCircuits
 import Lax461425Proofs.PatternsInductionBase
 import Lax461425Proofs.PatternsInductionChild
