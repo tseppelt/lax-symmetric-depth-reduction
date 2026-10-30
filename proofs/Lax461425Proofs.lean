@@ -84,6 +84,11 @@ import Lax461425Proofs.RigidSize
 import Lax461425Proofs.RigidSymmetric
 import Lax461425Proofs.RigidWeight
 import Lax461425Proofs.Rigidification
+import Lax461425Proofs.STMinimal
+import Lax461425Proofs.STNumerics
+import Lax461425Proofs.STSupports
+import Lax461425Proofs.STUpgrade
+import Lax461425Proofs.SupportTheorem
 import Lax461425Proofs.DepthHierarchyUpper
 import Lax461425Proofs.DepthHierarchyLower
 import Lax461425Proofs.NUDefs
