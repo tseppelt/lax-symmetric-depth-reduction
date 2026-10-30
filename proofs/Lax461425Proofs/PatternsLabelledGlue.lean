@@ -54,17 +54,87 @@ noncomputable def quotLiftEquiv {α : Type*} (rel : α → α → Prop) (β : Ty
     (H : Quot rel → β) (a : α) : ((quotLiftEquiv rel β H : {f : α → β // Respects rel f}) : α → β)
       a = H (Quot.mk rel a) := rfl
 
+/-! ### Side-independent gluing along a pair of maps
+
+Everything about the `A`-side and `B`-side gluings is the same statement about a pair of maps
+`f : ι → α`, `g : ι → β` (to be identified pointwise); it is proved once here. -/
+
+section PairGeneric
+
+variable {ι α β : Type*} (f : ι → α) (g : ι → β)
+
+/-- The generating relation on `α ⊕ β` identifying `f i` with `g i`. -/
+def PairRel : α ⊕ β → α ⊕ β → Prop := fun x y => ∃ i, x = Sum.inl (f i) ∧ y = Sum.inr (g i)
+
+/-- `x` is a copy of some `f i` (on the left) or `g i` (on the right). -/
+def IsPairLabel (x : α ⊕ β) : Prop :=
+  Sum.elim (fun x0 => ∃ i, f i = x0) (fun x0' => ∃ i, g i = x0') x
+
+theorem eqvGen_pairRel_eq_or {x y : α ⊕ β} (h : Relation.EqvGen (PairRel f g) x y) :
+    x = y ∨ (IsPairLabel f g x ∧ IsPairLabel f g y) := by
+  induction h with
+  | rel a b hab => obtain ⟨i, ha, hb⟩ := hab; subst ha; subst hb; exact Or.inr ⟨⟨i, rfl⟩, ⟨i, rfl⟩⟩
+  | refl a => exact Or.inl rfl
+  | symm a b _ ih =>
+      rcases ih with h | ⟨h1, h2⟩
+      · exact Or.inl h.symm
+      · exact Or.inr ⟨h2, h1⟩
+  | trans a b c _ _ ih1 ih2 =>
+      rcases ih1 with hab | ⟨ha, hb⟩
+      · subst hab; exact ih2
+      · rcases ih2 with hbc | ⟨hb', hc⟩
+        · subst hbc; exact Or.inr ⟨ha, hb⟩
+        · exact Or.inr ⟨ha, hc⟩
+
+theorem pairRel_quot_eq_or {x y : α ⊕ β} (h : Quot.mk (PairRel f g) x = Quot.mk (PairRel f g) y) :
+    x = y ∨ (IsPairLabel f g x ∧ IsPairLabel f g y) :=
+  eqvGen_pairRel_eq_or f g (Quot.eq.mp h)
+
+/-- The pairs of functions agreeing at every identified pair `(f i, g i)`. -/
+abbrev PairCompat (γ : Type*) :=
+  {p : (α → γ) × (β → γ) // ∀ i, p.1 (f i) = p.2 (g i)}
+
+noncomputable instance [Finite α] [Finite β] (γ : Type*) [Finite γ] :
+    Fintype (PairCompat f g γ) := Fintype.ofFinite _
+
+/-- Functions on the glued vertex set correspond exactly to compatible pairs of functions. Built
+directly via the universal property of `Quot`. -/
+noncomputable def pairLabelEquiv (γ : Type*) :
+    (Quot (PairRel f g) → γ) ≃ PairCompat f g γ where
+  toFun H := ⟨(H ∘ Quot.mk _ ∘ Sum.inl, H ∘ Quot.mk _ ∘ Sum.inr), fun i => by
+    simp [Quot.sound (show PairRel f g (Sum.inl (f i)) (Sum.inr (g i)) from ⟨i, rfl, rfl⟩)]⟩
+  invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
+    rintro a b ⟨i, rfl, rfl⟩
+    simpa using p.2 i)
+  left_inv H := funext fun q => Quot.inductionOn q (fun a => by cases a <;> rfl)
+  right_inv p := by
+    apply Subtype.ext
+    apply Prod.ext <;> rfl
+
+/-- A sum over `PairCompat f g γ` is a double sum over the two sides, guarded by compatibility. -/
+theorem sum_pairCompat_eq_sum_ite [Fintype α] [DecidableEq α] [Fintype β] [DecidableEq β]
+    {γ : Type*} [Fintype γ] [DecidableEq γ] {M : Type*} [AddCommMonoid M]
+    (F : (α → γ) → (β → γ) → M) :
+    ∑ p : PairCompat f g γ, F p.1.1 p.1.2
+      = ∑ a : α → γ, ∑ b : β → γ, if (∀ i, a (f i) = b (g i)) then F a b else 0 := by
+  have step1 : (∑ a ∈ Finset.univ.filter
+        (fun x : (α → γ) × (β → γ) => ∀ i, x.1 (f i) = x.2 (g i)), F a.1 a.2)
+      = ∑ x : PairCompat f g γ, F x.1.1 x.1.2 :=
+    Finset.sum_subtype _ (fun x => by simp) _
+  rw [← step1, Finset.sum_filter]
+  exact Fintype.sum_prod_type' (fun a b => if (∀ i, a (f i) = b (g i)) then F a b else 0)
+
+end PairGeneric
+
 /-! ### The glued vertex sets -/
 
 variable (G G' : LabelledPattern ℓ r)
 
 /-- The generating relation on `G.F.A ⊕ G'.F.A` identifying `a_i` with `a'_i`. -/
-def GlueRelA : G.F.A ⊕ G'.F.A → G.F.A ⊕ G'.F.A → Prop :=
-  fun x y => ∃ i, x = Sum.inl (G.a i) ∧ y = Sum.inr (G'.a i)
+abbrev GlueRelA : G.F.A ⊕ G'.F.A → G.F.A ⊕ G'.F.A → Prop := PairRel G.a G'.a
 
 /-- The generating relation on `G.F.B ⊕ G'.F.B` identifying `b_j` with `b'_j`. -/
-def GlueRelB : G.F.B ⊕ G'.F.B → G.F.B ⊕ G'.F.B → Prop :=
-  fun x y => ∃ j, x = Sum.inl (G.b j) ∧ y = Sum.inr (G'.b j)
+abbrev GlueRelB : G.F.B ⊕ G'.F.B → G.F.B ⊕ G'.F.B → Prop := PairRel G.b G'.b
 
 /-- The glued `A`-side vertex set: `G.F.A ⊕ G'.F.A` with `a_i` identified with `a'_i`. -/
 abbrev GlueA := Quot (GlueRelA G G')
@@ -202,44 +272,21 @@ are propositionally but not always syntactically/definitionally equal, which bre
 across lemmas that are generic in the predicate. Naming the type once and fixing its instance
 here means every occurrence (in `glueLabelEquivA`'s codomain, and in every lemma about sums over
 it) resolves to the *same* instance. -/
-abbrev CompatA (γ : Type*) [Fintype γ] :=
-  {p : (G.F.A → γ) × (G'.F.A → γ) // ∀ i, p.1 (G.a i) = p.2 (G'.a i)}
+abbrev CompatA (γ : Type*) [Fintype γ] := PairCompat G.a G'.a γ
 
 /-- The `B`-side analogue of `CompatA`. -/
-abbrev CompatB (γ : Type*) [Fintype γ] :=
-  {p : (G.F.B → γ) × (G'.F.B → γ) // ∀ j, p.1 (G.b j) = p.2 (G'.b j)}
-
-noncomputable instance (γ : Type*) [Fintype γ] : Fintype (CompatA G G' γ) := Fintype.ofFinite _
-noncomputable instance (γ : Type*) [Fintype γ] : Fintype (CompatB G G' γ) := Fintype.ofFinite _
+abbrev CompatB (γ : Type*) [Fintype γ] := PairCompat G.b G'.b γ
 
 /-- Functions on the glued `A`-side vertex set correspond exactly to pairs of functions on the
 two original `A`-sides that agree at every identified label pair `(a_i, a'_i)`. This is the
 "crux" bijection: built directly via the universal property of `Quot` (never via the closure of
 `GlueRelA` under symmetry/transitivity). -/
 noncomputable def glueLabelEquivA (γ : Type*) [Fintype γ] :
-    (GlueA G G' → γ) ≃ CompatA G G' γ where
-  toFun H := ⟨(H ∘ glueπA G G' ∘ Sum.inl, H ∘ glueπA G G' ∘ Sum.inr), fun i => by
-    simp [glueπA_sound G G' i]⟩
-  invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
-    rintro a b ⟨i, rfl, rfl⟩
-    simpa using p.2 i)
-  left_inv H := funext fun q => Quot.inductionOn q (fun a => by cases a <;> rfl)
-  right_inv p := by
-    apply Subtype.ext
-    apply Prod.ext <;> rfl
+    (GlueA G G' → γ) ≃ CompatA G G' γ := pairLabelEquiv G.a G'.a γ
 
 /-- The `B`-side analogue of `glueLabelEquivA`. -/
 noncomputable def glueLabelEquivB (γ : Type*) [Fintype γ] :
-    (GlueB G G' → γ) ≃ CompatB G G' γ where
-  toFun H := ⟨(H ∘ glueπB G G' ∘ Sum.inl, H ∘ glueπB G G' ∘ Sum.inr), fun j => by
-    simp [glueπB_sound G G' j]⟩
-  invFun p := Quot.lift (Sum.elim p.1.1 p.1.2) (by
-    rintro a b ⟨j, rfl, rfl⟩
-    simpa using p.2 j)
-  left_inv H := funext fun q => Quot.inductionOn q (fun a => by cases a <;> rfl)
-  right_inv p := by
-    apply Subtype.ext
-    apply Prod.ext <;> rfl
+    (GlueB G G' → γ) ≃ CompatB G G' γ := pairLabelEquiv G.b G'.b γ
 
 @[simp] theorem glueLabelEquivA_symm_apply_inl (γ : Type*) [Fintype γ] (p : CompatA G G' γ)
     (x : G.F.A) :
@@ -292,13 +339,7 @@ theorem sum_compatA_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : T
     ∑ pa : CompatA G G' γ, f pa.1.1 pa.1.2
       = ∑ hAG : G.F.A → γ, ∑ hAG' : G'.F.A → γ,
           if (∀ i, hAG (G.a i) = hAG' (G'.a i)) then f hAG hAG' else 0 := by
-  have step1 : (∑ a ∈ Finset.univ.filter
-        (fun x : (G.F.A → γ) × (G'.F.A → γ) => ∀ i, x.1 (G.a i) = x.2 (G'.a i)), f a.1 a.2)
-      = ∑ x : CompatA G G' γ, f x.1.1 x.1.2 :=
-    Finset.sum_subtype _ (fun x => by simp) _
-  rw [← step1, Finset.sum_filter]
-  exact Fintype.sum_prod_type' (fun hAG hAG' => if (∀ i, hAG (G.a i) = hAG' (G'.a i))
-    then f hAG hAG' else 0)
+  convert sum_pairCompat_eq_sum_ite G.a G'.a f
 
 /-- The `B`-side analogue of `sum_compatA_eq_sum_ite`. -/
 theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : Type*}
@@ -307,13 +348,7 @@ theorem sum_compatB_eq_sum_ite {γ : Type*} [Fintype γ] [DecidableEq γ] {M : T
     ∑ pb : CompatB G G' γ, f pb.1.1 pb.1.2
       = ∑ hBG : G.F.B → γ, ∑ hBG' : G'.F.B → γ,
           if (∀ j, hBG (G.b j) = hBG' (G'.b j)) then f hBG hBG' else 0 := by
-  have step1 : (∑ a ∈ Finset.univ.filter
-        (fun x : (G.F.B → γ) × (G'.F.B → γ) => ∀ j, x.1 (G.b j) = x.2 (G'.b j)), f a.1 a.2)
-      = ∑ x : CompatB G G' γ, f x.1.1 x.1.2 :=
-    Finset.sum_subtype _ (fun x => by simp) _
-  rw [← step1, Finset.sum_filter]
-  exact Fintype.sum_prod_type' (fun hBG hBG' => if (∀ j, hBG (G.b j) = hBG' (G'.b j))
-    then f hBG hBG' else 0)
+  convert sum_pairCompat_eq_sum_ite G.b G'.b f
 
 /-! ### The homomorphism-polynomial multiplicativity of gluing -/
 
@@ -563,53 +598,30 @@ quotients by), hence along `glueπA`/`glueπB`-fibers. -/
 
 /-- `x` is (a copy of) an `A`-side label vertex: equal to `G.a i` on the left, or to `G'.a i` on
 the right, for some label index `i`. -/
-def IsGlueLabelA (x : G.F.A ⊕ G'.F.A) : Prop :=
-  Sum.elim (fun x0 => ∃ i : Fin ℓ, G.a i = x0) (fun x0' => ∃ i : Fin ℓ, G'.a i = x0') x
+abbrev IsGlueLabelA : G.F.A ⊕ G'.F.A → Prop := IsPairLabel G.a G'.a
 
 /-- The `B`-side analogue of `IsGlueLabelA`. -/
-def IsGlueLabelB (y : G.F.B ⊕ G'.F.B) : Prop :=
-  Sum.elim (fun y0 => ∃ j : Fin r, G.b j = y0) (fun y0' => ∃ j : Fin r, G'.b j = y0') y
+abbrev IsGlueLabelB : G.F.B ⊕ G'.F.B → Prop := IsPairLabel G.b G'.b
 
-/-- `IsGlueLabelA` is invariant along the equivalence closure of `GlueRelA`: the generating
-relation only ever connects two label vertices (at the same position), so being a label vertex
-transfers across any chain of identifications. -/
-theorem eqvGen_glueRelA_isGlueLabelA_iff {x y : G.F.A ⊕ G'.F.A}
-    (h : Relation.EqvGen (GlueRelA G G') x y) :
-    IsGlueLabelA G G' x ↔ IsGlueLabelA G G' y := by
-  induction h with
-  | rel a b hab =>
-      obtain ⟨i, ha, hb⟩ := hab
-      subst ha; subst hb
-      exact ⟨fun _ => ⟨i, rfl⟩, fun _ => ⟨i, rfl⟩⟩
-  | refl a => rfl
-  | symm a b _ ih => exact ih.symm
-  | trans a b c _ _ ih1 ih2 => exact ih1.trans ih2
+theorem glueπA_eq_iff_eq_or_isGlueLabelA {x y : G.F.A ⊕ G'.F.A} (h : glueπA G G' x = glueπA G G' y) :
+    x = y ∨ (IsGlueLabelA G G' x ∧ IsGlueLabelA G G' y) :=
+  pairRel_quot_eq_or G.a G'.a h
 
-/-- The `B`-side analogue of `eqvGen_glueRelA_isGlueLabelA_iff`. -/
-theorem eqvGen_glueRelB_isGlueLabelB_iff {x y : G.F.B ⊕ G'.F.B}
-    (h : Relation.EqvGen (GlueRelB G G') x y) :
-    IsGlueLabelB G G' x ↔ IsGlueLabelB G G' y := by
-  induction h with
-  | rel a b hab =>
-      obtain ⟨j, ha, hb⟩ := hab
-      subst ha; subst hb
-      exact ⟨fun _ => ⟨j, rfl⟩, fun _ => ⟨j, rfl⟩⟩
-  | refl a => rfl
-  | symm a b _ ih => exact ih.symm
-  | trans a b c _ _ ih1 ih2 => exact ih1.trans ih2
+theorem glueπB_eq_iff_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B} (h : glueπB G G' x = glueπB G G' y) :
+    x = y ∨ (IsGlueLabelB G G' x ∧ IsGlueLabelB G G' y) :=
+  pairRel_quot_eq_or G.b G'.b h
 
-/-- `IsGlueLabelA` transfers backwards along a `glueπA`-coincidence: if `x, y` land on the same
-glued vertex and `y` is (known to be) a label vertex, so is `x`. -/
+/-- `IsGlueLabelA` transfers backwards along a `glueπA`-coincidence. -/
 theorem IsGlueLabelA.of_glueπA_eq {x y : G.F.A ⊕ G'.F.A} (h : glueπA G G' x = glueπA G G' y)
-    (hy : IsGlueLabelA G G' y) : IsGlueLabelA G G' x :=
-  (eqvGen_glueRelA_isGlueLabelA_iff G G'
-    (Quot.eq.mp (show Quot.mk (GlueRelA G G') x = Quot.mk (GlueRelA G G') y from h))).mpr hy
+    (hy : IsGlueLabelA G G' y) : IsGlueLabelA G G' x := by
+  rcases glueπA_eq_iff_eq_or_isGlueLabelA G G' h with rfl | ⟨hx, -⟩
+  exacts [hy, hx]
 
 /-- The `B`-side analogue of `IsGlueLabelA.of_glueπA_eq`. -/
 theorem IsGlueLabelB.of_glueπB_eq {x y : G.F.B ⊕ G'.F.B} (h : glueπB G G' x = glueπB G G' y)
-    (hy : IsGlueLabelB G G' y) : IsGlueLabelB G G' x :=
-  (eqvGen_glueRelB_isGlueLabelB_iff G G'
-    (Quot.eq.mp (show Quot.mk (GlueRelB G G') x = Quot.mk (GlueRelB G G') y from h))).mpr hy
+    (hy : IsGlueLabelB G G' y) : IsGlueLabelB G G' x := by
+  rcases glueπB_eq_iff_eq_or_isGlueLabelB G G' h with rfl | ⟨hx, -⟩
+  exacts [hy, hx]
 
 /-- If the glued `A`-side vertex `qa` is non-isolated in `gluePattern G G'`, some original
 `A`-side vertex projecting to it (on the matching original side) is non-isolated in its own
@@ -905,54 +917,6 @@ theorem embG'_mem_labelSupport_of_mem {w : G'.F.A ⊕ G'.F.B} (hw : w ∈ G'.lab
     not_isIsolated_iff_notMem.mp (not_isIsolated_embG'_of_not_isIsolated G G' hniso)⟩
   rw [← hp, embG'_labelVertex]
 
-/-- The stronger form of `eqvGen_glueRelA_isGlueLabelA_iff`: two related vertices are either
-literally equal, or both label vertices. Used to show that gluing can never accidentally
-identify two *non*-label vertices (on the same or on opposite sides). -/
-theorem eqvGen_glueRelA_eq_or_isGlueLabelA {x y : G.F.A ⊕ G'.F.A}
-    (h : Relation.EqvGen (GlueRelA G G') x y) :
-    x = y ∨ (IsGlueLabelA G G' x ∧ IsGlueLabelA G G' y) := by
-  induction h with
-  | rel a b hab => obtain ⟨i, ha, hb⟩ := hab; subst ha; subst hb; exact Or.inr ⟨⟨i, rfl⟩, ⟨i, rfl⟩⟩
-  | refl a => exact Or.inl rfl
-  | symm a b _ ih =>
-      rcases ih with h | ⟨h1, h2⟩
-      · exact Or.inl h.symm
-      · exact Or.inr ⟨h2, h1⟩
-  | trans a b c _ _ ih1 ih2 =>
-      rcases ih1 with hab | ⟨ha, hb⟩
-      · subst hab; exact ih2
-      · rcases ih2 with hbc | ⟨hb', hc⟩
-        · subst hbc; exact Or.inr ⟨ha, hb⟩
-        · exact Or.inr ⟨ha, hc⟩
-
-/-- The `B`-side analogue of `eqvGen_glueRelA_eq_or_isGlueLabelA`. -/
-theorem eqvGen_glueRelB_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B}
-    (h : Relation.EqvGen (GlueRelB G G') x y) :
-    x = y ∨ (IsGlueLabelB G G' x ∧ IsGlueLabelB G G' y) := by
-  induction h with
-  | rel a b hab => obtain ⟨j, ha, hb⟩ := hab; subst ha; subst hb; exact Or.inr ⟨⟨j, rfl⟩, ⟨j, rfl⟩⟩
-  | refl a => exact Or.inl rfl
-  | symm a b _ ih =>
-      rcases ih with h | ⟨h1, h2⟩
-      · exact Or.inl h.symm
-      · exact Or.inr ⟨h2, h1⟩
-  | trans a b c _ _ ih1 ih2 =>
-      rcases ih1 with hab | ⟨ha, hb⟩
-      · subst hab; exact ih2
-      · rcases ih2 with hbc | ⟨hb', hc⟩
-        · subst hbc; exact Or.inr ⟨ha, hb⟩
-        · exact Or.inr ⟨ha, hc⟩
-
-theorem glueπA_eq_iff_eq_or_isGlueLabelA {x y : G.F.A ⊕ G'.F.A} (h : glueπA G G' x = glueπA G G' y) :
-    x = y ∨ (IsGlueLabelA G G' x ∧ IsGlueLabelA G G' y) :=
-  eqvGen_glueRelA_eq_or_isGlueLabelA G G'
-    (Quot.eq.mp (show Quot.mk (GlueRelA G G') x = Quot.mk (GlueRelA G G') y from h))
-
-theorem glueπB_eq_iff_eq_or_isGlueLabelB {x y : G.F.B ⊕ G'.F.B} (h : glueπB G G' x = glueπB G G' y) :
-    x = y ∨ (IsGlueLabelB G G' x ∧ IsGlueLabelB G G' y) :=
-  eqvGen_glueRelB_eq_or_isGlueLabelB G G'
-    (Quot.eq.mp (show Quot.mk (GlueRelB G G') x = Quot.mk (GlueRelB G G') y from h))
-
 /-! ### The merged tree
 
 Given root-exact decompositions `D` of `G` and `D'` of `G'` (both of depth `≤ Δ`, width `≤ k`),
@@ -1190,16 +1154,12 @@ root wherever it appears. A *non*-label vertex, on the other hand, never crosses
 its entry status transfers faithfully from `D`'s (or `D'`'s) own `connected`. -/
 
 theorem eq_of_glueπA_eq_of_not_isGlueLabelA {x y : G.F.A ⊕ G'.F.A}
-    (heq : glueπA G G' x = glueπA G G' y) (hx : ¬ IsGlueLabelA G G' x) : x = y := by
-  rcases glueπA_eq_iff_eq_or_isGlueLabelA G G' heq with h | ⟨hl, -⟩
-  · exact h
-  · exact absurd hl hx
+    (heq : glueπA G G' x = glueπA G G' y) (hx : ¬ IsGlueLabelA G G' x) : x = y :=
+  (glueπA_eq_iff_eq_or_isGlueLabelA G G' heq).resolve_right fun h => hx h.1
 
 theorem eq_of_glueπB_eq_of_not_isGlueLabelB {x y : G.F.B ⊕ G'.F.B}
-    (heq : glueπB G G' x = glueπB G G' y) (hx : ¬ IsGlueLabelB G G' x) : x = y := by
-  rcases glueπB_eq_iff_eq_or_isGlueLabelB G G' heq with h | ⟨hl, -⟩
-  · exact h
-  · exact absurd hl hx
+    (heq : glueπB G G' x = glueπB G G' y) (hx : ¬ IsGlueLabelB G G' x) : x = y :=
+  (glueπB_eq_iff_eq_or_isGlueLabelB G G' heq).resolve_right fun h => hx h.1
 
 theorem notMem_labelSupport_glue_inl_of_not_isGlueLabelA {x : G.F.A ⊕ G'.F.A}
     (hx : ¬ IsGlueLabelA G G' x) : Sum.inl (glueπA G G' x) ∉ (glue G G').labelSupport := by
