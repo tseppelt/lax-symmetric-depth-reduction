@@ -108,6 +108,59 @@ theorem ite_mul_ite_one_zero {S : Type*} [MulZeroOneClass S] {P Q : Prop} [Decid
       if P ∧ Q then 1 else 0 := by
   by_cases hP : P <;> by_cases hQ : Q <;> simp [hP, hQ]
 
+/-- Generic side-independent core: a family `f` of factors, equal to the `0`/`1` indicator of
+`g p ≠ g q` for `g = Fin.append u y`, has (cross + new-new) product equal to the indicator of
+injectivity of `g`. Used for both the left and the right side. -/
+theorem prod_pairs_eval {S : Type*} [CommRing S] {m m' n : ℕ} (u : Fin m → Fin n)
+    (y : Fin m' → Fin n) (hu : Function.Injective u)
+    (f : ∀ p q : Fin (m + m'), p ≠ q → S)
+    (hf : ∀ p q hpq, f p q hpq = if Fin.append u y p = Fin.append u y q then 0 else 1) :
+    (∏ p : Fin m × Fin m', f (Fin.castAdd m' p.1) (Fin.natAdd m p.2)
+        (castAdd_ne_natAdd m m' p.1 p.2)) *
+      (∏ p ∈ (newPairs m').attach, f (Fin.natAdd m p.1.1) (Fin.natAdd m p.1.2)
+        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2)))) =
+      if Function.Injective (Fin.append u y) then (1 : S) else 0 := by
+  have h1 : (∏ p : Fin m × Fin m', f (Fin.castAdd m' p.1) (Fin.natAdd m p.2)
+        (castAdd_ne_natAdd m m' p.1 p.2)) =
+      if (∀ i : Fin m, ∀ j : Fin m', u i ≠ y j) then (1 : S) else 0 := by
+    have heq : ∀ p : Fin m × Fin m', f (Fin.castAdd m' p.1) (Fin.natAdd m p.2)
+        (castAdd_ne_natAdd m m' p.1 p.2) = if u p.1 = y p.2 then (0 : S) else 1 := by
+      intro p
+      rw [hf, Fin.append_left, Fin.append_right]
+    rw [Finset.prod_congr rfl (fun p _ => heq p)]
+    rw [prod_ite_zero_one]
+    have hiff : (∀ i ∈ (Finset.univ : Finset (Fin m × Fin m')), ¬ u i.1 = y i.2) ↔
+        (∀ i : Fin m, ∀ j : Fin m', u i ≠ y j) :=
+      ⟨fun h i j => h ⟨i, j⟩ (Finset.mem_univ _), fun h p _ => h p.1 p.2⟩
+    simp only [hiff]
+  have h2 : (∏ p ∈ (newPairs m').attach, f (Fin.natAdd m p.1.1) (Fin.natAdd m p.1.2)
+        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2)))) =
+      if Function.Injective y then (1 : S) else 0 := by
+    have heq : ∀ p : (newPairs m'), f (Fin.natAdd m p.1.1) (Fin.natAdd m p.1.2)
+        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) =
+        if y p.1.1 = y p.1.2 then (0 : S) else 1 := by
+      intro p
+      rw [hf, Fin.append_right, Fin.append_right]
+    rw [Finset.prod_congr rfl (fun p _ => heq p)]
+    rw [Finset.prod_attach (newPairs m')
+      (fun p => if y p.1 = y p.2 then (0 : S) else 1)]
+    rw [prod_ite_zero_one]
+    have hiff : (∀ p ∈ newPairs m', ¬ y p.1 = y p.2) ↔ Function.Injective y := by
+      rw [injective_iff_forall_lt_ne]
+      exact ⟨fun h i j hij => h (i, j) (mem_newPairs.mpr hij), fun h p hp => h p.1 p.2
+        (mem_newPairs.mp hp)⟩
+    simp only [hiff]
+  rw [h1, h2, ite_mul_ite_one_zero]
+  have hiff : ((∀ i : Fin m, ∀ j : Fin m', u i ≠ y j) ∧ Function.Injective y) ↔
+      Function.Injective (Fin.append u y) := by
+    rw [Fin.append_injective_iff]
+    constructor
+    · rintro ⟨h1, h2⟩
+      exact ⟨hu, h2, h1⟩
+    · rintro ⟨-, h2, h1⟩
+      exact ⟨h1, h2⟩
+  simp only [hiff]
+
 /-- The left-side pair of factors (cross + new-new) collapses to the indicator of injectivity
 of the extended left labelling. -/
 theorem δ_left_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (y : Fin ℓ' → Fin n)
@@ -117,53 +170,10 @@ theorem δ_left_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (y 
       (∏ p ∈ (newPairs ℓ').attach, factorA K (ℓ + ℓ') (r + r') n
         (Fin.natAdd ℓ p.1.1) (Fin.natAdd ℓ p.1.2)
         (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) (Fin.append v y) w) =
-      if Function.Injective (Fin.append v y) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-  have h1 : (∏ p : Fin ℓ × Fin ℓ', factorA K (ℓ + ℓ') (r + r') n (Fin.castAdd ℓ' p.1)
-        (Fin.natAdd ℓ p.2) (castAdd_ne_natAdd ℓ ℓ' p.1 p.2) (Fin.append v y) w) =
-      if (∀ i : Fin ℓ, ∀ j : Fin ℓ', v i ≠ y j) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-    have heq : ∀ p : Fin ℓ × Fin ℓ', factorA K (ℓ + ℓ') (r + r') n (Fin.castAdd ℓ' p.1)
-        (Fin.natAdd ℓ p.2) (castAdd_ne_natAdd ℓ ℓ' p.1 p.2) (Fin.append v y) w =
-        if v p.1 = y p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
-      intro p
-      rw [factorA_eval, Fin.append_left, Fin.append_right]
-    rw [Finset.prod_congr rfl (fun p _ => heq p)]
-    rw [show (∏ p : Fin ℓ × Fin ℓ', if v p.1 = y p.2 then (0 : MvPolynomial (Fin n × Fin n) K)
-        else 1) = ∏ p ∈ (Finset.univ : Finset (Fin ℓ × Fin ℓ')),
-          if v p.1 = y p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 from rfl]
-    rw [prod_ite_zero_one]
-    have hiff : (∀ i ∈ (Finset.univ : Finset (Fin ℓ × Fin ℓ')), ¬ v i.1 = y i.2) ↔
-        (∀ i : Fin ℓ, ∀ j : Fin ℓ', v i ≠ y j) :=
-      ⟨fun h i j => h ⟨i, j⟩ (Finset.mem_univ _), fun h p _ => h p.1 p.2⟩
-    simp only [hiff]
-  have h2 : (∏ p ∈ (newPairs ℓ').attach, factorA K (ℓ + ℓ') (r + r') n
-        (Fin.natAdd ℓ p.1.1) (Fin.natAdd ℓ p.1.2)
-        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) (Fin.append v y) w) =
-      if Function.Injective y then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-    have heq : ∀ p : (newPairs ℓ'), factorA K (ℓ + ℓ') (r + r') n
-        (Fin.natAdd ℓ p.1.1) (Fin.natAdd ℓ p.1.2)
-        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) (Fin.append v y) w =
-        if y p.1.1 = y p.1.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
-      intro p
-      rw [factorA_eval, Fin.append_right, Fin.append_right]
-    rw [Finset.prod_congr rfl (fun p _ => heq p)]
-    rw [Finset.prod_attach (newPairs ℓ')
-      (fun p => if y p.1 = y p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1)]
-    rw [prod_ite_zero_one]
-    have hiff : (∀ p ∈ newPairs ℓ', ¬ y p.1 = y p.2) ↔ Function.Injective y := by
-      rw [injective_iff_forall_lt_ne]
-      exact ⟨fun h i j hij => h (i, j) (mem_newPairs.mpr hij), fun h p hp => h p.1 p.2
-        (mem_newPairs.mp hp)⟩
-    simp only [hiff]
-  rw [h1, h2, ite_mul_ite_one_zero]
-  have hiff : ((∀ i : Fin ℓ, ∀ j : Fin ℓ', v i ≠ y j) ∧ Function.Injective y) ↔
-      Function.Injective (Fin.append v y) := by
-    rw [Fin.append_injective_iff]
-    constructor
-    · rintro ⟨h1, h2⟩
-      exact ⟨hv, h2, h1⟩
-    · rintro ⟨-, h2, h1⟩
-      exact ⟨h1, h2⟩
-  simp only [hiff]
+      if Function.Injective (Fin.append v y) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 :=
+  prod_pairs_eval v y hv
+    (fun p q hpq => factorA K (ℓ + ℓ') (r + r') n p q hpq (Fin.append v y) w)
+    (fun _ _ _ => factorA_eval ..)
 
 /-- The right-side pair of factors (cross + new-new) collapses to the indicator of injectivity
 of the extended right labelling. -/
@@ -174,53 +184,10 @@ theorem δ_right_eval (K : Type*) [Field K] (n : ℕ) (w : Fin r → Fin n) (z :
       (∏ p ∈ (newPairs r').attach, factorB K (ℓ + ℓ') (r + r') n
         (Fin.natAdd r p.1.1) (Fin.natAdd r p.1.2)
         (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) v (Fin.append w z)) =
-      if Function.Injective (Fin.append w z) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-  have h1 : (∏ p : Fin r × Fin r', factorB K (ℓ + ℓ') (r + r') n (Fin.castAdd r' p.1)
-        (Fin.natAdd r p.2) (castAdd_ne_natAdd r r' p.1 p.2) v (Fin.append w z)) =
-      if (∀ i : Fin r, ∀ j : Fin r', w i ≠ z j) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-    have heq : ∀ p : Fin r × Fin r', factorB K (ℓ + ℓ') (r + r') n (Fin.castAdd r' p.1)
-        (Fin.natAdd r p.2) (castAdd_ne_natAdd r r' p.1 p.2) v (Fin.append w z) =
-        if w p.1 = z p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
-      intro p
-      rw [factorB_eval, Fin.append_left, Fin.append_right]
-    rw [Finset.prod_congr rfl (fun p _ => heq p)]
-    rw [show (∏ p : Fin r × Fin r', if w p.1 = z p.2 then (0 : MvPolynomial (Fin n × Fin n) K)
-        else 1) = ∏ p ∈ (Finset.univ : Finset (Fin r × Fin r')),
-          if w p.1 = z p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 from rfl]
-    rw [prod_ite_zero_one]
-    have hiff : (∀ i ∈ (Finset.univ : Finset (Fin r × Fin r')), ¬ w i.1 = z i.2) ↔
-        (∀ i : Fin r, ∀ j : Fin r', w i ≠ z j) :=
-      ⟨fun h i j => h ⟨i, j⟩ (Finset.mem_univ _), fun h p _ => h p.1 p.2⟩
-    simp only [hiff]
-  have h2 : (∏ p ∈ (newPairs r').attach, factorB K (ℓ + ℓ') (r + r') n
-        (Fin.natAdd r p.1.1) (Fin.natAdd r p.1.2)
-        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) v (Fin.append w z)) =
-      if Function.Injective z then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
-    have heq : ∀ p : (newPairs r'), factorB K (ℓ + ℓ') (r + r') n
-        (Fin.natAdd r p.1.1) (Fin.natAdd r p.1.2)
-        (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) v (Fin.append w z) =
-        if z p.1.1 = z p.1.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
-      intro p
-      rw [factorB_eval, Fin.append_right, Fin.append_right]
-    rw [Finset.prod_congr rfl (fun p _ => heq p)]
-    rw [Finset.prod_attach (newPairs r')
-      (fun p => if z p.1 = z p.2 then (0 : MvPolynomial (Fin n × Fin n) K) else 1)]
-    rw [prod_ite_zero_one]
-    have hiff : (∀ p ∈ newPairs r', ¬ z p.1 = z p.2) ↔ Function.Injective z := by
-      rw [injective_iff_forall_lt_ne]
-      exact ⟨fun h i j hij => h (i, j) (mem_newPairs.mpr hij), fun h p hp => h p.1 p.2
-        (mem_newPairs.mp hp)⟩
-    simp only [hiff]
-  rw [h1, h2, ite_mul_ite_one_zero]
-  have hiff : ((∀ i : Fin r, ∀ j : Fin r', w i ≠ z j) ∧ Function.Injective z) ↔
-      Function.Injective (Fin.append w z) := by
-    rw [Fin.append_injective_iff]
-    constructor
-    · rintro ⟨h1, h2⟩
-      exact ⟨hw, h2, h1⟩
-    · rintro ⟨-, h2, h1⟩
-      exact ⟨h1, h2⟩
-  simp only [hiff]
+      if Function.Injective (Fin.append w z) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 :=
+  prod_pairs_eval w z hw
+    (fun p q hpq => factorB K (ℓ + ℓ') (r + r') n p q hpq v (Fin.append w z))
+    (fun _ _ _ => factorB_eval ..)
 
 /-- **`δ`'s evaluation**: given `v, w` injective, `δ` at `(Fin.append v y, Fin.append w z)` is
 the `0`/`1` indicator of `(y, z) ∈ Y ℓ' r' n v w`. -/
@@ -255,29 +222,21 @@ theorem span𝔗P_prod_mem {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P
       exact span𝔗P_mul_mem hP (hf a (Finset.mem_insert_self a s))
         (ih (fun i hi => hf i (Finset.mem_insert_of_mem hi)))
 
-theorem factorA_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (p q : Fin L) (hpq : p ≠ q)
-    (P : Finset (Fin L ⊕ Fin R)) : factorA K L R n p q hpq ∈ span𝔗P K Δ k n P := by
-  have heq : factorA K L R n p q hpq =
-      (fun v w => labelledHom K (J L R) n v w) -
-        fun v w => labelledHom K (mergeA L R p q hpq) n v w := by
-    funext v w; rfl
-  rw [heq]
-  exact Submodule.sub_mem _
+/-- `J - H` lies in the span for any edgeless `H` (the shared core of `factorA`/`factorB`). -/
+theorem J_sub_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (H : LabelledPattern L R)
+    (hH : isEdgeless H.F) (P : Finset (Fin L ⊕ Fin R)) :
+    (fun v w => labelledHom K (J L R) n v w - labelledHom K H n v w) ∈ span𝔗P K Δ k n P :=
+  Submodule.sub_mem _
     (Submodule.subset_span ⟨J L R, inClassP_of_edgeless' (J_isEdgeless L R) Δ k P, rfl⟩)
-    (Submodule.subset_span
-      ⟨mergeA L R p q hpq, inClassP_of_edgeless' (mergeA_isEdgeless L R p q hpq) Δ k P, rfl⟩)
+    (Submodule.subset_span ⟨H, inClassP_of_edgeless' hH Δ k P, rfl⟩)
+
+theorem factorA_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (p q : Fin L) (hpq : p ≠ q)
+    (P : Finset (Fin L ⊕ Fin R)) : factorA K L R n p q hpq ∈ span𝔗P K Δ k n P :=
+  J_sub_mem_span K Δ k n L R _ (mergeA_isEdgeless L R p q hpq) P
 
 theorem factorB_mem_span (K : Type*) [Field K] (Δ k n L R : ℕ) (p q : Fin R) (hpq : p ≠ q)
-    (P : Finset (Fin L ⊕ Fin R)) : factorB K L R n p q hpq ∈ span𝔗P K Δ k n P := by
-  have heq : factorB K L R n p q hpq =
-      (fun v w => labelledHom K (J L R) n v w) -
-        fun v w => labelledHom K (mergeB L R p q hpq) n v w := by
-    funext v w; rfl
-  rw [heq]
-  exact Submodule.sub_mem _
-    (Submodule.subset_span ⟨J L R, inClassP_of_edgeless' (J_isEdgeless L R) Δ k P, rfl⟩)
-    (Submodule.subset_span
-      ⟨mergeB L R p q hpq, inClassP_of_edgeless' (mergeB_isEdgeless L R p q hpq) Δ k P, rfl⟩)
+    (P : Finset (Fin L ⊕ Fin R)) : factorB K L R n p q hpq ∈ span𝔗P K Δ k n P :=
+  J_sub_mem_span K Δ k n L R _ (mergeB_isEdgeless L R p q hpq) P
 
 /-- **`δ` lies in `𝔗^{Δ,k}_{n,P}(ℓ+ℓ',r+r')`**, for *every* `Δ`, and every `k, P` with
 `P.card ≤ k`: each factor is edgeless (so lies in the span for any `Δ, k, P` at all by item 1 of
