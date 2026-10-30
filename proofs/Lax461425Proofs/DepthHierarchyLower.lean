@@ -51,6 +51,13 @@ theorem choose_le_orbitSize {K : Type*} [Field K] [CharZero K] {Δ n k : ℕ} (h
     exact hF (isRich_of_weakOddomorphism φ hφ hG)
   · exact fun h => h ⟨Set.univ, by simpa using treeG_richSet Δ' k⟩
 
+lemma one_le_orbitSize {K : Type*} {n : ℕ} (C : Circuit (Fin n × Fin n) K)
+    (hsym : IsMatrixSymmetric C) : 1 ≤ orbitSize C := by
+  obtain ⟨σ, hσ⟩ := hsym 1
+  have hne : (orbit C C.out).Nonempty := ⟨σ C.out, 1, σ, hσ, rfl⟩
+  have h1 : 1 ≤ (orbit C C.out).ncard := Set.ncard_pos (Set.toFinite _) |>.2 hne
+  exact h1.trans (Finset.le_sup (f := fun g => (orbit C g).ncard) (Finset.mem_univ C.out))
+
 /--
 ---
 conclusion: Lax461425.DepthHierarchy.orbitSize_ge
@@ -62,6 +69,6 @@ theorem orbitSize_ge {K : Type*} [Field K] [CharZero K] {Δ n : ℕ} (hΔ : 1 �
     (hC : C.Computes (hom K (DepthHierarchy.fullTree Δ n) n))
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hdepth : supportDepth C ≤ Δ) :
     (n : ℝ) ^ (Real.logb 2 n - Δ * Real.logb 2 (Real.logb 2 n) - 3) ≤ orbitSize C :=
-  arith hΔ hn fun k hk hkn hγ => choose_le_orbitSize hΔ hn hk hkn hγ C hC hred hsym hdepth
+  arith hΔ hn (one_le_orbitSize C hsym) fun k hk hkn hγ => choose_le_orbitSize hΔ hn hk hkn hγ C hC hred hsym hdepth
 
 end Lax461425Proofs.DepthHierarchy

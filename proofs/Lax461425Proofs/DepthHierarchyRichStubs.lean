@@ -55,7 +55,7 @@ theorem cfiSize_treeG_le {Δ k : ℕ} (hΔ : 1 ≤ Δ) (hk : 1 ≤ k) :
 
 /-- The final numerical estimate: if an orbit size `O` is at least `C(n, k+1)` for every `k ≥ 2`
 with `4(k+1) ≤ n` and `2^(k+3) (k+1)^(Δ-1) ≤ n`, then `O ≥ n^(log₂ n - Δ log₂ log₂ n - 3)`. -/
-theorem arith {Δ n O : ℕ} (hΔ : 1 ≤ Δ) (hn : 20 ≤ n)
+theorem arith {Δ n O : ℕ} (hΔ : 1 ≤ Δ) (hn : 20 ≤ n) (hO : 1 ≤ O)
     (h : ∀ k, 2 ≤ k → 4 * (k + 1) ≤ n → 2 ^ (k + 3) * (k + 1) ^ (Δ - 1) ≤ n →
       n.choose (k + 1) ≤ O) :
     (n : ℝ) ^ (Real.logb 2 n - Δ * Real.logb 2 (Real.logb 2 n) - 3) ≤ O := by
