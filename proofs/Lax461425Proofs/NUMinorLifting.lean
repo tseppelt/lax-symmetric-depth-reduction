@@ -11,7 +11,7 @@ Minor lifting (`lem:minor-lifting`): `minorLifting_eq` and `minorLifting_lt`.
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure Lax461425.Oddomorphisms
-open Lax871432.ConnectedPartitions Lax871432.HomomorphismCounts Lax871432.GraphClasses
+open Lax871432.GraphClasses
 open Lax871432.ClosureProperties Lax68.GraphMinors
 
 open scoped Classical

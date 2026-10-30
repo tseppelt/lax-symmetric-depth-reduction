@@ -10,7 +10,7 @@ The filled CFI graphs: `hom(F, Ĝ_W) = ∑_ψ cntOver (F_ψ → G) W`, and the c
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure Lax461425.Oddomorphisms
-open Lax871432.ConnectedPartitions Lax871432.HomomorphismCounts Lax871432.GraphClasses
+open Lax871432.GraphClasses
 
 open scoped Classical
 

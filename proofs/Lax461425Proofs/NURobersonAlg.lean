@@ -3,7 +3,6 @@ import Lax461425Proofs.NUDefs
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure
-open Lax871432.ConnectedPartitions Lax871432.HomomorphismCounts
 
 open scoped Classical
 

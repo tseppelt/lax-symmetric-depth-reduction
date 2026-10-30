@@ -4,7 +4,6 @@ import Mathlib
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure
-open Lax871432.ConnectedPartitions Lax871432.HomomorphismCounts
 
 open scoped Classical
 
@@ -36,12 +35,12 @@ theorem eval_hom {K : Type*} [CommSemiring K] (F : Pattern) (N : ℕ) (R : Fin N
 theorem homBip_pad (F : Pattern) {X Y : Type} [Finite X] [Finite Y] (R : X → Y → Prop) {N : ℕ}
     (e : X ↪ Fin N) (f : Y ↪ Fin N) :
     homBip F (fun i j : Fin N => ∃ x y, e x = i ∧ f y = j ∧ R x y) =
-      N ^ ((Nat.card F.A - Nat.card F.nz.A) + (Nat.card F.B - Nat.card F.nz.B)) *
-        homBip F.nz R := by
+      N ^ ((Nat.card F.A - Nat.card (nzPat F).A) + (Nat.card F.B - Nat.card (nzPat F).B)) *
+        homBip (nzPat F) R := by
   set R' : Fin N → Fin N → Prop := fun i j => ∃ x y, e x = i ∧ f y = j ∧ R x y with hR'
   let isoA := {a : F.A // ¬ ∃ b, F.mult a b ≠ 0}
   let isoB := {b : F.B // ¬ ∃ a, F.mult a b ≠ 0}
-  let g : (({p : (F.nz.A → X) × (F.nz.B → Y) // ∀ a b, F.nz.mult a b ≠ 0 → R (p.1 a) (p.2 b)}) ×
+  let g : (({p : ((nzPat F).A → X) × ((nzPat F).B → Y) // ∀ a b, (nzPat F).mult a b ≠ 0 → R (p.1 a) (p.2 b)}) ×
       (isoA → Fin N) × (isoB → Fin N)) →
       {p : (F.A → Fin N) × (F.B → Fin N) // ∀ a b, F.mult a b ≠ 0 → R' (p.1 a) (p.2 b)} :=
     fun s => ⟨(fun a => if h : ∃ b, F.mult a b ≠ 0 then e (s.1.1.1 ⟨a, h⟩) else s.2.1 ⟨a, h⟩,
@@ -80,19 +79,19 @@ theorem homBip_pad (F : Pattern) {X Y : Type} [Finite X] [Finite Y] (R : X → Y
       subst hxs hys hha hhb
       rfl
     · rintro ⟨⟨hA, hB⟩, hp⟩
-      have hxa : ∀ a : F.nz.A, ∃ x, e x = hA a.1 := by
+      have hxa : ∀ a : (nzPat F).A, ∃ x, e x = hA a.1 := by
         intro a
         obtain ⟨b, hb⟩ := a.2
         obtain ⟨x, y, hx, _, _⟩ := hp a.1 b hb
         exact ⟨x, hx⟩
-      have hyb : ∀ b : F.nz.B, ∃ y, f y = hB b.1 := by
+      have hyb : ∀ b : (nzPat F).B, ∃ y, f y = hB b.1 := by
         intro b
         obtain ⟨a, ha⟩ := b.2
         obtain ⟨x, y, _, hy, _⟩ := hp a b.1 ha
         exact ⟨y, hy⟩
       choose xs hxs using hxa
       choose ys hys using hyb
-      have hR : ∀ a b, F.nz.mult a b ≠ 0 → R (xs a) (ys b) := by
+      have hR : ∀ a b, (nzPat F).mult a b ≠ 0 → R (xs a) (ys b) := by
         intro a b hm
         obtain ⟨x, y, hx, hy, hr⟩ := hp a.1 b.1 hm
         have h1 : x = xs a := e.injective (hx.trans (hxs a).symm)
@@ -115,10 +114,10 @@ theorem homBip_pad (F : Pattern) {X Y : Type} [Finite X] [Finite Y] (R : X → Y
   have hcard := Nat.card_eq_of_bijective g hg
   unfold homBip
   rw [← hcard, Nat.card_prod, Nat.card_prod, Nat.card_fun, Nat.card_fun, Nat.card_eq_fintype_card (α := Fin N), Fintype.card_fin]
-  have hA : Nat.card isoA = Nat.card F.A - Nat.card F.nz.A := by
+  have hA : Nat.card isoA = Nat.card F.A - Nat.card (nzPat F).A := by
     rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card, Nat.card_eq_fintype_card]
     exact Fintype.card_subtype_compl _
-  have hB : Nat.card isoB = Nat.card F.B - Nat.card F.nz.B := by
+  have hB : Nat.card isoB = Nat.card F.B - Nat.card (nzPat F).B := by
     rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card, Nat.card_eq_fintype_card]
     exact Fintype.card_subtype_compl _
   rw [hA, hB, pow_add]

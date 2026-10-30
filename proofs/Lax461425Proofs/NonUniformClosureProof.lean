@@ -52,8 +52,8 @@ theorem final_exists_eval {K : Type*} [Field K] {V : Type} [Fintype V] (G : Simp
     (W : V → ZMod 2) {N : ℕ} (hN : Nat.card (CfiV G W) ≤ N) :
     ∃ M : Fin N × Fin N → K, ∀ F' : Pattern,
       MvPolynomial.eval M (hom K F' N) =
-        ((N ^ ((Nat.card F'.A - Nat.card F'.nz.A) + (Nat.card F'.B - Nat.card F'.nz.B)) *
-          homBip F'.nz (BRel (cfiHat G W)) : ℕ) : K) := by
+        ((N ^ ((Nat.card F'.A - Nat.card (nzPat F').A) + (Nat.card F'.B - Nat.card (nzPat F').B)) *
+          homBip (nzPat F') (BRel (cfiHat G W)) : ℕ) : K) := by
   have hemb : Nonempty (CfiV G W ↪ Fin N) := by
     let _ : Fintype (CfiV G W) := Fintype.ofFinite _
     have hle : Fintype.card (CfiV G W) ≤ Fintype.card (Fin N) := by
@@ -94,7 +94,7 @@ theorem hom_not_mem_homSpan {K : Type*} [Field K] [CharZero K] (𝓕 : GraphClas
     intro p hp
     refine Submodule.span_induction ?_ ?_ ?_ ?_ hp
     · rintro q ⟨F', hF', rfl⟩
-      rw [hM₀, hM₁, minorLifting_eq 𝓕 hminor hodd hG hGF v₀ F'.nz
+      rw [hM₀, hM₁, minorLifting_eq 𝓕 hminor hodd hG hGF v₀ (nzPat F')
         (hminor _ (isMinor_nz F') hF')]
     · simp
     · intro x y _ _ hx hy
@@ -104,7 +104,7 @@ theorem hom_not_mem_homSpan {K : Type*} [Field K] [CharZero K] (𝓕 : GraphClas
   have h := key _ hmem
   rw [hM₀, hM₁] at h
   have h' := Nat.cast_injective h
-  have hlt := minorLifting_lt hG v₀ F.nz (isMinor_nz_of_isMinor hG F hF)
+  have hlt := minorLifting_lt hG v₀ (nzPat F) (isMinor_nz_of_isMinor hG F hF)
   have hNpos : 0 < N := by
     refine lt_of_lt_of_le ?_ hN
     unfold cfiSize

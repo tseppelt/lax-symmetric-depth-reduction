@@ -10,7 +10,7 @@ removing isolated vertices.
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure
-open Lax871432.ConnectedPartitions Lax68.GraphMinors
+open Lax68.GraphMinors
 
 open scoped Classical
 
@@ -107,7 +107,7 @@ theorem isMinor_quotientGraph {V : Type} (F : SimpleGraph V) (𝓡 : ConnPart F)
        exact ⟨x, hx, y, hy, hxy⟩ }⟩
 
 /-- The embedding of the pattern without isolated vertices. -/
-def minor_nzMap (F : Pattern) : F.nz.A ⊕ F.nz.B → F.A ⊕ F.B
+def minor_nzMap (F : Pattern) : (nzPat F).A ⊕ (nzPat F).B → F.A ⊕ F.B
   | Sum.inl a => Sum.inl a.1
   | Sum.inr b => Sum.inr b.1
 
@@ -130,15 +130,15 @@ theorem minor_underlying_adj_inr_inr (F : Pattern) (b b' : F.B) :
     ¬ (underlying F).Adj (Sum.inr b) (Sum.inr b') := by
   simp [underlying, SimpleGraph.fromRel_adj]
 
-theorem minor_nzMap_adj_iff (F : Pattern) (u v : F.nz.A ⊕ F.nz.B) :
-    (underlying F).Adj (minor_nzMap F u) (minor_nzMap F v) ↔ (underlying F.nz).Adj u v := by
+theorem minor_nzMap_adj_iff (F : Pattern) (u v : (nzPat F).A ⊕ (nzPat F).B) :
+    (underlying F).Adj (minor_nzMap F u) (minor_nzMap F v) ↔ (underlying (nzPat F)).Adj u v := by
   rcases u with a | a <;> rcases v with b | b <;>
     simp only [minor_nzMap, minor_underlying_adj_inl_inr, minor_underlying_adj_inr_inl,
       minor_underlying_adj_inl_inl, minor_underlying_adj_inr_inr]
   · rfl
   · rfl
 
-theorem isMinor_nz (F : Pattern) : IsMinor (underlying F.nz) (underlying F) :=
+theorem isMinor_nz (F : Pattern) : IsMinor (underlying (nzPat F)) (underlying F) :=
   minor_of_injective_hom (minor_nzMap F) (minor_nzMap_injective F)
     fun u v h => (minor_nzMap_adj_iff F u v).2 h
 
@@ -167,7 +167,7 @@ theorem minor_mem_range_nzMap (F : Pattern) (x : F.A ⊕ F.B) :
 /-- The preimage of a connected set contained in the range of `minor_nzMap` is connected. -/
 theorem minor_preimage_connected (F : Pattern) (X : Set (F.A ⊕ F.B))
     (hX : X ⊆ Set.range (minor_nzMap F)) (hc : ((underlying F).induce X).Connected) :
-    ((underlying F.nz).induce (minor_nzMap F ⁻¹' X)).Connected := by
+    ((underlying (nzPat F)).induce (minor_nzMap F ⁻¹' X)).Connected := by
   have hbij : Function.Bijective
       (fun x : (minor_nzMap F ⁻¹' X : Set _) => (⟨minor_nzMap F x.1, x.2⟩ : X)) := by
     constructor
@@ -176,16 +176,16 @@ theorem minor_preimage_connected (F : Pattern) (X : Set (F.A ⊕ F.B))
     · rintro ⟨y, hy⟩
       obtain ⟨x, rfl⟩ := hX hy
       exact ⟨⟨x, hy⟩, rfl⟩
-  let e : ((underlying F.nz).induce (minor_nzMap F ⁻¹' X)) ≃g ((underlying F).induce X) :=
+  let e : ((underlying (nzPat F)).induce (minor_nzMap F ⁻¹' X)) ≃g ((underlying F).induce X) :=
     { toEquiv := Equiv.ofBijective _ hbij
       map_rel_iff' := fun {a b} => by
         show (underlying F).Adj (minor_nzMap F a.1) (minor_nzMap F b.1) ↔
-          (underlying F.nz).Adj a.1 b.1
+          (underlying (nzPat F)).Adj a.1 b.1
         exact minor_nzMap_adj_iff F a.1 b.1 }
   exact e.connected_iff.mpr hc
 
 theorem isMinor_nz_of_isMinor {V : Type} [Nontrivial V] {G : SimpleGraph V} (hG : G.Connected)
-    (F : Pattern) (h : IsMinor G (underlying F)) : IsMinor G (underlying F.nz) := by
+    (F : Pattern) (h : IsMinor G (underlying F)) : IsMinor G (underlying (nzPat F)) := by
   obtain ⟨M⟩ := h
   have hnb : ∀ v, ∃ w, G.Adj v w := by
     intro v

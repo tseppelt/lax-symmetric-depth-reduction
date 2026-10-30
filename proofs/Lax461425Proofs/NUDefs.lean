@@ -1,6 +1,4 @@
 import Lax461425.NonUniformClosure
-import Lax871432.ConnectedPartitions
-import Lax871432.HomomorphismCounts
 import Mathlib.Combinatorics.SimpleGraph.Maps
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Algebra.MvPolynomial.Eval
@@ -13,9 +11,47 @@ Definitions shared by the proof of `Lax461425.NonUniformClosure.hom_not_mem_homS
 namespace Lax461425Proofs.NU
 
 open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure
-open Lax871432.ConnectedPartitions Lax871432.HomomorphismCounts
 
 open scoped Classical
+
+/-- A partition of the vertices of `F`, all of whose classes induce connected subgraphs. -/
+structure ConnPart {V : Type*} (F : SimpleGraph V) where
+  /-- The partition, as an equivalence relation on the vertices. -/
+  setoid : Setoid V
+  /-- Every class induces a connected subgraph of `F`. -/
+  connected : ∀ a : Quotient setoid, (F.induce {v | Quotient.mk setoid v = a}).Connected
+
+namespace ConnPart
+
+variable {V : Type*} {F : SimpleGraph V} (𝓡 : ConnPart F)
+
+/-- The class of a vertex. -/
+def proj (v : V) : Quotient 𝓡.setoid := Quotient.mk 𝓡.setoid v
+
+/-- The quotient `F / 𝓡`: distinct classes are adjacent when `F` joins them. -/
+def quotientGraph : SimpleGraph (Quotient 𝓡.setoid) where
+  Adj a b := a ≠ b ∧ ∃ x y, F.Adj x y ∧ 𝓡.proj x = a ∧ 𝓡.proj y = b
+  symm := ⟨fun _ _ h => by
+    obtain ⟨hne, x, y, hxy, hx, hy⟩ := h
+    exact ⟨hne.symm, y, x, hxy.symm, hy, hx⟩⟩
+  loopless := ⟨fun _ h => h.1 rfl⟩
+
+/-- A finite graph has finitely many partitions into connected parts. -/
+instance instFinite [Finite V] : Finite (ConnPart F) :=
+  Finite.of_injective (fun 𝓡 => (𝓡.setoid.r : V → V → Prop)) <| by
+    intro R S h
+    obtain ⟨s, hs⟩ := R
+    obtain ⟨t, ht⟩ := S
+    obtain rfl : s = t := Setoid.ext fun a b => Eq.to_iff (congrFun (congrFun h a) b)
+    rfl
+
+noncomputable instance instFintype [Finite V] : Fintype (ConnPart F) := Fintype.ofFinite _
+
+end ConnPart
+
+/-- The number of homomorphisms from `F` to `G`. -/
+noncomputable def homCount {V W : Type*} (F : SimpleGraph V) (G : SimpleGraph W) : ℕ :=
+  Nat.card (F →g G)
 
 /-- The bipartite graph `B(H)` as a relation between its left side `X` and right side `X`:
 `(u,0)` and `(v,1)` are adjacent iff `u = v` or `uv ∈ E(H)`. -/
@@ -68,7 +104,7 @@ def psiHom {U V : Type} (F : SimpleGraph U) (G : SimpleGraph V) (ψ : U → V) :
   ⟨ψ, fun h => h.2⟩
 
 /-- The pattern `F` with its isolated vertices removed. -/
-def _root_.Lax461425.HomomorphismPolynomials.Pattern.nz (F : Pattern) : Pattern where
+def nzPat (F : Pattern) : Pattern where
   A := {a // ∃ b, F.mult a b ≠ 0}
   B := {b // ∃ a, F.mult a b ≠ 0}
   mult a b := F.mult a b
