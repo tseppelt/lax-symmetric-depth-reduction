@@ -9,5 +9,17 @@ name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "db584cd6d46c92f209a44c0f1c829460d327499d"
 
+[[require]]
+name = "Lax68"
+git = "https://github.com/lax-archive/lax-submissions"
+rev = "f179bc81671b353be657432784d7dee68486b0bd"
+subDir = "planar-graph-classes-v4-33/concepts"
+
+[[require]]
+name = "Lax871432"
+git = "https://github.com/tseppelt/lax-preservation-closure"
+rev = "1ec649072b019e5780d65f0868fc99b769865a84"
+subDir = "concepts"
+
 [[lean_lib]]
 name = "Lax461425"

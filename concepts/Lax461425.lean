@@ -4,6 +4,8 @@ import Lax461425.CircuitsForPatterns
 import Lax461425.Forestwidth
 import Lax461425.HomomorphismPolynomials
 import Lax461425.MatrixSymmetry
+import Lax461425.NonUniformClosure
+import Lax461425.Oddomorphisms
 import Lax461425.PatternsFromCircuits
 import Lax461425.ReducedRigid
 import Lax461425.Rigidification
