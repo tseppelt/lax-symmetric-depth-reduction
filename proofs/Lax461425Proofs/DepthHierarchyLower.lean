@@ -1,4 +1,7 @@
-import Lax461425Proofs.DepthHierarchyRichStubs
+import Lax461425Proofs.DepthHierarchyRichBasic
+import Lax461425Proofs.DepthHierarchyRichOddo
+import Lax461425Proofs.DepthHierarchyTree
+import Lax461425Proofs.DepthHierarchyArith
 import Lax461425.SupportTheorem
 import Lax461425.BoundedDepthCharacterisation
 
