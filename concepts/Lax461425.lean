@@ -2,6 +2,7 @@ import Lax461425.BoundedDepthCharacterisation
 import Lax461425.Circuits
 import Lax461425.CircuitsForPatterns
 import Lax461425.DepthHierarchy
+import Lax461425.DixonMortimer
 import Lax461425.Forestwidth
 import Lax461425.HomomorphismPolynomials
 import Lax461425.MatrixSymmetry
