@@ -86,3 +86,13 @@ import Lax461425Proofs.RigidWeight
 import Lax461425Proofs.Rigidification
 import Lax461425Proofs.DepthHierarchyUpper
 import Lax461425Proofs.DepthHierarchyLower
+import Lax461425Proofs.NUDefs
+import Lax461425Proofs.NURobersonAlg
+import Lax461425Proofs.NURobersonOdd
+import Lax461425Proofs.NUFilled
+import Lax461425Proofs.NUBipContract
+import Lax461425Proofs.NUMinors
+import Lax461425Proofs.NUMinorModel
+import Lax461425Proofs.NUEval
+import Lax461425Proofs.NUMinorLifting
+import Lax461425Proofs.NonUniformClosureProof
