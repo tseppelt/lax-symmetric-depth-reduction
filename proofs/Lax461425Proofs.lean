@@ -84,3 +84,4 @@ import Lax461425Proofs.RigidSize
 import Lax461425Proofs.RigidSymmetric
 import Lax461425Proofs.RigidWeight
 import Lax461425Proofs.Rigidification
+import Lax461425Proofs.DepthHierarchyUpper
