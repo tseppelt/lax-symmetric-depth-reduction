@@ -55,24 +55,17 @@ theorem sum_sumArrow {α β γ M : Type*} [DecidableEq α] [DecidableEq β] [Fin
 
 variable {ℓ₀ r₀ ℓ₁ r₁ : ℕ}
 
-/-- The `A`-side labelling of `padGraph`: position `ι i` is routed to the old vertex `G.a i`;
-every position outside the range of `ι` gets its own fresh (isolated) vertex. -/
-noncomputable def padA (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) :
-    Fin ℓ₁ → G.F.A ⊕ ↥(Set.range (⇑ι))ᶜ := fun p =>
+/-- Side-independent core of the labelling of `padGraph`: position `ι i` is routed to the old
+vertex `f i`; every position outside the range of `ι` gets its own fresh (isolated) vertex. -/
+noncomputable def padGen {α : Type*} (f : Fin ℓ₀ → α) (ι : Fin ℓ₀ ↪ Fin ℓ₁) :
+    Fin ℓ₁ → α ⊕ ↥(Set.range (⇑ι))ᶜ := fun p =>
   if h : p ∈ Set.range (⇑ι) then
-    Sum.inl (G.a ((Equiv.ofInjective (⇑ι) ι.injective).symm ⟨p, h⟩))
+    Sum.inl (f ((Equiv.ofInjective (⇑ι) ι.injective).symm ⟨p, h⟩))
   else Sum.inr ⟨p, h⟩
 
-/-- The `B`-side analogue of `padA`. -/
-noncomputable def padB (G : LabelledPattern ℓ₀ r₀) (κ : Fin r₀ ↪ Fin r₁) :
-    Fin r₁ → G.F.B ⊕ ↥(Set.range (⇑κ))ᶜ := fun p =>
-  if h : p ∈ Set.range (⇑κ) then
-    Sum.inl (G.b ((Equiv.ofInjective (⇑κ) κ.injective).symm ⟨p, h⟩))
-  else Sum.inr ⟨p, h⟩
-
-theorem padA_apply_ι (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) (i : Fin ℓ₀) :
-    padA G ι (ι i) = Sum.inl (G.a i) := by
-  unfold padA
+theorem padGen_apply_ι {α : Type*} (f : Fin ℓ₀ → α) (ι : Fin ℓ₀ ↪ Fin ℓ₁) (i : Fin ℓ₀) :
+    padGen f ι (ι i) = Sum.inl (f i) := by
+  unfold padGen
   rw [dif_pos (Set.mem_range_self i)]
   have hi : (Equiv.ofInjective (⇑ι) ι.injective).symm ⟨ι i, Set.mem_range_self i⟩ = i := by
     apply (Equiv.ofInjective (⇑ι) ι.injective).injective
@@ -80,25 +73,30 @@ theorem padA_apply_ι (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin
     rfl
   rw [hi]
 
-theorem padA_apply_of_notMem (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) {p : Fin ℓ₁}
-    (h : p ∉ Set.range (⇑ι)) : padA G ι p = Sum.inr ⟨p, h⟩ := by
-  unfold padA
+theorem padGen_apply_of_notMem {α : Type*} (f : Fin ℓ₀ → α) (ι : Fin ℓ₀ ↪ Fin ℓ₁) {p : Fin ℓ₁}
+    (h : p ∉ Set.range (⇑ι)) : padGen f ι p = Sum.inr ⟨p, h⟩ := by
+  unfold padGen
   rw [dif_neg h]
+
+/-- The `A`-side labelling of `padGraph`. -/
+noncomputable abbrev padA (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) :
+    Fin ℓ₁ → G.F.A ⊕ ↥(Set.range (⇑ι))ᶜ := padGen G.a ι
+
+/-- The `B`-side labelling of `padGraph`. -/
+noncomputable abbrev padB (G : LabelledPattern ℓ₀ r₀) (κ : Fin r₀ ↪ Fin r₁) :
+    Fin r₁ → G.F.B ⊕ ↥(Set.range (⇑κ))ᶜ := padGen G.b κ
+
+theorem padA_apply_ι (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) (i : Fin ℓ₀) :
+    padA G ι (ι i) = Sum.inl (G.a i) := padGen_apply_ι ..
+
+theorem padA_apply_of_notMem (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ Fin ℓ₁) {p : Fin ℓ₁}
+    (h : p ∉ Set.range (⇑ι)) : padA G ι p = Sum.inr ⟨p, h⟩ := padGen_apply_of_notMem _ _ h
 
 theorem padB_apply_κ (G : LabelledPattern ℓ₀ r₀) (κ : Fin r₀ ↪ Fin r₁) (j : Fin r₀) :
-    padB G κ (κ j) = Sum.inl (G.b j) := by
-  unfold padB
-  rw [dif_pos (Set.mem_range_self j)]
-  have hj : (Equiv.ofInjective (⇑κ) κ.injective).symm ⟨κ j, Set.mem_range_self j⟩ = j := by
-    apply (Equiv.ofInjective (⇑κ) κ.injective).injective
-    rw [Equiv.apply_symm_apply]
-    rfl
-  rw [hj]
+    padB G κ (κ j) = Sum.inl (G.b j) := padGen_apply_ι ..
 
 theorem padB_apply_of_notMem (G : LabelledPattern ℓ₀ r₀) (κ : Fin r₀ ↪ Fin r₁) {p : Fin r₁}
-    (h : p ∉ Set.range (⇑κ)) : padB G κ p = Sum.inr ⟨p, h⟩ := by
-  unfold padB
-  rw [dif_neg h]
+    (h : p ∉ Set.range (⇑κ)) : padB G κ p = Sum.inr ⟨p, h⟩ := padGen_apply_of_notMem _ _ h
 
 /-- **`padGraph`**: `G`, with its `ℓ₀, r₀` label positions "spread out" along `ι, κ` into
 `ℓ₁, r₁` positions, every uncovered position getting a fresh isolated vertex. The underlying
@@ -345,6 +343,22 @@ theorem padMult_prod_eq (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ F
   simp only [Fintype.prod_sum_type, Sum.elim_inl, Sum.elim_inr, pow_zero, Finset.prod_const_one,
     mul_one]
 
+/-- Side-independent form of the pinned-down colouring condition for `padGen`. -/
+theorem padGen_cond_iff {α : Type*} (f : Fin ℓ₀ → α) (ι : Fin ℓ₀ ↪ Fin ℓ₁) {n : ℕ}
+    (v : Fin ℓ₁ → Fin n) (h0 : α → Fin n) (h1 : ↥(Set.range (⇑ι))ᶜ → Fin n) :
+    (∀ p, Sum.elim h0 h1 (padGen f ι p) = v p) ↔
+      (∀ i, h0 (f i) = (v ∘ ι) i) ∧ h1 = (fun μ0 => v μ0.1) := by
+  rw [forall_padCases_iff ι]
+  constructor
+  · rintro ⟨h1', h2'⟩
+    refine ⟨fun i => ?_, funext fun μ0 => ?_⟩
+    · have := h1' i; rwa [padGen_apply_ι, Sum.elim_inl] at this
+    · have := h2' μ0; rwa [padGen_apply_of_notMem f ι μ0.2, Sum.elim_inr] at this
+  · rintro ⟨h1', h2'⟩
+    refine ⟨fun i => ?_, fun μ0 => ?_⟩
+    · rw [padGen_apply_ι, Sum.elim_inl]; exact h1' i
+    · rw [padGen_apply_of_notMem f ι μ0.2, Sum.elim_inr, h2']
+
 open MvPolynomial in
 /-- **The reindexing lemma's polynomial identity**: `padGraph`'s homomorphism polynomial at
 `(v, w)` equals `G`'s own at `(v ∘ ι, w ∘ κ)`, exactly (no sum over the fresh positions: their
@@ -359,32 +373,10 @@ theorem labelledHom_padGraph (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ 
   set target2 : μ' → Fin n := fun μ0 => w (μ0 : Fin r₁) with htarget2
   have hcondA : ∀ (hA0 : G.F.A → Fin n) (hA1 : μ → Fin n),
       (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ↔
-        (∀ i, hA0 (G.a i) = (v ∘ ι) i) ∧ hA1 = target1 := by
-    intro hA0 hA1
-    rw [forall_padCases_iff ι]
-    constructor
-    · rintro ⟨h1, h2⟩
-      refine ⟨fun i => ?_, funext fun μ0 => ?_⟩
-      · have := h1 i; rwa [padA_apply_ι, Sum.elim_inl] at this
-      · have := h2 μ0; rwa [padA_apply_of_notMem G ι μ0.2, Sum.elim_inr] at this
-    · rintro ⟨h1, h2⟩
-      refine ⟨fun i => ?_, fun μ0 => ?_⟩
-      · rw [padA_apply_ι, Sum.elim_inl]; exact h1 i
-      · rw [padA_apply_of_notMem G ι μ0.2, Sum.elim_inr, h2]
+        (∀ i, hA0 (G.a i) = (v ∘ ι) i) ∧ hA1 = target1 := fun _ _ => padGen_cond_iff ..
   have hcondB : ∀ (hB0 : G.F.B → Fin n) (hB1 : μ' → Fin n),
       (∀ q, Sum.elim hB0 hB1 (padB G κ q) = w q) ↔
-        (∀ j, hB0 (G.b j) = (w ∘ κ) j) ∧ hB1 = target2 := by
-    intro hB0 hB1
-    rw [forall_padCases_iff κ]
-    constructor
-    · rintro ⟨h1, h2⟩
-      refine ⟨fun j => ?_, funext fun μ0 => ?_⟩
-      · have := h1 j; rwa [padB_apply_κ, Sum.elim_inl] at this
-      · have := h2 μ0; rwa [padB_apply_of_notMem G κ μ0.2, Sum.elim_inr] at this
-    · rintro ⟨h1, h2⟩
-      refine ⟨fun j => ?_, fun μ0 => ?_⟩
-      · rw [padB_apply_κ, Sum.elim_inl]; exact h1 j
-      · rw [padB_apply_of_notMem G κ μ0.2, Sum.elim_inr, h2]
+        (∀ j, hB0 (G.b j) = (w ∘ κ) j) ∧ hB1 = target2 := fun _ _ => padGen_cond_iff ..
   have key : ∀ (hA0 : G.F.A → Fin n) (hB0 : G.F.B → Fin n),
       (∑ hA1 : μ → Fin n, ∑ hB1 : μ' → Fin n,
         if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧
