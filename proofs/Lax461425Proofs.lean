@@ -70,6 +70,7 @@ import Lax461425Proofs.PatternsSupportAction
 import Lax461425Proofs.PatternsSupportBasic
 import Lax461425Proofs.PatternsSupportDepth
 import Lax461425Proofs.PatternsSupportLemma
+import Lax461425Proofs.PatternsTranspose
 import Lax461425Proofs.ReducedRigid
 import Lax461425Proofs.RigidComputes
 import Lax461425Proofs.RigidConstruction

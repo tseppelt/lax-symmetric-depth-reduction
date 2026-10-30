@@ -1,5 +1,6 @@
 import Lax461425Proofs.PatternsLabelledSpanMul
 import Lax461425Proofs.PatternsRestrictedMono
+import Lax461425Proofs.PatternsTranspose
 import Mathlib.Data.Fin.Tuple.Basic
 
 /-!
@@ -26,7 +27,7 @@ namespace Lax461425Proofs.PatternsRestrictedDelta
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
 open Lax461425Proofs.PatternsLabelledOps Lax461425Proofs.PatternsLabelledSpanMul
-open Lax461425Proofs.PatternsRestrictedMono
+open Lax461425Proofs.PatternsRestrictedMono Lax461425Proofs.PatternsTranspose
 open scoped Classical
 
 /-! ### A finite "product of 0/1 indicators" helper -/
@@ -86,24 +87,18 @@ def mergeA (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) : LabelledPattern L R where
 
 /-- The edgeless `(L,R)`-labelled graph identifying label positions `p, q : Fin R` (distinct) on
 the `B`-side, with every other position on its own vertex. -/
-def mergeB (L R : ℕ) (p q : Fin R) (hpq : p ≠ q) : LabelledPattern L R where
-  F := { A := Fin L, B := {x : Fin R // x ≠ q}, mult := fun _ _ => 0 }
-  a := id
-  b := fun j => ⟨mergeAux R p q j, mergeAux_ne hpq j⟩
+def mergeB (L R : ℕ) (p q : Fin R) (hpq : p ≠ q) : LabelledPattern L R :=
+  (mergeA R L p q hpq).transpose
 
 theorem mergeA_isEdgeless (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) :
     isEdgeless (mergeA L R p q hpq).F := fun _ _ => rfl
 
 theorem mergeB_isEdgeless (L R : ℕ) (p q : Fin R) (hpq : p ≠ q) :
-    isEdgeless (mergeB L R p q hpq).F := fun _ _ => rfl
+    isEdgeless (mergeB L R p q hpq).F := isEdgeless_transpose (mergeA_isEdgeless R L p q hpq)
 
 theorem mergeA_a_eq (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) (i : Fin L) :
     (mergeA L R p q hpq).a i = (⟨mergeAux L p q i, mergeAux_ne hpq i⟩ :
       (mergeA L R p q hpq).F.A) := rfl
-
-theorem mergeB_b_eq (L R : ℕ) (p q : Fin R) (hpq : p ≠ q) (j : Fin R) :
-    (mergeB L R p q hpq).b j = (⟨mergeAux R p q j, mergeAux_ne hpq j⟩ :
-      (mergeB L R p q hpq).F.B) := rfl
 
 /-- **The value of `mergeA`'s homomorphism polynomial**: `1` if `v p = v q`, else `0`. -/
 theorem labelledHom_mergeA (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) (n : ℕ) (K : Type*)
@@ -166,57 +161,8 @@ theorem labelledHom_mergeA (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) (n : ℕ) (
 theorem labelledHom_mergeB (L R : ℕ) (p q : Fin R) (hpq : p ≠ q) (n : ℕ) (K : Type*)
     [CommSemiring K] (v : Fin L → Fin n) (w : Fin R → Fin n) :
     labelledHom K (mergeB L R p q hpq) n v w = if w p = w q then 1 else 0 := by
-  set hB0 : {x : Fin R // x ≠ q} → Fin n := fun x => w x.1 with hhB0
-  have key : ∀ j : Fin R, (hj : j ≠ q) →
-      (mergeB L R p q hpq).b j = (⟨j, hj⟩ : {x : Fin R // x ≠ q}) := by
-    intro j hj
-    rw [mergeB_b_eq]
-    exact Subtype.ext (mergeAux_of_ne p q hj)
-  have keyq : (mergeB L R p q hpq).b q = (⟨p, hpq⟩ : {x : Fin R // x ≠ q}) := by
-    rw [mergeB_b_eq]
-    exact Subtype.ext (mergeAux_self R p q)
-  have hcond : ∀ hB : {x : Fin R // x ≠ q} → Fin n,
-      (∀ j, hB ((mergeB L R p q hpq).b j) = w j) ↔ (w p = w q ∧ hB = hB0) := by
-    intro hB
-    constructor
-    · intro h
-      have hp : hB ⟨p, hpq⟩ = w p := by rw [← key p hpq]; exact h p
-      have hq : hB ⟨p, hpq⟩ = w q := by rw [← keyq]; exact h q
-      refine ⟨hp ▸ hq, ?_⟩
-      funext x
-      obtain ⟨j, hj⟩ := x
-      rw [hhB0]
-      show hB ⟨j, hj⟩ = w j
-      rw [← key j hj]
-      exact h j
-    · rintro ⟨hwpq, rfl⟩ j
-      by_cases hjq : j = q
-      · rw [hjq, keyq, hhB0]
-        exact hwpq
-      · rw [key j hjq, hhB0]
-  show (∑ hA : Fin L → Fin n, ∑ hB : {x : Fin R // x ≠ q} → Fin n,
-      if (∀ i, hA (id i) = v i) ∧ (∀ j, hB ((mergeB L R p q hpq).b j) = w j) then
-        (∏ x : Fin L, ∏ y : {x : Fin R // x ≠ q}, MvPolynomial.X (hA x, hB y) ^ (0 : ℕ) :
-          MvPolynomial (Fin n × Fin n) K)
-      else 0) = if w p = w q then 1 else 0
-  simp only [pow_zero, Finset.prod_const_one]
-  by_cases hwpq : w p = w q
-  · rw [if_pos hwpq, Finset.sum_eq_single v]
-    · rw [Finset.sum_eq_single hB0]
-      · exact if_pos ⟨by simp, (hcond hB0).mpr ⟨hwpq, rfl⟩⟩
-      · intro hB _ hne
-        exact if_neg (fun h => hne (((hcond hB).mp h.2).2))
-      · intro h; exact absurd (Finset.mem_univ hB0) h
-    · intro hA _ hne
-      apply Finset.sum_eq_zero
-      intro hB _
-      exact if_neg (fun h => hne (funext h.1))
-    · intro h; exact absurd (Finset.mem_univ v) h
-  · rw [if_neg hwpq]
-    apply Finset.sum_eq_zero
-    intro hA _
-    apply Finset.sum_eq_zero
-    intro hB _
-    exact if_neg (fun h => hwpq ((hcond hB).mp h.2).1)
+  unfold mergeB
+  rw [labelledHom_transpose, labelledHom_mergeA]
+  split_ifs <;> simp [swapPoly]
 
 end Lax461425Proofs.PatternsRestrictedDelta
