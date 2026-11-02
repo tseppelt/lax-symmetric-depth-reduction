@@ -21,10 +21,6 @@ $h$ to $g$ is *support-changing* if $\sup(h) \not\subseteq \sup(g)$. If the supp
 is less than $n/2$, the *support depth* of $C$ is the maximum number of support-changing wires
 on a path. Otherwise, the support depth of $C$ is its depth. In either case, the support depth
 is at most the depth.
-
-These notions are used for reduced circuits only, which are rigid. For an arbitrary
-matrix-symmetric circuit, the support size and support depth are defined as those of an
-equivalent reduced circuit, its rigidification.
 -/
 
 namespace Lax461425.Supports
