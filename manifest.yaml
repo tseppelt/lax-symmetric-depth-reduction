@@ -6,9 +6,9 @@ title: "Depth Hierarchies for Symmetric Algebraic Circuits"
 authors:
   - name: Anuj Dawar
     orcid: "0000-0003-4014-8248"
-    github: anuj-dawar 
+    github: anuj-dawar
   - name: Prateek Dwivedi
-    github: prateekdwv 
+    github: prateekdwv
     orcid: "0000-0002-0572-3721"
   - name: Benedikt Pago
     orcid: "0000-0001-6377-1230"
@@ -94,3 +94,6 @@ bibEntries:
       year    = {1992},
       doi     = {10.1007/BF01305232}
     }
+issue:
+  repositoryId: 1320232165
+  number: 212
