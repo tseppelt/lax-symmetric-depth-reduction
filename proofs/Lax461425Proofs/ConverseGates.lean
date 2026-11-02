@@ -37,6 +37,8 @@ def NonRoot (N : NormDecomp F Δ k) : Type := {c : N.Node // c ≠ N.root}
 
 noncomputable instance : Fintype (NonRoot N) := Subtype.fintype _
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- The gates of the circuit: `R t γ` for a node `t` and admissible `γ` on `β(t)`, `S c δ` for a
 non-root node `c` and admissible `δ` on `β(parent c) ∩ β(c)`, and input gates `inp i j` for the
 variables `x_{i,j}`. -/

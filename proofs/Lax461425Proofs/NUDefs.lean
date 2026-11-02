@@ -14,6 +14,8 @@ open Lax461425.HomomorphismPolynomials Lax461425.NonUniformClosure
 
 open scoped Classical
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A partition of the vertices of `F`, all of whose classes induce connected subgraphs. -/
 structure ConnPart {V : Type*} (F : SimpleGraph V) where
   /-- The partition, as an equivalence relation on the vertices. -/
@@ -62,6 +64,8 @@ graph with left side `X`, right side `Y` and adjacency relation `R`. -/
 noncomputable def homBip (F : Pattern) {X Y : Type*} (R : X → Y → Prop) : ℕ :=
   Nat.card {p : (F.A → X) × (F.B → Y) // ∀ a b, F.mult a b ≠ 0 → R (p.1 a) (p.2 b)}
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- Vertices of the CFI graph `G_W`: a vertex `v` of `G` and a labelling `T` of the edges at `v`
 (indexed by the neighbours of `v`) with `∑ T = W v`. -/
 structure CfiV {V : Type} [Fintype V] (G : SimpleGraph V) (W : V → ZMod 2) where

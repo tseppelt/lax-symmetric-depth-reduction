@@ -22,6 +22,8 @@ open Classical Lax461425.HomomorphismPolynomials Lax461425.Forestwidth
 
 variable {F : Pattern} {Δ k : ℕ}
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- Intermediate decomposition data for `F`: a rooted tree of depth `≤ Δ` with empty root bag,
 bags of size `≤ k`, an edge representative map, and the "every bag vertex is incident with an
 edge represented at or below" property, but not yet satisfying "no bag is a subset of its
@@ -53,6 +55,8 @@ structure PreNorm (F : Pattern) (Δ k : ℕ) where
 
 attribute [instance] PreNorm.fintypeNode
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A normalised tree decomposition of `F`: like `PreNorm`, but also with no bag contained in
 its parent's bag (so there are at most `|V(F)| + 1` nodes, see `NormDecomp.card_node_le`). -/
 structure NormDecomp (F : Pattern) (Δ k : ℕ) where

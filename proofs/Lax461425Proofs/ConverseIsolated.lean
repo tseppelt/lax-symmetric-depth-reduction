@@ -326,6 +326,7 @@ end IsolatedVertices
 
 /-! ### The pendant wrapper circuit -/
 
+set_option genSizeOfSpec false in
 /-- The two extra gates added by the wrapper: `addG` (an `add`-gate whose value is `n`) and
 `constG` (the shared `const 1` input gate `addG` wires into). -/
 inductive WrapGate where

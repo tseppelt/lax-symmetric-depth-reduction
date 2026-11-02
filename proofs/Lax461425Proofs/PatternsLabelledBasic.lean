@@ -32,6 +32,8 @@ namespace Lax461425Proofs.PatternsLabelledBasic
 
 open Lax461425.HomomorphismPolynomials
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- An `(ℓ, r)`-labelled graph: a `Pattern` together with label tuples on each side. A vertex
 may carry several labels (several entries of `a`/`b` may coincide), and the pattern need not be
 injectively labelled. -/
@@ -84,6 +86,8 @@ theorem LabelledPattern.labelSupport_subset_image (G : LabelledPattern ℓ r) :
     G.labelSupport ⊆ Finset.univ.image G.labelVertex :=
   Finset.sdiff_subset
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A root-exact tree decomposition of `F⁺` (the non-isolated vertices of `F` alone), of depth
 at most `Δ` and bags of size at most `k`, whose root bag is exactly `L⁺(G)`. -/
 structure RootExactDecomposition (G : LabelledPattern ℓ r) (Δ k : ℕ) where
