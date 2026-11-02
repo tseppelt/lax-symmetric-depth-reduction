@@ -51,10 +51,6 @@ theorem yReal_mem_Yu :
     intro i j hij
     exact yReal_disjoint_v j ⟨i, hij⟩
 
-omit [Field K] [CharZero K] in
-theorem Yu_nonempty : (Yu hrig hn (g := g) (h := h)).Nonempty :=
-  ⟨_, yReal_mem_Yu hrig hn⟩
-
 /-! ### The `Finpartition` of `Yu` by `hYtot`-value -/
 
 /-- The "same `hYtot`-value" setoid on pairs. -/

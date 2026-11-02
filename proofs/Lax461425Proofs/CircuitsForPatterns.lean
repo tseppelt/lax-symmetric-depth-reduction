@@ -1,4 +1,6 @@
 import Lax461425Proofs.ConverseIsolated
+import Lax461425Proofs.BoundedDepthConst
+import Lax461425Proofs.BoundedDepthHomConst
 import Lax461425.CircuitsForPatterns
 
 /-!
@@ -18,6 +20,9 @@ Given a pattern `F` with `fw_Δ(F) ≤ k - 1`, we split on whether `F` has isola
   (`Computes`, `IsReduced`, `IsMatrixSymmetric`, `supportSize`, `supportDepth`, `orbitSize`,
   `depth`, `size`) of the wrapper are already established in `ConverseIsolated.lean`; here we
   only need to supply the numeric bookkeeping relating `F`'s and `(Fiso F)`'s size bound.
+
+If `F` has no edges at all, `hom K F n` is a constant and the single-gate `constCircuit`
+computes it; this case is what the `+ 1` in the size bound pays for.
 -/
 
 namespace Lax461425Proofs
@@ -220,17 +225,9 @@ theorem exists_circuit_of_isolated (hΔ : 1 ≤ Δ) (hk : 2 ≤ k) (hn : 2 * k +
 
 end WrapperBranch
 
-/--
----
-conclusion: Lax461425.CircuitsForPatterns.exists_circuit
----
-After unfolding `ForestwidthLE Δ (k - 1) F` (the arithmetic `(k - 1) + 1 = k`, using `k ≥ 2`,
-is immediate) into a `DepthDecomposition F Δ k`, we split on whether `F` has isolated vertices
-(`isoJ F = 0` or not) and invoke `exists_circuit_of_noIsolated` or `exists_circuit_of_isolated`
-respectively.
--/
-theorem exists_circuit {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ) (hk : 2 ≤ k)
-    (hn : 2 * k + 1 ≤ n) (F : Pattern) (hE : ∃ a b, F.mult a b ≠ 0)
+/-- **The characterisation theorem for patterns with at least one edge.** -/
+theorem exists_circuit_of_edge {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ)
+    (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (F : Pattern) (hE : ∃ a b, F.mult a b ≠ 0)
     (hF : ForestwidthLE Δ (k - 1) F) :
     ∃ C : Circuit (Fin n × Fin n) K,
       C.Computes (hom K F n) ∧ C.IsReduced ∧ IsMatrixSymmetric C ∧
@@ -245,5 +242,43 @@ theorem exists_circuit {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 
   by_cases hj0 : isoJ F = 0
   · exact exists_circuit_of_noIsolated hΔ hk hn F hE D (noIsolatedVertices_of_isoJ_eq_zero hj0)
   · exact exists_circuit_of_isolated hΔ hk hn F hE D (Nat.pos_of_ne_zero hj0)
+
+/--
+---
+conclusion: Lax461425.CircuitsForPatterns.exists_circuit
+---
+If `F` has an edge, after unfolding `ForestwidthLE Δ (k - 1) F` (the arithmetic
+`(k - 1) + 1 = k`, using `k ≥ 2`, is immediate) into a `DepthDecomposition F Δ k`, we split on
+whether `F` has isolated vertices (`isoJ F = 0` or not) and invoke
+`exists_circuit_of_noIsolated` or `exists_circuit_of_isolated` respectively
+(`exists_circuit_of_edge`). If `F` has no edges, `hom K F n` is the constant
+`n ^ |F.A| * n ^ |F.B|` (`hom_eq_const_of_no_edge`), computed by the single-gate
+`constCircuit`, of size `1`.
+-/
+theorem exists_circuit {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ) (hk : 2 ≤ k)
+    (hn : 2 * k + 1 ≤ n) (F : Pattern) (hF : ForestwidthLE Δ (k - 1) F) :
+    ∃ C : Circuit (Fin n × Fin n) K,
+      C.Computes (hom K F n) ∧ C.IsReduced ∧ IsMatrixSymmetric C ∧
+        supportSize C ≤ k ∧
+        supportDepth C ≤ Δ ∧
+        orbitSize C ≤ n ^ k ∧
+        C.depth ≤ 2 * Δ + 1 ∧
+        C.size ≤ 5 * n ^ k * (Fintype.card F.A + Fintype.card F.B + ∑ a, ∑ b, F.mult a b) + 1 := by
+  have hn0 : 0 < n := by omega
+  by_cases hE : ∃ a b, F.mult a b ≠ 0
+  · obtain ⟨C, h1, h2, h3, h4, h5, h6, h7, h8⟩ := exists_circuit_of_edge (K := K) hΔ hk hn F hE hF
+    exact ⟨C, h1, h2, h3, h4, h5, h6, h7, h8.trans (Nat.le_succ _)⟩
+  · push Not at hE
+    refine ⟨constCircuit (K := K) (n := n)
+      ((n : K) ^ Fintype.card F.A * (n : K) ^ Fintype.card F.B), ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · rw [hom_eq_const_of_no_edge F n hE]
+      exact constCircuit_computes _
+    · exact constCircuit_isReduced _
+    · exact constCircuit_isMatrixSymmetric _
+    · rw [constCircuit_supportSize]; omega
+    · rw [constCircuit_supportDepth _ hn0]; omega
+    · exact (constCircuit_orbitSize_le _).trans (Nat.one_le_pow _ _ hn0)
+    · rw [constCircuit_depth]; omega
+    · rw [constCircuit_size]; omega
 
 end Lax461425Proofs

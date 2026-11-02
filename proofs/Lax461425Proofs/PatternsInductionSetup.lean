@@ -64,27 +64,6 @@ theorem range_enumOf (S : Set (Fin n)) : Set.range (enumOf S) = S := by
 theorem enumOf_injective (S : Set (Fin n)) : Function.Injective (enumOf S) :=
   (enumOf S).injective
 
-/-- Any two injective functions `Fin m → Fin n` with the same range differ by a permutation of
-`Fin m`: the reindexing needed to transport a construction built against one enumeration of a
-finite subset of `Fin n` to any other. -/
-theorem exists_perm_of_range_eq {m : ℕ} {f g : Fin m → Fin n} (hf : Function.Injective f)
-    (hg : Function.Injective g) (hrange : Set.range f = Set.range g) :
-    ∃ σ : Equiv.Perm (Fin m), g = f ∘ σ := by
-  set ef : Fin m ≃ Set.range f := Equiv.ofInjective f hf with hef
-  set eg : Fin m ≃ Set.range g := Equiv.ofInjective g hg with heg
-  set castEquiv : Set.range g ≃ Set.range f := Equiv.setCongr hrange.symm with hcastEquiv
-  refine ⟨(eg.trans castEquiv).trans ef.symm, ?_⟩
-  funext x
-  show g x = f (ef.symm (castEquiv (eg x)))
-  have hval : (ef (ef.symm (castEquiv (eg x))) : Fin n) = (castEquiv (eg x) : Fin n) :=
-    congrArg Subtype.val (ef.apply_symm_apply _)
-  have heq1 : (ef (ef.symm (castEquiv (eg x))) : Fin n) = f (ef.symm (castEquiv (eg x))) := rfl
-  have heq2 : (castEquiv (eg x) : Fin n) = (eg x : Fin n) := by
-    simp [hcastEquiv, Equiv.setCongr_apply]
-  have heq3 : (eg x : Fin n) = g x := rfl
-  rw [heq1, heq2, heq3] at hval
-  exact hval.symm
-
 /-! ### `supOf`: the least small support of a gate, packaged -/
 
 variable {K : Type*} [Field K] {C : Circuit (Fin n × Fin n) K}
@@ -123,18 +102,6 @@ theorem supOf_eq_minSupport (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g :
   · intro x hx S hS hSc
     exact supOf_subset hrig hn g hS hSc hx
   · exact minSupport_subset_of_isSupport (isSupport_supOf hrig hn g) (ncard_supOf_le hrig hn g)
-
-omit [Field K] in
-/-- The left side of `supOf hrig hn g` has at most `supportSize C` elements. -/
-theorem ncard_leftPart_supOf_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
-    (leftPart (supOf hrig hn g)).ncard ≤ supportSize C :=
-  (ncard_leftPart_le _).trans (ncard_supOf_le hrig hn g)
-
-omit [Field K] in
-/-- The right side of `supOf hrig hn g` has at most `supportSize C` elements. -/
-theorem ncard_rightPart_supOf_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
-    (rightPart (supOf hrig hn g)).ncard ≤ supportSize C :=
-  (ncard_rightPart_le _).trans (ncard_supOf_le hrig hn g)
 
 /-! ### A canonical enumeration of a gate's support -/
 
@@ -177,15 +144,7 @@ theorem range_rightEnum (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.G
   range_enumOf _
 
 omit [Field K] in
-theorem leftCard_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
-    leftCard hrig hn g ≤ supportSize C :=
-  ncard_leftPart_supOf_le hrig hn g
-
 omit [Field K] in
-theorem rightCard_le (hrig : IsRigid C) (hn : 2 * supportSize C < n) (g : C.Gate) :
-    rightCard hrig hn g ≤ supportSize C :=
-  ncard_rightPart_supOf_le hrig hn g
-
 omit [Field K] in
 /-- `leftCard g + rightCard g = |sup(g)| ≤ supportSize C`: the combined bound needed whenever a
 label-position `Finset` at `g`'s own canonical arity (typically `Finset.univ`) is required to

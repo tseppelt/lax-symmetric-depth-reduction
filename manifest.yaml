@@ -2,9 +2,95 @@ specVersion: "1"
 id: lax-461425
 leanVersion: "v4.33.0"
 mathlibVersion: "db584cd6d46c92f209a44c0f1c829460d327499d"
-title: "Homomorphism polynomials and bounded-depth symmetric algebraic circuits"
+title: "Depth Hierarchies for Symmetric Algebraic Circuits"
 authors:
+  - name: Anuj Dawar
+    orcid: "0000-0003-4014-8248"
+    github: anuj-dawar 
+  - name: Prateek Dwivedi
+    github: prateekdwv 
+    orcid: "0000-0002-0572-3721"
+  - name: Benedikt Pago
+    orcid: "0000-0001-6377-1230"
+    github: BenediktPago
   - name: Tim Seppelt
     orcid: "0000-0002-6447-0568"
     github: tseppelt
-bibEntries: []
+bibEntries:
+  - |
+    @inproceedings{dawar_symmetric_2020,
+      author    = {Anuj Dawar and Gregory Wilsenach},
+      title     = {Symmetric Arithmetic Circuits},
+      booktitle = {47th International Colloquium on Automata, Languages, and Programming (ICALP 2020)},
+      series    = {Leibniz International Proceedings in Informatics (LIPIcs)},
+      volume    = {168},
+      pages     = {36:1--36:18},
+      publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+      year      = {2020},
+      doi       = {10.4230/LIPIcs.ICALP.2020.36}
+    }
+  - |
+    @inproceedings{dps_itcs,
+      author    = {Anuj Dawar and Benedikt Pago and Tim Seppelt},
+      title     = {Symmetric Algebraic Circuits and Homomorphism Polynomials},
+      booktitle = {17th Innovations in Theoretical Computer Science Conference (ITCS 2026)},
+      series    = {Leibniz International Proceedings in Informatics (LIPIcs)},
+      volume    = {362},
+      pages     = {46:1--46:15},
+      publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+      year      = {2026},
+      doi       = {10.4230/LIPIcs.ITCS.2026.46}
+    }
+  - |
+    @inproceedings{dwivedi_lower_2026,
+      author    = {Prateek Dwivedi and Benedikt Pago and Tim Seppelt},
+      title     = {Lower Bounds in Algebraic Complexity via Symmetry and Homomorphism Polynomials},
+      booktitle = {Proceedings of the 58th Annual ACM Symposium on Theory of Computing (STOC 2026)},
+      pages     = {631--640},
+      publisher = {ACM},
+      year      = {2026},
+      doi       = {10.1145/3798129.3800779}
+    }
+  - |
+    @inproceedings{bhargav_monotone_2025,
+      author    = {C. S. Bhargav and Shiteng Chen and Radu Curticapean and Prateek Dwivedi},
+      title     = {Monotone Bounded-Depth Complexity of Homomorphism Polynomials},
+      booktitle = {50th International Symposium on Mathematical Foundations of Computer Science (MFCS 2025)},
+      series    = {Leibniz International Proceedings in Informatics (LIPIcs)},
+      volume    = {345},
+      pages     = {19:1--19:18},
+      publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+      year      = {2025},
+      doi       = {10.4230/LIPIcs.MFCS.2025.19}
+    }
+  - |
+    @book{dixon_permutation_1996,
+      author    = {John D. Dixon and Brian Mortimer},
+      title     = {Permutation Groups},
+      series    = {Graduate Texts in Mathematics},
+      volume    = {163},
+      publisher = {Springer},
+      address   = {New York},
+      year      = {1996}
+    }
+  - |
+    @article{roberson_oddomorphisms_2022,
+      author  = {David E. Roberson},
+      title   = {Oddomorphisms and homomorphism indistinguishability over graphs of bounded degree},
+      journal = {Journal of Combinatorial Theory, Series B},
+      volume  = {181},
+      pages   = {1--61},
+      year    = {2026},
+      doi     = {10.1016/j.jctb.2026.07.003}
+    }
+  - |
+    @article{cai_optimal_1992,
+      author  = {Jin-Yi Cai and Martin F{\"u}rer and Neil Immerman},
+      title   = {An optimal lower bound on the number of variables for graph identification},
+      journal = {Combinatorica},
+      volume  = {12},
+      number  = {4},
+      pages   = {389--410},
+      year    = {1992},
+      doi     = {10.1007/BF01305232}
+    }

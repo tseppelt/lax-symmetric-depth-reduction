@@ -2,10 +2,10 @@ import Lax461425.Supports
 
 /-!
 A single-gate "constant circuit" computing `MvPolynomial.C c` for any `c : K`. Used for two
-purposes in the backward direction of `BoundedDepthCharacterisation.characterisation`: the
-degenerate case `p = 0` (take `c = 0`), and patterns `F` with no edges, whose homomorphism
-polynomial `hom K F n` is itself a constant (not amenable to
-`CircuitsForPatterns.exists_circuit`, which needs an edge).
+purposes: the degenerate case `p = 0` (take `c = 0`) in the backward direction of
+`BoundedDepthCharacterisation.characterisation`, and patterns `F` with no edges in
+`CircuitsForPatterns.exists_circuit`, whose homomorphism polynomial `hom K F n` is itself a
+constant.
 -/
 
 namespace Lax461425Proofs
@@ -90,5 +90,25 @@ theorem constCircuit_supportDepth (hn0 : 0 < n) :
   show ({i : Fin 0 | _} : Set (Fin 0)).ncard ≤ 0
   rw [Nat.le_zero, Set.ncard_eq_zero (Set.toFinite _)]
   ext i; exact i.elim0
+
+omit [Field K] [CharZero K] in
+theorem constCircuit_orbitSize_le :
+    orbitSize (constCircuit c : Circuit (Fin n × Fin n) K) ≤ 1 := by
+  apply Finset.sup_le
+  intro g _
+  calc (orbit (constCircuit c : Circuit (Fin n × Fin n) K) g).ncard
+      ≤ (Set.univ : Set Unit).ncard := Set.ncard_le_ncard (Set.subset_univ _)
+    _ = 1 := by simp [Set.ncard_univ]
+
+omit [Field K] [CharZero K] in
+theorem constCircuit_depth : (constCircuit c : Circuit (Fin n × Fin n) K).depth = 0 := by
+  apply le_antisymm _ (Nat.zero_le _)
+  apply csSup_le'
+  rintro m ⟨p, hp⟩
+  exact (constCircuit_isPath_length_zero c p hp).le
+
+omit [Field K] [CharZero K] in
+theorem constCircuit_size : (constCircuit c : Circuit (Fin n × Fin n) K).size = 1 := by
+  simp [Circuit.size]
 
 end Lax461425Proofs

@@ -19,13 +19,6 @@ any $\kappa$ follows from the paper's for the constant function $f$ with value t
 since then $\kappa_f(n) \leq \kappa$. As $2(\kappa - 1) < n$, the minimal supports exist and
 are contained in every support of size $\leq \kappa - 1$, so bounding the support size is the
 same as bounding the size of the minimal supports.
-
-The proof rests on a classical result on subgroups of small index in the symmetric group,
-cf. Dixon and Mortimer, Theorem 5.2B: for $n \geq 9$ and $1 \leq r \leq n/2$, every subgroup
-of $\mathrm{Sym}_n$ of index less than
-$\min\{\frac12\binom{n}{\lfloor n/2 \rfloor}, \binom{n}{r}\}$ contains the pointwise
-stabiliser of some set $T \subseteq [n]$ with $|T| < r$ in the alternating group. Reducedness
-upgrades the alternating to the symmetric group.
 -/
 
 namespace Lax461425.SupportTheorem

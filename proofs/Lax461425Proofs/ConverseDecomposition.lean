@@ -179,15 +179,6 @@ noncomputable instance : Fintype (NodeB P) := Subtype.fintype _
 /-- The nearest keeper ancestor-or-self of `t`. -/
 noncomputable def upB (t : P.Node) : NodeB P := ⟨P.parent^[stepsB P t] t, stepsB_spec P t⟩
 
-theorem upB_eq_self {t : P.Node} (ht : IsKeeper P t) : (upB P t).1 = t := by
-  have hz : stepsB P t = 0 := by
-    rcases Nat.eq_zero_or_pos (stepsB P t) with h0 | hpos
-    · exact h0
-    · exact absurd ht (stepsB_min P hpos)
-  show P.parent^[stepsB P t] t = t
-  rw [hz]
-  rfl
-
 theorem stepsB_le_level (t : P.Node) : stepsB P t ≤ level P.depth_le t := by
   apply stepsB_le
   rw [iterate_level P.depth_le]
@@ -382,9 +373,6 @@ end StepB
 noncomputable def normDecompOfDepthDecomposition (D : DepthDecomposition F Δ k) :
     NormDecomp F Δ k :=
   NormDecomp.ofPreNorm (preNormA D)
-
-theorem exists_normDecomp (D : DepthDecomposition F Δ k) : Nonempty (NormDecomp F Δ k) :=
-  ⟨normDecompOfDepthDecomposition D⟩
 
 /-- **Item 4 of the normalised decomposition.** There are at most `|V(F)| + 1` nodes. -/
 theorem NormDecomp.card_node_le (N : NormDecomp F Δ k) :

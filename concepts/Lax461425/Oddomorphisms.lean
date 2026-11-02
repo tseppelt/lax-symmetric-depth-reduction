@@ -24,9 +24,6 @@ to Roberson.
 A class $\mathcal{F}$ of finite simple graphs is *closed under weak oddomorphisms* if
 $G \in \mathcal{F}$ whenever $F \in \mathcal{F}$ and there is a weak oddomorphism
 $F \to G$.
-
-Following the definition literally, a vertex $a$ with $N_G(\varphi(a)) = \emptyset$ is both
-$\varphi$-even and $\varphi$-odd. Subgraphs $F'$ need not be spanning or induced.
 -/
 
 namespace Lax461425.Oddomorphisms

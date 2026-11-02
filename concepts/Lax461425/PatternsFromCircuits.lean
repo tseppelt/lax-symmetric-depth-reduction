@@ -11,16 +11,6 @@ Let $\Delta \geq 1$, $k \geq 2$, and $n \geq 2k + 1$. If a polynomial
 $p \in \mathbb{K}[\mathcal{X}_n]$ is computed by a reduced matrix-symmetric circuit of support
 size $\leq k$ and support depth $\leq \Delta$, then $p$ is a linear combination of homomorphism
 polynomials $\hom_{F,n}$ for patterns $F$ with $\mathrm{fw}_\Delta(F) \leq k - 1$.
-
-The proof proceeds via homomorphism polynomials of labelled graphs. By induction on the
-circuit, the polynomial computed at every gate $g$ is obtained by evaluating a linear
-combination of labelled homomorphism polynomials at the minimal support of $g$, where the
-labelled graphs admit tree decompositions of depth at most the number of support-changing
-wires below $g$, with bags of size $\leq k$, whose root bag consists exactly of the labelled
-non-isolated vertices. At a gate, all labels of an orbit of children are eliminated at once by
-a restricted sum over injective assignments, and products over orbits are expressed via power
-sums. The output gate has empty support, which yields unlabelled patterns of
-$\Delta$-forestwidth at most $k - 1$.
 -/
 
 namespace Lax461425.PatternsFromCircuits

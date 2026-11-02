@@ -170,14 +170,9 @@ theorem exists_circuit {K : Type*} [Field K] [CharZero K] {Δ n : ℕ} (hΔ : 1 
     ∃ C : Circuit (Fin n × Fin n) K,
       C.Computes (hom K (fullTree Δ n) n) ∧ C.IsReduced ∧ IsMatrixSymmetric C ∧
         supportDepth C ≤ Δ + 1 ∧ orbitSize C ≤ n ^ 2 := by
-  have hE : ∃ a b, (fullTree Δ n).mult a b ≠ 0 := by
-    refine ⟨⟨[], by simp, by simp⟩, ⟨[⟨0, by omega⟩], by simp; omega, by simp⟩, ?_⟩
-    simp only [fullTree]
-    rw [if_pos (Or.inl ⟨⟨0, by omega⟩, by simp⟩)]
-    exact one_ne_zero
   obtain ⟨C, h1, h2, h3, -, h5, h6, -, -⟩ :=
     Lax461425.CircuitsForPatterns.exists_circuit (K := K) (Δ := Δ + 1) (k := 2) (n := n)
-      (by omega) le_rfl (by omega) (fullTree Δ n) hE ⟨decomp Δ n⟩
+      (by omega) le_rfl (by omega) (fullTree Δ n) ⟨decomp Δ n⟩
   exact ⟨C, h1, h2, h3, h5, by simpa using h6⟩
 
 end Lax461425Proofs.DepthHierarchy

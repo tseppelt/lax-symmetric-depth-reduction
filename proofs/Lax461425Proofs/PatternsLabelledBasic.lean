@@ -129,18 +129,6 @@ bookkeeping. -/
 def InClassP (Δ k : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) (G : LabelledPattern ℓ r) : Prop :=
   InClass Δ k G ∧ G.labelSupport ⊆ Finset.univ.image (fun p : P => G.labelVertex p)
 
-theorem InClassP.toInClass {Δ k : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)} {G : LabelledPattern ℓ r}
-    (h : InClassP Δ k P G) : InClass Δ k G := h.1
-
-/-- If `G ∈ 𝒯^{Δ,k}_P(ℓ,r)`, `|L⁺(G)| ≤ |P|`. -/
-theorem InClassP.card_labelSupport_le {Δ k : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
-    {G : LabelledPattern ℓ r} (h : InClassP Δ k P G) :
-    G.labelSupport.card ≤ P.card := by
-  calc G.labelSupport.card ≤ (Finset.univ.image (fun p : P => G.labelVertex p)).card :=
-        Finset.card_le_card h.2
-    _ ≤ (Finset.univ : Finset P).card := Finset.card_image_le
-    _ = P.card := by rw [Finset.card_univ, Fintype.card_coe]
-
 /-- The `(ℓ,r)`-labelled homomorphism polynomial $\boldsymbol F_n$, as a curried function of the
 label images `v : Fin ℓ → Fin n` and `w : Fin r → Fin n`. -/
 noncomputable def labelledHom (K : Type*) [CommSemiring K] (G : LabelledPattern ℓ r) (n : ℕ)

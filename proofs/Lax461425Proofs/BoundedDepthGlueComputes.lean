@@ -18,8 +18,6 @@ variable {n m : ℕ} {K : Type*} [Field K] [CharZero K] (D : Fin m → Circuit (
 
 theorem glueCircuit_wire : (glueCircuit D f).wire = gwire D := rfl
 
-theorem glueCircuit_label : (glueCircuit D f).label = glabel D f := rfl
-
 /-- Every outgoing wire of a block gate `blk D i y` not landing on another block-`i` gate has
 multiplicity `0`: block gates are wired only within their own block. -/
 theorem blk_wire_eq_zero_of_not_blk {i : Fin m} {y : (D i).Gate} {x : GGate D}

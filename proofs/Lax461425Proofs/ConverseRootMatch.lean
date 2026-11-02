@@ -57,14 +57,6 @@ theorem ExtV_root_eq_univ (γ : Adm F n (N.bag N.root)) : ExtV N n N.root γ = F
   funext x
   exact absurd x.2 (not_mem_bag_root N x.1)
 
-/-- **`edgesBelow` at the root is every edge of `F`** (with multiplicity, as a set of pairs
-with nonzero multiplicity): every node is above the root. -/
-theorem edgesBelow_root_eq_filter :
-    edgesBelow N N.root = Finset.univ.filter (fun ab : F.A × F.B => F.mult ab.1 ab.2 ≠ 0) := by
-  ext ab
-  simp only [mem_edgesBelow_iff, Finset.mem_filter, Finset.mem_univ, true_and]
-  exact ⟨fun h => h.1, fun h => ⟨h, above_root N _⟩⟩
-
 end RootMatch
 
 section PairEquiv

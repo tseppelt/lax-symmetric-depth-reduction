@@ -48,30 +48,12 @@ lemma connected_of_connSet {V : Type*} {F : SimpleGraph V} {S : Set V}
   obtain ⟨_, hr⟩ := key b (h a ha b hb)
   exact hr
 
-lemma ConnSet.const {V α : Type*} {F : SimpleGraph V} {S : Set V} (h : ConnSet F S) (f : V → α)
-    (hf : ∀ u v, u ∈ S → v ∈ S → F.Adj u v → f u = f v) {a b : V} (ha : a ∈ S) (hb : b ∈ S) :
-    f a = f b := by
-  have key : ∀ c, Relation.ReflTransGen (fun x y => x ∈ S ∧ y ∈ S ∧ F.Adj x y) a c →
-      c ∈ S → f a = f c := by
-    intro c hc
-    induction hc with
-    | refl => intro _; rfl
-    | @tail b' c' hab hbc ih =>
-      intro _
-      exact (ih hbc.1).trans (hf _ _ hbc.1 hbc.2.1 hbc.2.2)
-  exact key b (h a ha b hb) hb
-
 /-! ### Nonemptiness, isomorphism -/
 
 lemma RichSet.nonempty {V : Type*} {F : SimpleGraph V} {k : ℕ} :
     ∀ {j S}, RichSet F k j S → S.Nonempty
   | 0, S, h => (connSet_of_connected h.1).1
   | j + 1, S, h => (connSet_of_connected h.1).1
-
-lemma RichSet.connected {V : Type*} {F : SimpleGraph V} {k : ℕ} :
-    ∀ {j S}, RichSet F k j S → (F.induce S).Connected
-  | 0, S, h => h.1
-  | j + 1, S, h => h.1
 
 lemma richSet_map {V W : Type*} {F : SimpleGraph V} {G : SimpleGraph W} (e : F ≃g G) (k : ℕ) :
     ∀ j S, RichSet F k j S → RichSet G k j (e '' S) := by

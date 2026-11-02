@@ -63,18 +63,6 @@ theorem wire_to_out_eq_zero (y : C.Gate) : C.wire y C.out = 0 := by
   have h2 : height C y ≤ height C C.out := height_mono_of_reach C (C.reaches_out y)
   omega
 
-/-- The output gate can only occur as the very first element of any path. -/
-theorem eq_out_of_path_head {m : ℕ} {p : Fin (m + 1) → C.Gate} (hp : C.IsPath p)
-    {i : Fin (m + 1)} (hi : p i = C.out) : i = 0 := by
-  by_contra hine
-  have hpos : 0 < (i : ℕ) := Nat.pos_of_ne_zero (fun h => hine (Fin.ext h))
-  have hiex : (⟨(i : ℕ) - 1, by omega⟩ : Fin m).succ = i := by
-    apply Fin.ext; simp; omega
-  have hw : 0 < C.wire (p (⟨(i : ℕ) - 1, by omega⟩ : Fin m).castSucc)
-      (p (⟨(i : ℕ) - 1, by omega⟩ : Fin m).succ) := hp ⟨(i : ℕ) - 1, by omega⟩
-  rw [hiex, hi] at hw
-  exact absurd hw (by rw [wire_to_out_eq_zero C]; omega)
-
 /-- Extracting the data of a `.mul`-labelled `ComputesAt` derivation. -/
 theorem exists_mul_decomp [CommSemiring K] {g : C.Gate} {p : MvPolynomial V K}
     (hg : C.label g = .mul) (h : C.ComputesAt g p) :
@@ -109,10 +97,6 @@ abbrev IsoB (F : Pattern) : Type := {b : F.B // ¬ ∃ a, F.mult a b ≠ 0}
   A := NonIsoA F
   B := NonIsoB F
   mult a b := F.mult a.1 b.1
-
-theorem Fiso_A (F : Pattern) : (Fiso F).A = NonIsoA F := rfl
-
-theorem Fiso_B (F : Pattern) : (Fiso F).B = NonIsoB F := rfl
 
 theorem Fiso_mult (F : Pattern) (a0 : NonIsoA F) (b0 : NonIsoB F) :
     (Fiso F).mult a0 b0 = F.mult a0.1 b0.1 := rfl
@@ -672,20 +656,12 @@ theorem wwire_to_constG (g : WGate R0) :
     | addG => simp [wwire]
     | constG => simp [wwire]
 
-/-- Unfolding lemma: the wrapper circuit's `label` field is `wlabel R0`. -/
-theorem wcircuit_label (hout : R0.label R0.out = .mul) (hj : 0 < j) (hn0 : 0 < n) :
-    (wcircuit R0 j hout hj hn0).label = wlabel R0 := rfl
-
-/-- Unfolding lemma: the wrapper circuit's `wire` field is `wwire R0 j`. -/
-theorem wcircuit_wire (hout : R0.label R0.out = .mul) (hj : 0 < j) (hn0 : 0 < n) :
-    (wcircuit R0 j hout hj hn0).wire = wwire R0 j := rfl
-
 /-- **The wrapper circuit is reduced**, provided `R0` is reduced and never labels a gate
 `const`. -/
 theorem wcircuit_isReduced (hout : R0.label R0.out = .mul) (hj : 0 < j) (hn0 : 0 < n)
     (hred0 : R0.IsReduced) (hnoconst : ∀ x : R0.Gate, ∀ c, R0.label x ≠ .const c) :
     (wcircuit R0 j hout hj hn0).IsReduced := by
-  simp only [Circuit.IsReduced, wcircuit_label, wcircuit_wire]
+  simp only [Circuit.IsReduced, wcircuit]
   constructor
   · rintro (x | w) (x' | w') hinput heqlabel
     · exact congrArg Sum.inl (hred0.1 x x' hinput heqlabel)

@@ -97,11 +97,4 @@ theorem card_Y_eq {n : ℕ} (v : Fin ℓ → Fin n) (w : Fin r → Fin n) (hv : 
     exact (Fintype.card_of_subtype _ (fun z => by simp)).symm
   rw [h1, h2]
 
-/-- **Independence of `|Y(v,w)|` across different choices of injective `v, w`.** -/
-theorem card_Y_eq_card_Y {n : ℕ} (v v' : Fin ℓ → Fin n) (w w' : Fin r → Fin n)
-    (hv : Function.Injective v) (hw : Function.Injective w) (hv' : Function.Injective v')
-    (hw' : Function.Injective w') :
-    (Y ℓ' r' n v w).card = (Y ℓ' r' n v' w').card := by
-  rw [card_Y_eq v w hv hw, card_Y_eq v' w' hv' hw']
-
 end Lax461425Proofs.PatternsRestrictedCard

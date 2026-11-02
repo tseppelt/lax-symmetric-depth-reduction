@@ -411,15 +411,6 @@ theorem minSupport_subset_of_isSupport_le (hrig : IsRigid C) {g : C.Gate}
     (Set.ncard_le_ncard Set.inter_subset_right (Set.toFinite S')).trans hS'c
   exact (hx (S ∩ S') hinter hinterc).1
 
-/-- `actPoint γ` is injective: it is `Sum.map γ.1 γ.2` applied to two bijections. -/
-theorem actPoint_injective (γ : Γ n) : Function.Injective (actPoint γ) :=
-  γ.1.injective.sumMap γ.2.injective
-
-/-- Applying `actPoint γ` to a set does not change its cardinality. -/
-theorem ncard_actPoint_image (γ : Γ n) (S : Set (Fin n ⊕ Fin n)) :
-    (actPoint γ '' S).ncard = S.ncard :=
-  Set.ncard_image_of_injective S (actPoint_injective γ)
-
 /-! ### Equivariance -/
 
 /-- `IsSupport` is equivariant under the `Γ n`-action on gates coming from rigidity. -/
@@ -446,30 +437,5 @@ theorem isSupport_smul (hrig : IsRigid C) (γ : Γ n) {g : C.Gate} {S : Set (Fin
   simp only [← mul_assoc] at hc
   rw [hcancel, one_mul, Equiv.Perm.mul_apply] at hc
   exact hc
-
-/-- `minSupport` is equivariant under the `Γ n`-action on gates coming from rigidity. -/
-theorem minSupport_smul (hrig : IsRigid C) (γ : Γ n) (g : C.Gate) :
-    minSupport C (σOf hrig γ g) = actPoint γ '' minSupport C g := by
-  ext x
-  simp only [Set.mem_image]
-  constructor
-  · intro hx
-    refine ⟨actPoint γ⁻¹ x, ?_, actPoint_inv_self_apply γ x⟩
-    intro S hS hSc
-    have hS' : IsSupport C (σOf hrig γ g) (actPoint γ '' S) := isSupport_smul hrig γ hS
-    have hS'c : (actPoint γ '' S).ncard ≤ supportSize C := (ncard_actPoint_image γ S).le.trans hSc
-    obtain ⟨z, hz, hzx⟩ := hx (actPoint γ '' S) hS' hS'c
-    rw [← hzx, actPoint_self_inv_apply]
-    exact hz
-  · rintro ⟨y, hy, rfl⟩
-    intro S' hS' hS'c
-    have hSγ : IsSupport C g (actPoint γ⁻¹ '' S') := by
-      have hraw := isSupport_smul hrig γ⁻¹ hS'
-      rwa [σOf_inv_σOf hrig γ g] at hraw
-    have hSγc : (actPoint γ⁻¹ '' S').ncard ≤ supportSize C :=
-      (ncard_actPoint_image γ⁻¹ S').le.trans hS'c
-    obtain ⟨z, hz, hzy⟩ := hy _ hSγ hSγc
-    rw [← hzy, actPoint_inv_self_apply]
-    exact hz
 
 end Lax461425Proofs.PatternsSupportBasic

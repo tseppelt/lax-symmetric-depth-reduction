@@ -50,10 +50,6 @@ noncomputable def quotLiftEquiv {α : Type*} (rel : α → α → Prop) (β : Ty
   left_inv H := funext fun q => Quot.inductionOn q (fun a => rfl)
   right_inv f := Subtype.ext (funext fun a => rfl)
 
-@[simp] theorem quotLiftEquiv_apply {α : Type*} (rel : α → α → Prop) (β : Type*)
-    (H : Quot rel → β) (a : α) : ((quotLiftEquiv rel β H : {f : α → β // Respects rel f}) : α → β)
-      a = H (Quot.mk rel a) := rfl
-
 /-! ### Side-independent gluing along a pair of maps
 
 Everything about the `A`-side and `B`-side gluings is the same statement about a pair of maps
@@ -288,42 +284,7 @@ noncomputable def glueLabelEquivA (γ : Type*) [Fintype γ] :
 noncomputable def glueLabelEquivB (γ : Type*) [Fintype γ] :
     (GlueB G G' → γ) ≃ CompatB G G' γ := pairLabelEquiv G.b G'.b γ
 
-@[simp] theorem glueLabelEquivA_symm_apply_inl (γ : Type*) [Fintype γ] (p : CompatA G G' γ)
-    (x : G.F.A) :
-    (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inl x)) = p.1.1 x := rfl
-
-@[simp] theorem glueLabelEquivA_symm_apply_inr (γ : Type*) [Fintype γ] (p : CompatA G G' γ)
-    (x' : G'.F.A) :
-    (glueLabelEquivA G G' γ).symm p (glueπA G G' (Sum.inr x')) = p.1.2 x' := rfl
-
-@[simp] theorem glueLabelEquivB_symm_apply_inl (γ : Type*) [Fintype γ] (p : CompatB G G' γ)
-    (y : G.F.B) :
-    (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inl y)) = p.1.1 y := rfl
-
-@[simp] theorem glueLabelEquivB_symm_apply_inr (γ : Type*) [Fintype γ] (p : CompatB G G' γ)
-    (y' : G'.F.B) :
-    (glueLabelEquivB G G' γ).symm p (glueπB G G' (Sum.inr y')) = p.1.2 y' := rfl
-
 /-! ### Dropping the compatibility constraint under a matching label condition -/
-
-/-- If `hα` and `hα'` are *each independently* required to match a prescribed labelling `v` at
-positions `p`, `p'` respectively, then they are automatically compatible (agree wherever `p i`
-and `p' i` are identified); so an "outer" compatibility check, guarding an "inner" check of only
-one side's condition, can be replaced by the conjunction of both sides' conditions (dropping
-compatibility, since it becomes redundant). This is the fact that lets the sum defining
-`labelledHom` of a glued graph split into independent choices on each side. -/
-theorem ite_compat_eq {ι α α' γ M : Type*} [Fintype ι] [DecidableEq γ] [Zero M]
-    (p : ι → α) (p' : ι → α') (v : ι → γ) (hα : α → γ) (hα' : α' → γ) (c : M) :
-    (if (∀ i, hα (p i) = hα' (p' i)) then (if (∀ i, hα (p i) = v i) then c else 0) else 0)
-      = if ((∀ i, hα (p i) = v i) ∧ ∀ i, hα' (p' i) = v i) then c else 0 := by
-  by_cases hcompat : ∀ i, hα (p i) = hα' (p' i)
-  · by_cases hcondA : ∀ i, hα (p i) = v i
-    · have hcondA' : ∀ i, hα' (p' i) = v i := fun i => (hcompat i).symm.trans (hcondA i)
-      simp [hcompat, hcondA']
-    · simp [hcompat]
-  · have hnand : ¬ ((∀ i, hα (p i) = v i) ∧ ∀ i, hα' (p' i) = v i) :=
-      fun ⟨hA, hA'⟩ => hcompat fun i => (hA i).trans (hA' i).symm
-    simp [hcompat, hnand]
 
 /-! ### Converting a `CompatA`/`CompatB` sum into an ordinary double sum -/
 

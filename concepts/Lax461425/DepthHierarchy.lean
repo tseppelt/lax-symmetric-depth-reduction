@@ -20,20 +20,6 @@ viewed as a pattern.
 2. For $\Delta \geq 1$ and $n \geq 5$, there is a matrix-symmetric circuit of support depth
    $\leq \Delta + 1$ and orbit size $\leq n^2$ computing $\hom_{T_{\Delta,n},n}$.
 
-Thus, the size gap between support depth $\Delta$ and $\Delta + 1$ for these polynomials is
-$n^{(1 - o(1)) \log_2 n}$. Here $\mathbb{K}$ is a field of characteristic zero.
-
-The vertices of $T_{\Delta,n}$ are the words over $[n]$ of length at most $\Delta$, the empty
-word being the root, and the children of a word $w$ are the words $wi$ for $i \in [n]$. The
-bipartition puts the words of even length on the left and those of odd length on the right.
-
-The support depth of an arbitrary matrix-symmetric circuit is defined as that of its
-rigidification, a reduced matrix-symmetric circuit computing the same polynomial whose orbit
-size is at most that of the original circuit. Hence the first assertion is equivalent to its
-restriction to reduced circuits, which is how it is stated. The circuit of the second
-assertion is reduced as well. The paper states the second assertion with support depth
-exactly $\Delta + 1$; by the first assertion, the support depth is indeed $\Delta + 1$ for all
-sufficiently large $n$.
 -/
 
 namespace Lax461425.DepthHierarchy

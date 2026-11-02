@@ -35,65 +35,6 @@ theorem minor_of_injective_hom {U V : Type} {A : SimpleGraph U} {B : SimpleGraph
 theorem isMinor_of_le {V : Type} {F' F : SimpleGraph V} (h : F' ≤ F) : IsMinor F' F :=
   minor_of_injective_hom id Function.injective_id fun _ _ e => h e
 
-/-- Connectivity of a union of connected sets joined along a connected index set. -/
-theorem minor_union_connected {V W : Type} (B : SimpleGraph V) (C : SimpleGraph W)
-    (S : Set V) (f : V → Set W) (hS : (B.induce S).Connected)
-    (hf : ∀ v ∈ S, (C.induce (f v)).Connected)
-    (hadj : ∀ x ∈ S, ∀ y ∈ S, B.Adj x y → ∃ p ∈ f x, ∃ q ∈ f y, C.Adj p q) :
-    (C.induce (⋃ v ∈ S, f v)).Connected := by
-  have key : ∀ (a b : S) (w : (B.induce S).Walk a b) (p q : W) (hp : p ∈ f a) (hq : q ∈ f b),
-      (C.induce (⋃ v ∈ S, f v)).Reachable ⟨p, Set.mem_biUnion a.2 hp⟩
-        ⟨q, Set.mem_biUnion b.2 hq⟩ := by
-    intro a b w
-    induction w with
-    | nil =>
-      rename_i a
-      intro p q hp hq
-      obtain ⟨r⟩ := (hf a a.2).preconnected ⟨p, hp⟩ ⟨q, hq⟩
-      exact ⟨r.map (C.induceHomOfLE (Set.subset_biUnion_of_mem a.2)).toHom⟩
-    | cons h w ih =>
-      rename_i a c b
-      intro p q hp hq
-      obtain ⟨p', hp', q', hq', hpq⟩ := hadj a a.2 c c.2 h
-      have h1 : (C.induce (⋃ v ∈ S, f v)).Reachable ⟨p, Set.mem_biUnion a.2 hp⟩
-          ⟨p', Set.mem_biUnion a.2 hp'⟩ := by
-        obtain ⟨r⟩ := (hf a a.2).preconnected ⟨p, hp⟩ ⟨p', hp'⟩
-        exact ⟨r.map (C.induceHomOfLE (Set.subset_biUnion_of_mem a.2)).toHom⟩
-      have h2 : (C.induce (⋃ v ∈ S, f v)).Adj ⟨p', Set.mem_biUnion a.2 hp'⟩
-          ⟨q', Set.mem_biUnion c.2 hq'⟩ := hpq
-      exact h1.trans ((SimpleGraph.Adj.reachable h2).trans (ih q' q hq' hq))
-  obtain ⟨⟨v0, hv0⟩⟩ := hS.nonempty
-  obtain ⟨⟨p0, hp0⟩⟩ := (hf v0 hv0).nonempty
-  have : Nonempty (⋃ v ∈ S, f v) := ⟨⟨p0, Set.mem_biUnion hv0 hp0⟩⟩
-  refine (SimpleGraph.connected_iff _).mpr ⟨?_, this⟩
-  rintro ⟨p, hp⟩ ⟨q, hq⟩
-  obtain ⟨a, ha, hpa⟩ := Set.mem_iUnion₂.mp hp
-  obtain ⟨b, hb, hqb⟩ := Set.mem_iUnion₂.mp hq
-  obtain ⟨w⟩ := hS.preconnected ⟨a, ha⟩ ⟨b, hb⟩
-  exact key ⟨a, ha⟩ ⟨b, hb⟩ w p q hpa hqb
-
-theorem isMinor_trans {U V W : Type} {A : SimpleGraph U} {B : SimpleGraph V}
-    {C : SimpleGraph W} (hAB : IsMinor A B) (hBC : IsMinor B C) : IsMinor A C := by
-  obtain ⟨M1⟩ := hAB
-  obtain ⟨M2⟩ := hBC
-  refine ⟨{ branchSet := fun u => ⋃ v ∈ M1.branchSet u, M2.branchSet v
-            connected := fun u => ?_
-            disjoint := fun {u u'} h => ?_
-            adjacent := fun {u u'} h => ?_ }⟩
-  · exact minor_union_connected B C _ _ (M1.connected u) (fun v _ => M2.connected v)
-      (fun x _ y _ hxy => M2.adjacent hxy)
-  · rw [Set.disjoint_left]
-    intro p hp hq
-    obtain ⟨v, hv, hpv⟩ := Set.mem_iUnion₂.mp hp
-    obtain ⟨v', hv', hpv'⟩ := Set.mem_iUnion₂.mp hq
-    have hne : v ≠ v' := fun e => by
-      subst e
-      exact Set.disjoint_left.mp (M1.disjoint h) hv hv'
-    exact Set.disjoint_left.mp (M2.disjoint hne) hpv hpv'
-  · obtain ⟨x, hx, y, hy, hxy⟩ := M1.adjacent h
-    obtain ⟨p, hp, q, hq, hpq⟩ := M2.adjacent hxy
-    exact ⟨p, Set.mem_biUnion hx hp, q, Set.mem_biUnion hy hq, hpq⟩
-
 theorem isMinor_quotientGraph {V : Type} (F : SimpleGraph V) (𝓡 : ConnPart F) :
     IsMinor 𝓡.quotientGraph F :=
   ⟨{ branchSet := fun a => {v | Quotient.mk 𝓡.setoid v = a}

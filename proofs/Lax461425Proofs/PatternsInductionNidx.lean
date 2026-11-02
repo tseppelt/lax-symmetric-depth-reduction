@@ -146,9 +146,6 @@ theorem ιPad_injective (hvh : Function.Injective vh) :
 noncomputable def ιPadEmb (hvh : Function.Injective vh) : Fin ℓh ↪ Fin (ℓg + ℓN v vh) :=
   ⟨ιPad hv vh, ιPad_injective hv hvh⟩
 
-theorem ιPadEmb_apply (hvh : Function.Injective vh) (i : Fin ℓh) :
-    ιPadEmb hv hvh i = ιPad hv vh i := rfl
-
 /-- **The key identity.** For any permutation `γ1` of `Fin n` fixing `range v` pointwise,
 padding `v` with `γ1 ∘ yReal v vh` and composing with `ιPad` recovers `γ1 ∘ vh` exactly. In
 particular (`γ1 = 1`), padding `v` with the *real* `N`-tuple `yReal v vh` recovers `vh` exactly. -/

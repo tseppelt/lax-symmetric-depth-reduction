@@ -93,9 +93,6 @@ noncomputable def toC' (g : C.Gate) : (reduced C).Gate := ⟨rep C g, isLive_rep
 /-- Unfolding lemma for the `wire` field of `reduced C`. -/
 theorem reduced_wire (a b : (reduced C).Gate) : (reduced C).wire a b = W C a.1 b.1 := rfl
 
-/-- Unfolding lemma for the `label` field of `reduced C`. -/
-theorem reduced_label (a : (reduced C).Gate) : (reduced C).label a = C.label a.1 := rfl
-
 /-- The weight the reduced circuit assigns from `toC' g` into `b` equals the weight `g` itself
 sends into the class of `b`. -/
 theorem wire_toC'_eq (g : C.Gate) (b : (reduced C).Gate) :

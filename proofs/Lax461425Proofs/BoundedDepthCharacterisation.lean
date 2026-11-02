@@ -2,8 +2,6 @@ import Lax461425Proofs.BoundedDepthGlueComputes
 import Lax461425Proofs.BoundedDepthGlueSymmetric
 import Lax461425Proofs.BoundedDepthGlueSize
 import Lax461425Proofs.BoundedDepthGlueSc
-import Lax461425Proofs.BoundedDepthConst
-import Lax461425Proofs.BoundedDepthHomConst
 import Lax461425Proofs.RigidReduced
 import Lax461425Proofs.RigidSymmetric
 import Lax461425Proofs.RigidComputes
@@ -32,20 +30,9 @@ theorem exists_circuit_for_pattern {K : Type*} [Field K] [CharZero K] {Δ k n : 
     (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (F : Pattern) (hF : ForestwidthLE Δ (k - 1) F) :
     ∃ C : Circuit (Fin n × Fin n) K, C.Computes (hom K F n) ∧ C.IsReduced ∧
       IsMatrixSymmetric C ∧ supportSize C ≤ k ∧ supportDepth C ≤ Δ := by
-  by_cases hE : ∃ a b, F.mult a b ≠ 0
-  · obtain ⟨C, hC1, hC2, hC3, hC4, hC5, -, -, -⟩ :=
-      Lax461425.CircuitsForPatterns.exists_circuit (K := K) hΔ hk hn F hE hF
-    exact ⟨C, hC1, hC2, hC3, hC4, hC5⟩
-  · push Not at hE
-    have hn0 : 0 < n := by omega
-    refine ⟨constCircuit (K := K) (n := n)
-      ((n : K) ^ Fintype.card F.A * (n : K) ^ Fintype.card F.B), ?_, ?_, ?_, ?_, ?_⟩
-    · rw [hom_eq_const_of_no_edge F n hE]
-      exact constCircuit_computes _
-    · exact constCircuit_isReduced _
-    · exact constCircuit_isMatrixSymmetric _
-    · rw [constCircuit_supportSize]; omega
-    · rw [constCircuit_supportDepth _ hn0]; omega
+  obtain ⟨C, hC1, hC2, hC3, hC4, hC5, -, -, -⟩ :=
+    Lax461425.CircuitsForPatterns.exists_circuit (K := K) hΔ hk hn F hF
+  exact ⟨C, hC1, hC2, hC3, hC4, hC5⟩
 
 /--
 ---
@@ -57,11 +44,9 @@ The forward direction (1 → 2) is the concept `PatternsFromCircuits.mem_span_ho
 
 For the backward direction (2 → 1), `Submodule.mem_span_set'` writes `p = ∑ i, f i • hom K
 (F i) n` for finitely many patterns `F i` with `ForestwidthLE Δ (k - 1) (F i)`. For each `i`, a
-circuit `D i` computing `hom K (F i) n` is obtained either from the concept `CircuitsForPatterns.exists_circuit`
-(if `F i` has an edge) or, if not, from the single-gate `constCircuit` (since `hom K (F i) n` is
-then a bare constant, `BoundedDepthHomConst.hom_eq_const_of_no_edge`); either way `D i` is
-reduced, matrix-symmetric, with support size `≤ k` and support depth `≤ Δ`
-(`BoundedDepthConst`). These are glued (`BoundedDepthGlueCircuit.glueCircuit`) by scaling each
+circuit `D i` computing `hom K (F i) n` is obtained from the concept
+`CircuitsForPatterns.exists_circuit`; it is reduced, matrix-symmetric, with support size `≤ k`
+and support depth `≤ Δ`. These are glued (`BoundedDepthGlueCircuit.glueCircuit`) by scaling each
 block's output by `f i` (via a new `mul`-gate and a new `const (f i)` input gate) and summing
 all of these via a new output `add`-gate; the glue circuit computes `∑ i, f i • hom K (F i) n =
 p` (`BoundedDepthGlueComputes.glueCircuit_computes`) and is matrix-symmetric
