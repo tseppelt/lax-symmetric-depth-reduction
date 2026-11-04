@@ -1,4 +1,3 @@
-import Lax461425.ABPFromSkew
 import Lax461425.ABPsForPatterns
 import Lax461425.BooleanSumSymmetry
 import Lax461425.BoundedDepthCharacterisation
@@ -20,7 +19,6 @@ import Lax461425.PermanentCompleteness
 import Lax461425.ReducedRigid
 import Lax461425.Rigidification
 import Lax461425.SkewCircuitCharacterisation
-import Lax461425.SkewFromABP
 import Lax461425.SupportTheorem
 import Lax461425.Supports
 import Lax461425.SymmetricABPCharacterisation
