@@ -12,8 +12,9 @@ matrix, for `n ≥ 1`, is a finite linear combination of homomorphism polynomial
 bipartite multigraph patterns having at most `n` vertices on each side.
 
 This is the general homomorphism-spanning result cited from DPS, ITCS 2026, Lemma 4.
-It imposes no bound on pathwidth or degree. The independent proof uses collision
-inclusion-exclusion on quotient patterns and averaging over row and column permutations.
+It imposes no bound on pathwidth or degree. The proof follows the paper's distinct
+monomial orbits and embedding polynomials, then applies partition Möbius inversion
+from the full version's Corollary A.3. Quotient patterns preserve the vertex bounds.
 -/
 
 namespace Lax461425.HomomorphismSpanning

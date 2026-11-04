@@ -1,62 +1,63 @@
 import Lax461425Proofs.HomSpanningQuotient
 
-/-! Equality constraints on assignments are precisely homomorphisms of quotient patterns. -/
+/-! The paper's kernel-partition decomposition of vertex maps (Appendix A, Lemma A.2). -/
 namespace Lax461425Proofs.HomSpanningConstraints
 
 open Lax461425.HomomorphismPolynomials HomSpanningQuotient
 open scoped Classical
 noncomputable section
 
-abbrev Event (F : Pattern) := (F.A × F.A) ⊕ (F.B × F.B)
+/-- Equivalence relations on a finite vertex set form a finite partition lattice. -/
+@[instance_reducible] def setoidFintype (A : Type*) [Fintype A] : Fintype (Setoid A) :=
+  Fintype.ofInjective (fun r : Setoid A => r.r) (fun _ _ h =>
+    Setoid.ext (fun x y => Iff.of_eq (congrFun (congrFun h x) y)))
+attribute [local instance] setoidFintype
 
-def collision (F : Pattern) {n : ℕ} (a : F.A → Fin n) (b : F.B → Fin n) : Event F → Prop :=
-  Sum.elim (fun x => a x.1 = a x.2) (fun y => b y.1 = b y.2)
+abbrev Partitions (F : Pattern) := Setoid F.A × Setoid F.B
+abbrev Maps (F : Pattern) (n : ℕ) := (F.A → Fin n) × (F.B → Fin n)
 
-def leftRelation (F : Pattern) (S : Finset (Event F)) : Setoid F.A :=
-  Relation.EqvGen.setoid (fun a a' => Sum.inl (a, a') ∈ S)
+/-- Maps with precisely this pair of kernel partitions. -/
+def exactSum {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
+    (r : Partitions F) : MvPolynomial (Fin n × Fin n) K :=
+  ∑ h : Maps F n, if (Setoid.ker h.1, Setoid.ker h.2) = r then weight F h.1 h.2 else 0
 
-def rightRelation (F : Pattern) (S : Finset (Event F)) : Setoid F.B :=
-  Relation.EqvGen.setoid (fun b b' => Sum.inr (b, b') ∈ S)
+/-- Maps constant on each block of the prescribed partitions. -/
+def upperSum {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
+    (r : Partitions F) : MvPolynomial (Fin n × Fin n) K :=
+  ∑ h : Maps F n, if r ≤ (Setoid.ker h.1, Setoid.ker h.2) then weight F h.1 h.2 else 0
 
-theorem required_iff (F : Pattern) (S : Finset (Event F)) {n : ℕ}
-    (a : F.A → Fin n) (b : F.B → Fin n) :
-    (∀ e ∈ S, collision F a b e) ↔
-      leftRelation F S ≤ Setoid.ker a ∧ rightRelation F S ≤ Setoid.ker b := by
-  constructor
-  · intro h
-    exact ⟨Setoid.eqvGen_le (fun x y he => h (.inl (x,y)) he),
-      Setoid.eqvGen_le (fun x y he => h (.inr (x,y)) he)⟩
-  · rintro ⟨hl, hr⟩ e he
-    cases e with
-    | inl x => exact hl (Relation.EqvGen.rel _ _ he)
-    | inr y => exact hr (Relation.EqvGen.rel _ _ he)
+/-- Group maps by their kernels, as in the first identity of Lemma A.2. -/
+theorem upperSum_eq_exact {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
+    (r : Partitions F) :
+    upperSum (K := K) F n r = ∑ s : Partitions F, if r ≤ s then exactSum F n s else 0 := by
+  rw [← Finset.sum_filter]
+  unfold exactSum upperSum
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro h _
+  simp [eq_comm]
 
-theorem sum_lift {A B R : Type*} [Fintype A] [Fintype B] [DecidableEq A] [DecidableEq B] [AddCommMonoid R]
-    (r : Setoid A) (f : (A → B) → R) :
+/-- A map constant on blocks is uniquely a map from the quotient. -/
+theorem sum_lift {A B R : Type*} [Fintype A] [Fintype B] [DecidableEq A]
+    [DecidableEq B] [AddCommMonoid R] (r : Setoid A) (f : (A → B) → R) :
     (∑ a : A → B, if r ≤ Setoid.ker a then f a else 0) =
       ∑ a : Quotient r → B, f (a ∘ Quotient.mk r) := by
   rw [← Finset.sum_filter]
   rw [Finset.sum_subtype _ (by simp : ∀ a : A → B,
     a ∈ Finset.univ.filter (fun a => r ≤ Setoid.ker a) ↔ r ≤ Setoid.ker a) f]
-  exact Fintype.sum_equiv (Setoid.liftEquiv r) _ _ (fun a => rfl)
+  exact Fintype.sum_equiv (Setoid.liftEquiv r) _ _ (fun _ => rfl)
 
-set_option backward.isDefEq.respectTransparency false in
-theorem required_sum_eq_hom {K : Type*} [CommSemiring K] (F : Pattern)
-    (S : Finset (Event F)) (n : ℕ) :
-    (∑ a : F.A → Fin n, ∑ b : F.B → Fin n,
-      if ∀ e ∈ S, collision F a b e then weight (K := K) F a b else 0) =
-      hom K (quotient F (leftRelation F S) (rightRelation F S)) n := by
-  simp_rw [required_iff, ite_and]
-  simp_rw [Finset.sum_ite_irrel, Finset.sum_const_zero]
-  rw [sum_lift (leftRelation F S) (fun a : F.A → Fin n =>
-    ∑ b : F.B → Fin n, if rightRelation F S ≤ Setoid.ker b then weight (K := K) F a b else 0)]
-  have hb : ∀ a : F.A → Fin n,
-      (∑ b : F.B → Fin n, if rightRelation F S ≤ Setoid.ker b then weight (K := K) F a b else 0) =
-        ∑ b : Quotient (rightRelation F S) → Fin n,
-          weight F a (b ∘ Quotient.mk (rightRelation F S)) := by
-    intro a
-    exact sum_lift (rightRelation F S) (fun b => weight (K := K) F a b)
-  simp_rw [hb]
+/-- The upper sum is the homomorphism polynomial of the quotient pattern. -/
+theorem upperSum_eq_hom {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
+    (r : Partitions F) :
+    upperSum (K := K) F n r = hom K (quotient F r.1 r.2) n := by
+  unfold upperSum
+  rw [Fintype.sum_prod_type]
+  change (∑ a : F.A → Fin n, ∑ b : F.B → Fin n,
+    if r.1 ≤ Setoid.ker a ∧ r.2 ≤ Setoid.ker b then weight F a b else 0) = _
+  simp_rw [ite_and, Finset.sum_ite_irrel, Finset.sum_const_zero]
+  rw [sum_lift]
+  simp_rw [sum_lift]
   unfold hom
   apply Finset.sum_congr rfl
   intro a _
