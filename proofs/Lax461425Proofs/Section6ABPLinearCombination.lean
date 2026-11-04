@@ -14,7 +14,7 @@ open scoped Classical
 The common vertex-orbit bound is unchanged, even when coefficients are zero. -/
 theorem exists_linear_combination {I : Type} [Fintype I] {K : Type*} [Field K]
     {n : ℕ} (coeff : I → K) (G : I → ABP (Fin n × Fin n) K)
-    (L : ∀ i, (G i).Layering)
+    (L : ∀ i, Section6Layering.Layering (G i))
     (hlength : Function.Injective (fun i => (L i).layer (G i).sink))
     (hsym : ∀ i, (G i).IsMatrixSymmetric) (B : ℕ) (hB : 1 ≤ B)
     (hbound : ∀ i, (G i).orbitSize ≤ B) :

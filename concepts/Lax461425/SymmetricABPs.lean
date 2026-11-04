@@ -50,13 +50,6 @@ structure ABP (V K : Type*) where
 
 attribute [instance] ABP.fintypeVertex ABP.decEqVertex ABP.decEdge
 
-/-- A consecutive-layer certificate, retained when combining the ABPs of Section 6.
-Every source-to-sink path has length `layer G.sink`. -/
-structure ABP.Layering {V K : Type*} (G : ABP V K) where
-  layer : G.Vertex → ℕ
-  source_layer : layer G.source = 0
-  edge_layer : ∀ u v, G.edge u v → layer v = layer u + 1
-
 namespace ABP
 
 variable {V K : Type*} (G : ABP V K)

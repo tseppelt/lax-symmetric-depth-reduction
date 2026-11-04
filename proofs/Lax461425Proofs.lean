@@ -183,6 +183,7 @@ import Lax461425Proofs.Section6BagComputes
 import Lax461425Proofs.Section6BagProgram
 import Lax461425Proofs.Section6BagSymmetry
 import Lax461425Proofs.Section6Characterisation
+import Lax461425Proofs.Section6Layering
 import Lax461425Proofs.Section6ConstantABP
 import Lax461425Proofs.Section6Families
 import Lax461425Proofs.Section6LayeredABP

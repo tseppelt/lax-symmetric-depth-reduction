@@ -31,7 +31,7 @@ theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
   obtain ⟨m, c, g, heq⟩ := Submodule.mem_span_set'.mp hp
   choose F hF hhom using fun i => (g i).2
   choose ℓ hw using fun i =>
-    Lax461425.ABPsForPatterns.exists_abp (K := K) hn (F i) (hF i)
+    Section6ABPForPatterns.exists_layered_abp (K := K) hn (F i) (hF i)
   let M : ℕ := Finset.univ.sup ℓ + 1
   choose G hcomp hsym hbound L hlength using fun i => hw i (M * i.val)
   have hsmall (i : Fin m) : ℓ i < M := by

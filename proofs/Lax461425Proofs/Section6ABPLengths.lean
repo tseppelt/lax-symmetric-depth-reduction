@@ -1,4 +1,5 @@
 import Lax461425Proofs.Section6ABPSumBound
+import Lax461425Proofs.Section6Layering
 
 /-!
 The path-length argument in Lemma 6.5. Unit-labelled padding gives the layered
@@ -14,7 +15,8 @@ open scoped Classical
 
 noncomputable section
 
-theorem layer_le_sink {V K : Type*} {G : ABP V K} (L : G.Layering) (v : G.Vertex) :
+theorem layer_le_sink {V K : Type*} {G : ABP V K} (L : Section6Layering.Layering G)
+    (v : G.Vertex) :
     L.layer v ≤ L.layer G.sink := by
   have hmono : ∀ {u w}, Relation.ReflTransGen G.edge u w → L.layer u ≤ L.layer w := by
     intro u w h
@@ -28,7 +30,7 @@ theorem layer_le_sink {V K : Type*} {G : ABP V K} (L : G.Layering) (v : G.Vertex
 section BranchLengths
 
 variable {I V : Type} {K : Type*} [Fintype I] [Nonempty I] [Fintype V] [Field K]
-variable (G : I → ABP V K) (L : ∀ i, (G i).Layering)
+variable (G : I → ABP V K) (L : ∀ i, Section6Layering.Layering (G i))
 
 /-- Distance from the global source, except at the common sink. -/
 def forward : Vertex G → ℕ
