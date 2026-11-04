@@ -12,7 +12,7 @@ open Lax461425.CircuitProperties
 namespace Lax461425Proofs.Section7Assembly
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
-open Lax461425.CircuitConstants
+open Lax461425Proofs.CircuitConstants
 open scoped Classical BigOperators
 
 variable {X Y K : Type*} [Fintype Y] [CommSemiring K]

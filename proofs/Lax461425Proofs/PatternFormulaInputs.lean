@@ -1,8 +1,9 @@
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.TreeInputProperties
 import Lax461425Proofs.TaggedPatternFormula
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 The concrete Boolean-witness formulas have private input occurrences and no equal-labelled

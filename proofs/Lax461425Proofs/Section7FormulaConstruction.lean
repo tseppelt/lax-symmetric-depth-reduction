@@ -1,6 +1,7 @@
 import Lax461425.SymmetricVNPCharacterisation
 import Lax461425.FormulaWitnessEquivalence
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.TaggedPatternFormula
 import Lax461425Proofs.PatternFormulaCard
 import Lax461425Proofs.FormulaTags
@@ -13,7 +14,7 @@ import Lax461425Proofs.InputSharingProperties
 import Lax461425Proofs.InputSharingOrbits
 import Mathlib.Algebra.CharZero.Infinite
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 The complete formula construction for Section 7.1. Homomorphism spanning and the internally

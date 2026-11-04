@@ -20,13 +20,6 @@ noncomputable def polynomial (K : Type*) [CommSemiring K] (n : ℕ) :
     MvPolynomial (Fin n × Fin n) K :=
   Matrix.permanent (fun i j => MvPolynomial.X (i, j))
 
-/-- The polynomial whose Boolean sum is Ryser's formula for the permanent. -/
-noncomputable def ryserWitness (K : Type*) [CommRing K] (n : ℕ) :
-    MvPolynomial ((Fin n × Fin n) ⊕ Fin n) K :=
-  (∏ j : Fin n, (2 * MvPolynomial.X (Sum.inr j) - 1)) *
-    ∏ i : Fin n, ∑ j : Fin n,
-      MvPolynomial.X (Sum.inl (i, j)) * MvPolynomial.X (Sum.inr j)
-
 /-- An affine linear polynomial, given by a constant and finitely many variable coefficients. -/
 def IsAffine {V K : Type*} [CommSemiring K] (p : MvPolynomial V K) : Prop :=
   ∃ (c : K) (s : Finset V) (a : V → K),

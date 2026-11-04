@@ -1,8 +1,9 @@
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.InputSharingConstruction
 import Lax461425Proofs.CircuitFamilyFacts
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 Every automorphism of the input quotient lifts to the original private-input circuit.

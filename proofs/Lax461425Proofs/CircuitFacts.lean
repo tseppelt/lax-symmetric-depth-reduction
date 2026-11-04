@@ -1,4 +1,4 @@
-import Lax461425.CircuitConstants
+import Lax461425.Circuits
 import Lax461425Proofs.PatternsInductionEquivariant
 import Lax461425Proofs.PatternsSupportBasic
 import Lax461425Proofs.RigidComputes
@@ -8,9 +8,31 @@ Shared circuit facts for Sections 6 and 7. These use the existing circuit semant
 automorphisms, without introducing assumptions about computation or symmetry.
 -/
 
+namespace Lax461425Proofs.CircuitConstants
+
+open Lax461425.Circuits
+
+/-- A circuit consisting of one constant input, which is also its output. One-gate circuits
+provide witnesses for zero-dimensional polynomial families and for zero and constant
+polynomials; no variable input is required, even when the variable type is empty. -/
+def constant (V : Type*) {K : Type*} (c : K) : Circuit V K where
+  Gate := Unit
+  label := fun _ => .const c
+  wire := fun _ _ => 0
+  out := ()
+  wire_eq_zero_of_isInput := by intros; rfl
+  acyclic := by
+    intro g h
+    cases h with
+    | single h => exact (Nat.lt_irrefl 0) h
+    | tail _ h => exact (Nat.lt_irrefl 0) h
+  reaches_out := by intro g; cases g; exact .refl
+
+end Lax461425Proofs.CircuitConstants
+
 namespace Lax461425Proofs.CircuitFacts
 
-open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.CircuitConstants
+open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425Proofs.CircuitConstants
 
 variable {V K : Type*}
 

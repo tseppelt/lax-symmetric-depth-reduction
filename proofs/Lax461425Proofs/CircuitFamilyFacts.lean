@@ -8,7 +8,7 @@ open Lax461425.CircuitProperties
 
 namespace Lax461425Proofs.CircuitFamilyFacts
 
-open Lax461425.Circuits Lax461425.CircuitConstants Lax461425.SymmetricFamilies
+open Lax461425.Circuits Lax461425Proofs.CircuitConstants Lax461425.SymmetricFamilies
 
 variable {G V K : Type*} [Group G]
 

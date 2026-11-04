@@ -1,4 +1,4 @@
-import Lax461425.PatternPadding
+import Lax461425.HomomorphismPolynomials
 import Lax461425.HomomorphismSpanning
 import Lax461425Proofs.PatternsInductionReindex
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
@@ -10,9 +10,31 @@ reindex all patterns onto `Fin n ⊎ Fin n`. The counting argument follows Tim's
 isolated-vertex proof. No cited external assumption is used.
 -/
 
+namespace Lax461425Proofs.PatternPadding
+
+open Lax461425.HomomorphismPolynomials
+
+/-- A bipartite pattern on the fixed square bipartition `Fin n ⊎ Fin n`. Square-indexed
+patterns give all summands in Section 7 the same auxiliary-variable type. -/
+def squarePattern (n : ℕ) (m : Fin n → Fin n → ℕ) : Pattern where
+  A := Fin n
+  B := Fin n
+  mult := m
+
+/-- Adjoin enough isolated vertices to reach `n` vertices on each side when the original
+parts have at most `n` vertices. This definition is meaningful without those bounds. -/
+def padPattern (F : Pattern) (n : ℕ) : Pattern where
+  A := F.A ⊕ Fin (n - Fintype.card F.A)
+  B := F.B ⊕ Fin (n - Fintype.card F.B)
+  mult
+    | .inl a, .inl b => F.mult a b
+    | _, _ => 0
+
+end Lax461425Proofs.PatternPadding
+
 namespace Lax461425Proofs.Section7Padding
 
-open Lax461425.PatternPadding Lax461425.HomomorphismPolynomials
+open Lax461425Proofs.PatternPadding Lax461425.HomomorphismPolynomials
 open Lax461425.SymmetricFamilies
 open scoped Classical BigOperators
 

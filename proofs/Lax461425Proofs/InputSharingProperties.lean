@@ -1,8 +1,9 @@
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.InputSharingConstruction
 import Lax461425.SymmetricFamilies
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 The input-only quotient does not increase gate count, preserves skewness, and preserves

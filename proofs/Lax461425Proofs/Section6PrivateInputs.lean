@@ -1,7 +1,8 @@
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.Section6ABPToSkew
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 The explicit ABP-to-skew conversion uses private coefficient and variable leaves. At each

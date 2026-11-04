@@ -1,5 +1,4 @@
 import Lax461425Proofs.PatternFormulaSymmetry
-import Lax461425.PatternPadding
 import Lax461425Proofs.Section7Assembly
 
 /-!
@@ -10,7 +9,7 @@ same `2n²` auxiliary variables, and parallel edges retain separate formula occu
 
 namespace Lax461425Proofs.TaggedPatternFormula
 
-open Lax461425.HomomorphismPolynomials Lax461425.PatternPadding
+open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternPadding
 open Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
 open ComputedFormula PatternFormulaBlocks PatternFormulaSymmetry TreeFormulaIsomorphism
 open BooleanSelectors

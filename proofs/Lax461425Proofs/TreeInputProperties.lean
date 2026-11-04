@@ -1,7 +1,8 @@
 import Lax461425.CircuitProperties
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.ComputedFormulaOrbit
 
-open Lax461425.CircuitProperties
+open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
 
 /-!
 Private-input and sibling-distinctness facts for finite formula trees. These are the local

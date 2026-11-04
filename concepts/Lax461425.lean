@@ -2,7 +2,6 @@ import Lax461425.ABPFromSkew
 import Lax461425.ABPsForPatterns
 import Lax461425.BooleanSumSymmetry
 import Lax461425.BoundedDepthCharacterisation
-import Lax461425.CircuitConstants
 import Lax461425.CircuitProperties
 import Lax461425.Circuits
 import Lax461425.CircuitsForPatterns
@@ -15,7 +14,6 @@ import Lax461425.HomomorphismSpanning
 import Lax461425.MatrixSymmetry
 import Lax461425.NonUniformClosure
 import Lax461425.Oddomorphisms
-import Lax461425.PatternPadding
 import Lax461425.PatternsFromCircuits
 import Lax461425.Permanent
 import Lax461425.PermanentCompleteness

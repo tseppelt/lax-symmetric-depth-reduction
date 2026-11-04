@@ -64,6 +64,7 @@ import Lax461425Proofs.HomSpanningInjective
 import Lax461425Proofs.HomSpanningOrbits
 import Lax461425Proofs.HomSpanningQuotient
 import Lax461425Proofs.HomomorphismSpanning
+import Lax461425Proofs.InputConditions
 import Lax461425Proofs.InputSharingComputes
 import Lax461425Proofs.InputSharingConstants
 import Lax461425Proofs.InputSharingConstruction

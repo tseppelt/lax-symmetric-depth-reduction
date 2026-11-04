@@ -8,6 +8,7 @@ namespace Lax461425Proofs.PermanentCircuit
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
 open Lax461425.Permanent
+open Lax461425Proofs.Permanent (ryserWitness)
 open scoped BigOperators Classical
 
 inductive Gate (n : ℕ) where

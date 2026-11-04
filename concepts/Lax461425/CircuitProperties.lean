@@ -6,7 +6,7 @@ title: Formula, skew, and input-sharing circuit properties
 type: definition
 ---
 Additional predicates on the existing circuit data. These include the paper's convention
-that equally labelled input gates are identified, and conditions for input normalisation.
+that equally labelled input gates are identified.
 -/
 
 namespace Lax461425.CircuitProperties
@@ -28,15 +28,5 @@ def IsSkew {V K : Type*} (C : Circuit V K) : Prop :=
 /-- The paper's input convention: equal labels identify input gates. -/
 def InputsIdentified {V K : Type*} (C : Circuit V K) : Prop :=
   ∀ g h, (C.label g).IsInput → C.label g = C.label h → g = h
-
-/-- Private inputs have one parent and one wire into it, and the output is internal. -/
-def PrivateInputs {V K : Type*} (C : Circuit V K) : Prop :=
-  ¬ (C.label C.out).IsInput ∧ ∀ g, (C.label g).IsInput →
-    ∃ p, C.wire p g = 1 ∧ ∀ q, 0 < C.wire q g → q = p
-
-/-- Identifying labels does not merge two input children of the same parent. -/
-def InputSiblingsDistinct {V K : Type*} (C : Circuit V K) : Prop :=
-  ∀ p g h, (C.label g).IsInput → (C.label h).IsInput →
-    0 < C.wire p g → 0 < C.wire p h → C.label g = C.label h → g = h
 
 end Lax461425.CircuitProperties
