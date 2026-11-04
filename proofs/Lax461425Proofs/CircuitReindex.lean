@@ -94,13 +94,6 @@ theorem isFormula (e : V ≃ W) (C : Circuit V K) (hC : (IsFormula C)) :
   apply hC.2 g
   simpa only [rename, mapLabel_isInput] using hg
 
-theorem inputsIdentified (e : V ≃ W) (C : Circuit V K) (hC : (InputsIdentified C)) :
-    (InputsIdentified (rename e C)) := by
-  intro g h hg he
-  apply hC g h
-  · exact (mapLabel_isInput e (C.label g)).mp hg
-  · exact mapLabel_injective e he
-
 theorem isSkew (e : V ≃ W) (C : Circuit V K) (hC : (IsSkew C)) :
     (IsSkew (rename e C)) := by
   intro g hg

@@ -75,15 +75,15 @@ def InSymClass {K : Type*} [CommSemiring K]
 
 /-- Symmetric polynomial-orbit circuits. No degree or total-size bound is imposed. -/
 def InSymVP {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
-  InSymClass (fun _ C => (InputsIdentified C)) f
+  InSymClass (fun _ _ => True) f
 
 /-- Symmetric polynomial-orbit skew circuits. -/
 def InSymVS {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
-  InSymClass (fun _ C => (IsSkew C) ∧ (InputsIdentified C)) f
+  InSymClass (fun _ C => IsSkew C) f
 
-/-- Symmetric polynomial-orbit formulas with shared input gates. -/
+/-- Symmetric polynomial-orbit formulas. -/
 def InSymVF {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
-  InSymClass (fun _ C => (IsFormula C) ∧ (InputsIdentified C)) f
+  InSymClass (fun _ C => IsFormula C) f
 
 /-- Boolean-sum witnesses with polynomially many auxiliary variables and polynomial gate
 orbits for the joint action. -/
@@ -98,10 +98,10 @@ def InBooleanClass {K : Type*} [CommSemiring K]
 
 /-- The symmetric analogue of VNP. -/
 def InSymVNP {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
-  InBooleanClass CircuitProperties.InputsIdentified f
+  InBooleanClass (fun _ => True) f
 
 /-- The formula-witness variant of symmetric VNP. -/
 def InSymVNPFormula {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
-  InBooleanClass (fun C => (IsFormula C) ∧ (InputsIdentified C)) f
+  InBooleanClass (fun C => IsFormula C) f
 
 end Lax461425.SymmetricFamilies

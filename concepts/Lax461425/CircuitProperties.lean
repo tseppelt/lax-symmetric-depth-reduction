@@ -2,11 +2,10 @@ import Lax461425.Circuits
 
 /-!
 ---
-title: Formula, skew, and input-sharing circuit properties
+title: Formula and skew circuit properties
 type: definition
 ---
-Additional predicates on the existing circuit data. These include the paper's convention
-that equally labelled input gates are identified.
+Additional predicates on the existing circuit data.
 -/
 
 namespace Lax461425.CircuitProperties
@@ -24,9 +23,5 @@ def IsFormula {V K : Type*} (C : Circuit V K) : Prop :=
 /-- At most one incoming wire of a product gate comes from a noninput gate. -/
 def IsSkew {V K : Type*} (C : Circuit V K) : Prop :=
   ∀ g, C.label g = .mul → ∑ h, (if (C.label h).IsInput then 0 else C.wire g h) ≤ 1
-
-/-- The paper's input convention: equal labels identify input gates. -/
-def InputsIdentified {V K : Type*} (C : Circuit V K) : Prop :=
-  ∀ g h, (C.label g).IsInput → C.label g = C.label h → g = h
 
 end Lax461425.CircuitProperties

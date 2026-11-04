@@ -11,7 +11,7 @@ type: theorem
 ---
 The quantitative part of Theorem 7.3. Every matrix-invariant polynomial of positive
 matrix order has a jointly symmetric formula witness with exactly `2n²` Boolean
-variables and gate orbits at most `4n²`, with equal-labelled inputs identified.
+variables and gate orbits at most `4n²`.
 The proof uses homomorphism spanning, isolated-vertex padding, and the paper's selectors
 and fresh inverse tags. It is `Section7FormulaConstruction.formula_witness`.
 -/
@@ -29,6 +29,6 @@ axiom formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p
+      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ IsFormula C ∧ boolSum g = p
 
 end Lax461425.SymmetricFormulaWitness

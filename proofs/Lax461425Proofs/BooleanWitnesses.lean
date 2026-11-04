@@ -121,7 +121,7 @@ theorem mem_of_formula_witnesses (f : MatrixFamily K) (hf : InSymVNPFormula f) :
   obtain ⟨q, b, hq, hb, hw⟩ := hf
   refine ⟨q, b, hq, hb, ?_⟩
   intro n
-  obtain ⟨ρ, g, C, hcomp, hsym, horbit, hformula, heq⟩ := hw n
-  exact ⟨ρ, g, C, hcomp, hsym, horbit, hformula.2, heq⟩
+  obtain ⟨ρ, g, C, hcomp, hsym, horbit, _, heq⟩ := hw n
+  exact ⟨ρ, g, C, hcomp, hsym, horbit, trivial, heq⟩
 
 end Lax461425Proofs.BooleanWitnesses

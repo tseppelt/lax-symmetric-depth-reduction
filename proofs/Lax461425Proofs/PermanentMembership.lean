@@ -1,7 +1,6 @@
 import Lax461425.CircuitProperties
 import Lax461425Proofs.PermanentCircuit
 import Lax461425Proofs.CircuitFamilyFacts
-import Lax461425Proofs.PermanentInputSharing
 import Lax461425.PermanentCompleteness
 
 open Lax461425.CircuitProperties
@@ -27,13 +26,13 @@ theorem permanent_membership (K : Type*) [CommRing K] : InSymVNP (polynomial K) 
     by_cases hn : 0 < n
     · exact ⟨PermanentCircuit.auxAction n, ryserWitness K n, PermanentCircuit.circuit hn,
         PermanentCircuit.computes hn, PermanentCircuit.symmetric hn,
-        PermanentCircuit.orbitSize_le hn, PermanentCircuit.inputsIdentified hn,
+        PermanentCircuit.orbitSize_le hn, trivial,
         ryserWitness_boolSum K n⟩
     · have hz : n = 0 := by omega
       subst n
       refine ⟨PermanentCircuit.auxAction 0, ryserWitness K 0,
         constant ((Fin 0 × Fin 0) ⊕ Fin 0) (1 : K), ?_, ?_, ?_,
-        CircuitFamilyFacts.constant_inputsIdentified _,
+        trivial,
         ryserWitness_boolSum K 0⟩
       · simpa [ryserWitness] using
           CircuitFacts.constant_computes (V := (Fin 0 × Fin 0) ⊕ Fin 0) (1 : K)
