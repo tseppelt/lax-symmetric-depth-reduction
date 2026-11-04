@@ -23,6 +23,12 @@ private def allowedAxioms : Array Name := #[
 existing results and the new pathwidth refinement. This is a registry, not an axiom
 allowlist: types and proof dependencies are checked recursively on every use. -/
 private def existingProofs : Array (Name × Name) := #[
+  (`Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem,
+    `Lax461425Proofs.BooleanWitnesses.matrixInvariant_of_mem),
+  (`Lax461425.SymmetricFormulaWitness.formula_witness,
+    `Lax461425Proofs.Section7FormulaConstruction.formula_witness),
+  (`Lax461425.PermanentCompleteness.membership,
+    `Lax461425Proofs.Permanent.permanent_membership),
   (`Lax461425.HomomorphismSpanning.invariant_mem_span_hom,
     `Lax461425Proofs.HomomorphismSpanning.invariant_mem_span_hom),
   (`Lax461425.DixonMortimer.exists_fixingSubgroup_inf_alternatingGroup_le,

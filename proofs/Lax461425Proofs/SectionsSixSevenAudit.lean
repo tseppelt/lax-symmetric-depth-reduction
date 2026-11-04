@@ -1,0 +1,65 @@
+import Lax461425Proofs.SectionsSixSeven
+import Lax461425Proofs.Sections67Examples
+import Lax461425Proofs.ProofAudit
+
+/-!
+Build this module to verify exact types and transitive axiom dependencies for the thirteen
+new concept conclusions, together with concrete characteristic and boundary scenarios.
+No new goal axiom is allowed in the proof dependency graph.
+-/
+
+audit_conclusion Lax461425.HomomorphismSpanning.invariant_mem_span_hom :=
+  Lax461425Proofs.HomomorphismSpanning.invariant_mem_span_hom
+
+audit_closed Lax461425Proofs.HomomorphismSpanning.invariant_mem_span_hom
+#print axioms Lax461425Proofs.HomomorphismSpanning.invariant_mem_span_hom
+
+audit_conclusion Lax461425.SkewFromABP.family_inclusion :=
+  Lax461425Proofs.Section6ABPToSkew.family_inclusion
+
+audit_conclusion Lax461425.SkewCircuitCharacterisation.mem_span_hom :=
+  Lax461425Proofs.SkewCircuitCharacterisation.mem_span_hom
+
+audit_conclusion Lax461425.SkewCircuitCharacterisation.eventually_pathwidth_span :=
+  Lax461425Proofs.SkewCircuitCharacterisation.eventually_pathwidth_span
+
+audit_closed Lax461425Proofs.SkewCircuitCharacterisation.mem_span_hom
+audit_closed Lax461425Proofs.SkewCircuitCharacterisation.eventually_pathwidth_span
+
+audit_conclusion Lax461425.ABPsForPatterns.exists_abp :=
+  Lax461425Proofs.Section6ABPForPatterns.exists_abp
+
+audit_conclusion Lax461425.ABPFromSkew.family_inclusion :=
+  Lax461425Proofs.Section6Characterisation.skew_to_abp
+
+audit_conclusion Lax461425.SymmetricABPCharacterisation.characterisation :=
+  Lax461425Proofs.Section6Characterisation.equivalence
+
+audit_closed Lax461425Proofs.Section6Characterisation.skew_to_abp
+audit_closed Lax461425Proofs.Section6Characterisation.equivalence
+
+audit_conclusion Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem :=
+  Lax461425Proofs.BooleanWitnesses.matrixInvariant_of_mem
+
+audit_conclusion Lax461425.SymmetricFormulaWitness.formula_witness :=
+  Lax461425Proofs.Section7FormulaConstruction.formula_witness
+
+audit_conclusion Lax461425.SymmetricVNPCharacterisation.all_matrix_symmetric_iff :=
+  Lax461425Proofs.Section7FormulaConstruction.all_matrix_symmetric_iff
+
+audit_conclusion Lax461425.FormulaWitnessEquivalence.formula_witnesses_iff :=
+  Lax461425Proofs.Section7FormulaConstruction.formula_witnesses_iff
+
+audit_closed Lax461425Proofs.Section7Padding.hom_padPattern
+#print axioms Lax461425Proofs.Section7Padding.hom_padPattern
+audit_closed Lax461425Proofs.Section7FormulaConstruction.formula_witness
+audit_closed Lax461425Proofs.Section7FormulaConstruction.all_matrix_symmetric_iff
+audit_closed Lax461425Proofs.Section7FormulaConstruction.formula_witnesses_iff
+
+audit_conclusion Lax461425.PermanentCompleteness.membership :=
+  Lax461425Proofs.Permanent.permanent_membership
+
+audit_conclusion Lax461425.PermanentCompleteness.hardness :=
+  Lax461425Proofs.PermanentProjection.hardness
+
+audit_closed Lax461425Proofs.PermanentProjection.completeness
