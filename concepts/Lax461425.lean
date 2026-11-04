@@ -4,7 +4,6 @@ import Lax461425.BooleanSumSymmetry
 import Lax461425.BoundedDepthCharacterisation
 import Lax461425.CircuitConstants
 import Lax461425.CircuitProperties
-import Lax461425.CircuitReindex
 import Lax461425.Circuits
 import Lax461425.CircuitsForPatterns
 import Lax461425.DepthHierarchy

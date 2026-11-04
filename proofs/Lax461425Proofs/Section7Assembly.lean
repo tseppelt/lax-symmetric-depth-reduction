@@ -63,8 +63,8 @@ theorem reindex_formula_witness {n b : ℕ} {Y Z : Type} [Fintype Y] [Fintype Z]
       orbitSize (jointAction ρ) C ≤ b ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p := by
   obtain ⟨ρ, g, C, hc, hs, ho, hf, hi, hp⟩ := h
   let E := Equiv.sumCongr (Equiv.refl (Fin n × Fin n)) e
-  refine ⟨Lax461425.CircuitReindex.action e ρ, MvPolynomial.rename E g,
-    Lax461425.CircuitReindex.rename E C, CircuitReindex.computes E C hc, ?_, ?_,
+  refine ⟨CircuitReindex.action e ρ, MvPolynomial.rename E g,
+    CircuitReindex.rename E C, CircuitReindex.computes E C hc, ?_, ?_,
     CircuitReindex.isFormula E C hf, CircuitReindex.inputsIdentified E C hi, ?_⟩
   · rw [← CircuitReindex.action_joint e ρ]
     exact CircuitReindex.symmetric E (jointAction ρ) C hs
