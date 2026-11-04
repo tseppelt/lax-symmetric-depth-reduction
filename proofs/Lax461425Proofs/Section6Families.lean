@@ -1,4 +1,4 @@
-import Lax461425.SymmetricABPFamilies
+import Lax461425.SymmetricABPs
 import Lax461425.HomomorphismSpanning
 import Lax461425Proofs.SymmetricPathDecomposition
 import Lax461425Proofs.CircuitFacts

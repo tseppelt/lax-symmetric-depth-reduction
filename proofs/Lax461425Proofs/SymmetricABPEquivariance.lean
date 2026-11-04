@@ -1,5 +1,5 @@
 import Lax461425Proofs.SymmetricABPPaths
-import Lax461425.SymmetricABPFamilies
+import Lax461425.SymmetricABPs
 
 /-!
 An extending ABP automorphism permutes source-to-sink paths and renames their weights.

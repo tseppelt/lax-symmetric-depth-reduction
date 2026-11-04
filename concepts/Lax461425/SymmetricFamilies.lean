@@ -1,6 +1,5 @@
 import Lax461425.CircuitProperties
 import Lax461425.MatrixSymmetry
-import Lax461425.InputSharing
 import Mathlib.Algebra.MvPolynomial.Rename
 
 open Lax461425.CircuitProperties

@@ -1,5 +1,5 @@
 import Lax461425Proofs.SymmetricABPPaths
-import Lax461425.SymmetricABPFamilies
+import Lax461425.SymmetricABPs
 
 /-!
 A two-vertex constant ABP, including the zero polynomial and zero-dimensional matrix

@@ -1,4 +1,4 @@
-import Lax461425.SymmetricABPFamilies
+import Lax461425.SymmetricABPs
 import Lax461425.ABPsForPatterns
 import Lax461425.SkewCircuitCharacterisation
 import Lax461425.HomomorphismSpanning

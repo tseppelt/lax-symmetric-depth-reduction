@@ -1,6 +1,5 @@
 import Lax461425.CircuitProperties
 import Lax461425Proofs.Section6ABPToSkew
-import Lax461425.InputSharing
 
 open Lax461425.CircuitProperties
 

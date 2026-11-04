@@ -1,5 +1,4 @@
 import Lax461425.CircuitProperties
-import Lax461425.InputSharing
 import Lax461425Proofs.RigidHeight
 import Mathlib.Tactic
 

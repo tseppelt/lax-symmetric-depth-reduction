@@ -1,4 +1,4 @@
-import Lax461425.SymmetricABPFamilies
+import Lax461425.SymmetricABPs
 
 /-!
 ---
