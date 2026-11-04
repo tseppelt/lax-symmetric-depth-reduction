@@ -1,20 +1,14 @@
 import Lax461425.SymmetricVNPCharacterisation
 import Lax461425.FormulaWitnessEquivalence
 import Lax461425.CircuitProperties
-import Lax461425Proofs.InputConditions
 import Lax461425Proofs.TaggedPatternFormula
 import Lax461425Proofs.PatternFormulaCard
 import Lax461425Proofs.FormulaTags
 import Lax461425Proofs.ComputedFormulaOrbit
 import Lax461425Proofs.Section7Padding
-import Lax461425Proofs.PatternFormulaInputs
-import Lax461425Proofs.InputSharingComputes
-import Lax461425Proofs.InputSharingSymmetry
-import Lax461425Proofs.InputSharingProperties
-import Lax461425Proofs.InputSharingOrbits
 import Mathlib.Algebra.CharZero.Infinite
 
-open Lax461425.CircuitProperties Lax461425Proofs.InputConditions
+open Lax461425.CircuitProperties
 
 /-!
 The complete formula construction for Section 7.1. Homomorphism spanning and the internally
@@ -80,13 +74,12 @@ variable [CharZero K]
 
 /-- Positive-order matrix-invariant polynomials have an actual formula witness with the
 paper's exact gate-orbit bound and the common square auxiliary-variable set. -/
-theorem private_formula_witness (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K)
+theorem square_formula_witness (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K)
     (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Aux n))
       (g : MvPolynomial (Variables n) K) (C : Circuit (Variables n) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ (IsFormula C) ∧
-      (PrivateInputs C) ∧ (InputSiblingsDistinct C) ∧ boolSum g = p := by
+      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ IsFormula C ∧ boolSum g = p := by
   obtain ⟨r, c, m, hpcomb⟩ := Section7Padding.finite_square_combination hn p hp
   choose t ht using (fun i : Fin r => FormulaTags.exists_goodTags (block (K := K) (m i)))
   obtain ⟨s, hs⟩ := FormulaTags.exists_goodTags
@@ -94,26 +87,8 @@ theorem private_formula_witness (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n
   let F := combinationFormula c m t s
   refine ⟨auxAction n, polynomial F, circuit F.tree, ComputedFormula.computes F,
     symmetric_combinationFormula c m t s, combination_orbitSize_le hn c m t s ht hs,
-    ComputedFormula.isFormula F, PatternFormulaInputs.combination_privateInputs c m t s,
-    PatternFormulaInputs.combination_siblings c m t s, ?_⟩
+    ComputedFormula.isFormula F, ?_⟩
   exact (boolSum_combinationFormula c m t s (fun i => (ht i).nonzero) hs.nonzero).trans hpcomb.symm
-
-/-- Equal-labelled inputs are identified without increasing any gate orbit. -/
-theorem raw_formula_witness (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K)
-    (hp : MatrixInvariant p) :
-    ∃ (ρ : Γ n →* Equiv.Perm (Aux n))
-      (g : MvPolynomial (Variables n) K) (C : Circuit (Variables n) K),
-      C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ (IsFormula C) ∧
-      (InputsIdentified C) ∧ boolSum g = p := by
-  obtain ⟨ρ, g, C, hcomp, hsym, horbit, hformula, hprivate, hsiblings, hsum⟩ :=
-    private_formula_witness hn p hp
-  refine ⟨ρ, g, InputSharingConstruction.circuit C hprivate.1,
-    InputSharingComputes.computes C hprivate.1 hcomp,
-    InputSharingSymmetry.symmetric C (jointAction ρ) hprivate.1 hsym, ?_,
-    InputSharingProperties.isFormula C hprivate.1 hformula hsiblings,
-    InputSharingConstruction.inputsIdentified C hprivate.1, hsum⟩
-  exact (InputSharingOrbits.orbitSize_le C hprivate hsiblings (jointAction ρ)).trans horbit
 
 /--
 ---
@@ -128,9 +103,8 @@ theorem formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ (IsFormula C) ∧
-      (InputsIdentified C) ∧ boolSum g = p :=
-  Section7Assembly.positive_witness_reindex p (raw_formula_witness hn p hp)
+      orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ IsFormula C ∧ boolSum g = p :=
+  Section7Assembly.positive_witness_reindex p (square_formula_witness hn p hp)
 
 /--
 ---

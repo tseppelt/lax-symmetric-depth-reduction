@@ -3,7 +3,6 @@ import Lax461425Proofs.BooleanWitnesses
 import Lax461425Proofs.CircuitFamilyFacts
 import Lax461425Proofs.Section7Padding
 import Lax461425Proofs.CircuitReindex
-import Lax461425Proofs.InputSharingConstants
 
 open Lax461425.CircuitProperties
 
@@ -37,13 +36,13 @@ theorem zero_formula_witness (K : Type*) [CommSemiring K]
       (g : MvPolynomial ((Fin 0 × Fin 0) ⊕ Fin 0) K)
       (C : Circuit ((Fin 0 × Fin 0) ⊕ Fin 0) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ 1 ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p := by
+      orbitSize (jointAction ρ) C ≤ 1 ∧ IsFormula C ∧ boolSum g = p := by
   let ρ : Γ 0 →* Equiv.Perm (Fin 0) := 1
   refine ⟨ρ, MvPolynomial.C (p.coeff 0),
     constant ((Fin 0 × Fin 0) ⊕ Fin 0) (p.coeff 0),
     CircuitFacts.constant_computes _, CircuitFamilyFacts.constant_symmetric _ _,
     CircuitFamilyFacts.constant_orbitSize_le_one _ _,
-    CircuitFamilyFacts.constant_isFormula _, CircuitFamilyFacts.constant_inputsIdentified _, ?_⟩
+    CircuitFamilyFacts.constant_isFormula _, ?_⟩
   calc
     _ = MvPolynomial.C (p.coeff 0) := by simp [boolSum]
     _ = p := p.eq_C_of_isEmpty.symm
@@ -55,17 +54,17 @@ theorem reindex_formula_witness {n b : ℕ} {Y Z : Type} [Fintype Y] [Fintype Z]
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Y) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Y) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ b ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p) :
+      orbitSize (jointAction ρ) C ≤ b ∧ IsFormula C ∧ boolSum g = p) :
     ∃ (ρ : Γ n →* Equiv.Perm Z)
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Z) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Z) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ b ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p := by
-  obtain ⟨ρ, g, C, hc, hs, ho, hf, hi, hp⟩ := h
+      orbitSize (jointAction ρ) C ≤ b ∧ IsFormula C ∧ boolSum g = p := by
+  obtain ⟨ρ, g, C, hc, hs, ho, hf, hp⟩ := h
   let E := Equiv.sumCongr (Equiv.refl (Fin n × Fin n)) e
   refine ⟨CircuitReindex.action e ρ, MvPolynomial.rename E g,
     CircuitReindex.rename E C, CircuitReindex.computes E C hc, ?_, ?_,
-    CircuitReindex.isFormula E C hf, CircuitReindex.inputsIdentified E C hi, ?_⟩
+    CircuitReindex.isFormula E C hf, ?_⟩
   · rw [← CircuitReindex.action_joint e ρ]
     exact CircuitReindex.symmetric E (jointAction ρ) C hs
   · rw [← CircuitReindex.action_joint e ρ, CircuitReindex.orbitSize_eq]
@@ -84,12 +83,12 @@ theorem positive_witness_reindex {n b : ℕ} (p : MvPolynomial (Fin n × Fin n) 
       (g : MvPolynomial ((Fin n × Fin n) ⊕ ((Fin n ⊕ Fin n) × Fin n)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ ((Fin n ⊕ Fin n) × Fin n)) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ b ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p) :
+      orbitSize (jointAction ρ) C ≤ b ∧ IsFormula C ∧ boolSum g = p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K),
       C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-      orbitSize (jointAction ρ) C ≤ b ∧ (IsFormula C) ∧ (InputsIdentified C) ∧ boolSum g = p :=
+      orbitSize (jointAction ρ) C ≤ b ∧ IsFormula C ∧ boolSum g = p :=
   reindex_formula_witness (Fintype.equivFinOfCardEq (square_aux_card n)) p h
 
 /-- The positive-order construction and the constant zero-order case give a family
@@ -100,8 +99,7 @@ theorem family_of_positive (f : MatrixFamily K)
         (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)
         (C : Circuit ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K),
         C.Computes g ∧ Symmetric (jointAction ρ) C ∧
-        orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ (IsFormula C) ∧ (InputsIdentified C) ∧
-        boolSum g = f n) :
+        orbitSize (jointAction ρ) C ≤ 4 * n ^ 2 ∧ IsFormula C ∧ boolSum g = f n) :
     InSymVNPFormula f := by
   refine ⟨fun n => 2 * n ^ 2, fun n => 4 * (n + 1) ^ 2, ?_, ?_, ?_⟩
   · refine ⟨2, 2, ?_⟩
@@ -113,12 +111,12 @@ theorem family_of_positive (f : MatrixFamily K)
   · intro n
     by_cases hn : n = 0
     · subst n
-      obtain ⟨ρ, g, C, hc, hs, ho, hf, hi, hp⟩ := zero_formula_witness K (f 0)
-      refine ⟨ρ, g, C, hc, hs, ?_, ⟨hf, hi⟩, hp⟩
+      obtain ⟨ρ, g, C, hc, hs, ho, hf, hp⟩ := zero_formula_witness K (f 0)
+      refine ⟨ρ, g, C, hc, hs, ?_, hf, hp⟩
       exact ho.trans (by decide)
     · have hn' : 1 ≤ n := Nat.one_le_iff_ne_zero.mpr hn
-      obtain ⟨ρ, g, C, hc, hs, ho, hf, hi, hp⟩ := hpos n hn'
-      refine ⟨ρ, g, C, hc, hs, ?_, ⟨hf, hi⟩, hp⟩
+      obtain ⟨ρ, g, C, hc, hs, ho, hf, hp⟩ := hpos n hn'
+      refine ⟨ρ, g, C, hc, hs, ?_, hf, hp⟩
       apply ho.trans
       change 4 * n ^ 2 ≤ 4 * (n + 1) ^ 2
       simp only [pow_two]

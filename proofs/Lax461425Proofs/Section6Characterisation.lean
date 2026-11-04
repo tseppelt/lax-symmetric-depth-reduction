@@ -67,7 +67,7 @@ theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
 
 /--
 ---
-conclusion: Lax461425.ABPFromSkew.family_inclusion
+conclusion: Lax461425.SymmetricABPCharacterisation.inSymVBP_of_inSymVS
 ---
 Lemma 6.5. The reverse inclusion uses a single uniform pathwidth bound. The positive finite
 exceptions and the zero-dimensional index are both represented by actual ABPs. -/
@@ -88,7 +88,7 @@ conclusion: Lax461425.SymmetricABPCharacterisation.characterisation
 ---
 Theorem 6.3: equality of the polynomial-orbit family classes, from Lemmas 6.4 and 6.5. -/
 theorem equivalence (f : MatrixFamily K) : InSymVBP f ↔ InSymVS f :=
-  ⟨Lax461425.SkewFromABP.family_inclusion f,
-    Lax461425.ABPFromSkew.family_inclusion f⟩
+  ⟨Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP f,
+    Lax461425.SymmetricABPCharacterisation.inSymVBP_of_inSymVS f⟩
 
 end Lax461425Proofs.Section6Characterisation

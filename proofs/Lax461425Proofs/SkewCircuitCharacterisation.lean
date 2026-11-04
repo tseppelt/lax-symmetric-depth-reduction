@@ -48,7 +48,7 @@ theorem eventually_pathwidth_span {K : Type*} [Field K] [CharZero K]
   have hlarge : 3 * κ + 2 * (κ - 1) + 1 ≤ n :=
     (Nat.le_max_right _ _).trans ((Nat.le_max_left _ _).trans hn)
   have hchoose := PathRefinementBounds.polynomial_lt_choose c d n ((Nat.le_max_right _ _).trans hn)
-  obtain ⟨C, hp, hsym, horb, hs, _⟩ := hf n
+  obtain ⟨C, hp, hsym, horb, hs⟩ := hf n
   have hred := RigidReduced.isReduced_reduced C
   have hsym' := RigidSymmetric.isMatrixSymmetric_reduced C hsym
   have hs' := PathRefinementRigid.skew_reduced C hs

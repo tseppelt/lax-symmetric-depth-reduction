@@ -64,13 +64,6 @@ import Lax461425Proofs.HomSpanningInjective
 import Lax461425Proofs.HomSpanningOrbits
 import Lax461425Proofs.HomSpanningQuotient
 import Lax461425Proofs.HomomorphismSpanning
-import Lax461425Proofs.InputConditions
-import Lax461425Proofs.InputSharingComputes
-import Lax461425Proofs.InputSharingConstants
-import Lax461425Proofs.InputSharingConstruction
-import Lax461425Proofs.InputSharingOrbits
-import Lax461425Proofs.InputSharingProperties
-import Lax461425Proofs.InputSharingSymmetry
 import Lax461425Proofs.NUBipContract
 import Lax461425Proofs.NUDefs
 import Lax461425Proofs.NUEval
@@ -100,7 +93,6 @@ import Lax461425Proofs.PathRefinementUnlabelled
 import Lax461425Proofs.PatternBooleanWitness
 import Lax461425Proofs.PatternFormulaBlocks
 import Lax461425Proofs.PatternFormulaCard
-import Lax461425Proofs.PatternFormulaInputs
 import Lax461425Proofs.PatternFormulaSymmetry
 import Lax461425Proofs.PatternsFromCircuits
 import Lax461425Proofs.PatternsInductionBase
@@ -142,7 +134,6 @@ import Lax461425Proofs.PatternsTranspose
 import Lax461425Proofs.PermanentBasic
 import Lax461425Proofs.PermanentBouquet
 import Lax461425Proofs.PermanentCircuit
-import Lax461425Proofs.PermanentInputSharing
 import Lax461425Proofs.PermanentMembership
 import Lax461425Proofs.PermanentPresentation
 import Lax461425Proofs.PermanentProjection
@@ -189,7 +180,6 @@ import Lax461425Proofs.Section6ConstantABP
 import Lax461425Proofs.Section6Families
 import Lax461425Proofs.Section6LayeredABP
 import Lax461425Proofs.Section6LayeredPaths
-import Lax461425Proofs.Section6PrivateInputs
 import Lax461425Proofs.Section6Schedule
 import Lax461425Proofs.Section7Assembly
 import Lax461425Proofs.Section7FormulaConstruction
@@ -208,4 +198,3 @@ import Lax461425Proofs.TreeFormulaIsomorphism
 import Lax461425Proofs.TreeFormulaOperations
 import Lax461425Proofs.TreeFormulaOrbit
 import Lax461425Proofs.TreeFormulaSemantics
-import Lax461425Proofs.TreeInputProperties
