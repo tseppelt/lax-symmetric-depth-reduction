@@ -18,7 +18,7 @@ def next {l : ℕ} (i : Fin (l + 1)) : Fin (l + 1) :=
 
 /-- A path decomposition augmented by single-edge processing steps. The count condition
 records parallel edges separately; a step without an edge only joins assignments. -/
-structure Schedule (F : Pattern) (k : ℕ) extends PathDecomposition F k where
+structure Schedule (F : Pattern) (k : ℕ) extends PaddedPathDecomposition F k where
   process : Fin (length + 1) → Option (F.A × F.B)
   process_last : process (Fin.last length) = none
   process_bag : ∀ i a b, process i = some (a, b) →
@@ -141,7 +141,7 @@ noncomputable abbrev abp (K : Type*) [CommSemiring K] : ABP (Fin n × Fin n) K :
 
 /-- Read the images remembered by an admissible state on its bag. -/
 def assignmentOfState (i : Fin (D.length + 1)) (s : {s // Valid D n i s}) :
-    BagAssignment D.toPathDecomposition n i :=
+    BagAssignment D.toPaddedPathDecomposition n i :=
   fun v => (s.1 v.val).getD (defaultValue n hn)
 
 theorem assignmentOfState_injective (i : Fin (D.length + 1)) :
@@ -164,7 +164,7 @@ theorem card_valid_le (hn : 1 ≤ n) (i : Fin (D.length + 1)) :
     Fintype.card {s // Valid D n i s} ≤ n ^ (k + 1) := by
   classical
   exact (Fintype.card_le_of_injective _ (assignmentOfState_injective D n hn i)).trans
-    (card_bagAssignment_le D.toPathDecomposition n hn i)
+    (card_bagAssignment_le D.toPaddedPathDecomposition n hn i)
 
 /-- The orbit bound quantifies over every extending automorphism, including those not
 provided by the obvious row/column action on assignments. -/

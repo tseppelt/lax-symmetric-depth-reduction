@@ -1,6 +1,7 @@
 import Lax461425.MatrixSymmetry
 import Lax461425.SymmetricFamilies
 import Lax461425.HomomorphismPolynomials
+import Lax183560.Pathwidth
 import Mathlib.LinearAlgebra.Span.Defs
 import Mathlib.Data.Fintype.Pi
 import Mathlib.Algebra.MvPolynomial.Rename
@@ -13,6 +14,8 @@ type: definition
 Definitions for Section 6. An ABP is a finite simple directed acyclic graph with affine
 edge labels, a unique source and a unique sink. Vertex orbits range over all extending
 automorphisms, rather than over a selected action of the symmetry group.
+
+The pathwidth of a pattern is the pathwidth of its underlying simple graph.
 -/
 
 namespace Lax461425.SymmetricABPs
@@ -123,24 +126,15 @@ noncomputable def orbitSize [CommSemiring K] : ℕ :=
 
 end ABP
 
-/-- A finite path decomposition with empty endpoint bags and width at most `k`.
-The interval condition is the connectedness condition for occurrences of each vertex. -/
-structure PathDecomposition (F : Pattern) (k : ℕ) where
-  length : ℕ
-  bag : Fin (length + 1) → Finset (F.A ⊕ F.B)
-  bag_first : bag 0 = ∅
-  bag_last : bag (Fin.last length) = ∅
-  card_bag_le : ∀ i, (bag i).card ≤ k + 1
-  covers_vertex : ∀ v, ∃ i, v ∈ bag i
-  covers_edge : ∀ a b, F.mult a b ≠ 0 → ∃ i, Sum.inl a ∈ bag i ∧ Sum.inr b ∈ bag i
-  interval : ∀ v i j l, i ≤ j → j ≤ l → v ∈ bag i → v ∈ bag l → v ∈ bag j
-
-/-- The pattern has pathwidth at most `k`. Empty endpoint bags do not change pathwidth. -/
-def PathwidthLE (k : ℕ) (F : Pattern) : Prop := Nonempty (PathDecomposition F k)
+/-- The pattern has pathwidth at most `k`: its underlying simple graph has a path
+decomposition with bags of size at most `k + 1`. -/
+def PathwidthLE (k : ℕ) (F : Pattern) : Prop :=
+  Lax183560.Pathwidth.HasPathwidthAtMost (underlying F) k
 
 open SymmetricFamilies
 
-/-- Families computed by matrix-symmetric ABPs of polynomial vertex-orbit size. -/
+/-- Families computed by matrix-symmetric ABPs of polynomial vertex-orbit size. No bound on
+the total size or the degree is imposed. -/
 def InSymVBP {K : Type*} [CommSemiring K] (f : MatrixFamily K) : Prop :=
   ∃ b : ℕ → ℕ, PolynomiallyBounded b ∧ ∀ n, ∃ G : ABP (Fin n × Fin n) K,
     G.Computes (f n) ∧ G.IsMatrixSymmetric ∧ G.orbitSize ≤ b n

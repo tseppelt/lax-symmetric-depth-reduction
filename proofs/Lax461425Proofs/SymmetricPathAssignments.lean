@@ -10,7 +10,7 @@ namespace Lax461425Proofs.SymmetricPathAssignments
 
 open Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
 
-variable {F : Pattern} {k : ℕ} (D : PathDecomposition F k) (n : ℕ)
+variable {F : Pattern} {k : ℕ} (D : PaddedPathDecomposition F k) (n : ℕ)
 
 abbrev BagAssignment (i : Fin (D.length + 1)) := {v // v ∈ D.bag i} → Fin n
 

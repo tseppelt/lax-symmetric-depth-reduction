@@ -1,5 +1,5 @@
 import Lax461425Proofs.PathRefinementDecomposition
-import Lax461425.SymmetricABPs
+import Lax461425Proofs.SymmetricPathDecomposition
 
 /-!
 The linear certificate implies the actual pathwidth predicate used in Section 6. Isolated
@@ -77,7 +77,7 @@ theorem pathBag_iso {v : G.F.A ⊕ G.F.B} (hv : isIsolated G.F v)
       omega
 
 /-- A node schedule of width one doubles the decomposition's bag bound. -/
-def pathDecomposition : PathDecomposition G.F (2 * width) where
+def pathDecomposition : PaddedPathDecomposition G.F (2 * width) where
   length := S.length + Fintype.card (Iso (G := G)) + 2
   bag := pathBag D S
   bag_first := by simp [pathBag]
@@ -140,7 +140,8 @@ def pathDecomposition : PathDecomposition G.F (2 * width) where
         (by change j.val - 1 ≤ l.val - 1; omega) hi hl
 
 include D S in
-theorem pathwidthLE : PathwidthLE (2 * width) G.F := ⟨pathDecomposition D S⟩
+theorem pathwidthLE : PathwidthLE (2 * width) G.F :=
+  SymmetricPathDecomposition.pathwidthLE_iff.2 ⟨pathDecomposition D S⟩
 
 end
 

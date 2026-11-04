@@ -13,7 +13,7 @@ open Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
 open Section6BagProgram
 open scoped Classical
 
-variable {F : Pattern} {k : ℕ} (D : PathDecomposition F k)
+variable {F : Pattern} {k : ℕ} (D : PaddedPathDecomposition F k)
 
 /-- Parallel edges are represented by separate occurrences. -/
 abbrev Occurrence (F : Pattern) := Σ p : F.A × F.B, Fin (F.mult p.1 p.2)
@@ -181,7 +181,7 @@ theorem decode_repeatedIndex (j : Fin (D.length + 1)) :
   decode_slot D j 0 (denominator_pos (F := F)) _ (by simp [repeatedIndex])
 
 /-- Repeat bags, retaining the empty endpoints, the width bound and all interval axioms. -/
-noncomputable def repeatedDecomposition : PathDecomposition F k where
+noncomputable def repeatedDecomposition : PaddedPathDecomposition F k where
   length := length D
   bag i := D.bag (decode D i)
   bag_first := by rw [decode_zero, D.bag_first]
@@ -198,7 +198,7 @@ noncomputable def repeatedDecomposition : PathDecomposition F k where
 
 /-- Insert one edge-processing step for every occurrence of every parallel edge. -/
 noncomputable def schedule : Schedule F k where
-  toPathDecomposition := repeatedDecomposition D
+  toPaddedPathDecomposition := repeatedDecomposition D
   process := process D
   process_last := process_last D
   process_bag := by
@@ -216,7 +216,7 @@ noncomputable def schedule : Schedule F k where
   process_count := process_count D
 
 /-- Every finite path decomposition admits a processing schedule at the same width. -/
-theorem exists_schedule (D : PathDecomposition F k) : Nonempty (Schedule F k) := ⟨schedule D⟩
+theorem exists_schedule (D : PaddedPathDecomposition F k) : Nonempty (Schedule F k) := ⟨schedule D⟩
 
 /-- Append empty bags. Every new transition has label one and a single state, so the
 existing bag-ABP computation, symmetry, and orbit proofs apply without alteration. -/
@@ -245,7 +245,7 @@ noncomputable def padSchedule (S : Schedule F k) (r : ℕ) : Schedule F k := by
     rw [hc, S.process_last] at hi
     cases hi
   refine {
-    toPathDecomposition := {
+    toPaddedPathDecomposition := {
       length := S.length + r
       bag := fun i => S.bag (clip i)
       bag_first := by

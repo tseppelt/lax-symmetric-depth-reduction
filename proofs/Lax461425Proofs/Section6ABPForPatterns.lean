@@ -23,7 +23,7 @@ theorem exists_abp {K : Type*} [CommSemiring K] {n k : ℕ} (hn : 1 ≤ n)
     ∃ ℓ : ℕ, ∀ r : ℕ, ∃ G : ABP (Fin n × Fin n) K,
       G.Computes (hom K F n) ∧ G.IsMatrixSymmetric ∧ G.orbitSize ≤ n ^ (k + 1) ∧
         ∃ L : G.Layering, L.layer G.sink = ℓ + r := by
-  obtain ⟨D⟩ := hF
+  obtain ⟨D⟩ := SymmetricPathDecomposition.pathwidthLE_iff.1 hF
   let S := Section6Schedule.schedule D
   refine ⟨S.length, fun r => ?_⟩
   let T := Section6Schedule.padSchedule S r

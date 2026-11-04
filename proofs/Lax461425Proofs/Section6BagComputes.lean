@@ -33,7 +33,7 @@ noncomputable def globalTrajectory (h : F.A ⊕ F.B → Fin n) :
 /-- Forget the option encoding and read the bag assignments of a trajectory. -/
 noncomputable def trajectoryAssignments
     (a : Section6LayeredPaths.Trajectory (program D n hn K)) :
-    CompatibleAssignments D.toPathDecomposition n := by
+    CompatibleAssignments D.toPaddedPathDecomposition n := by
   refine ⟨fun i => assignmentOfState D n hn i (a.1 i), ?_⟩
   intro i v hi hj
   have he := a.2 i
@@ -50,13 +50,13 @@ noncomputable def trajectoryAssignments
 
 noncomputable def globalOfTrajectory
     (a : Section6LayeredPaths.Trajectory (program D n hn K)) : F.A ⊕ F.B → Fin n :=
-  extend D.toPathDecomposition n (trajectoryAssignments D n hn K a)
+  extend D.toPaddedPathDecomposition n (trajectoryAssignments D n hn K a)
 
 theorem globalOf_globalTrajectory (h : F.A ⊕ F.B → Fin n) :
     globalOfTrajectory D n hn K (globalTrajectory D n hn K h) = h := by
   funext v
   obtain ⟨i, hi⟩ := D.covers_vertex v
-  rw [globalOfTrajectory, extend_apply D.toPathDecomposition n _ i v hi]
+  rw [globalOfTrajectory, extend_apply D.toPaddedPathDecomposition n _ i v hi]
   change (stateOfGlobal D n i h v).getD (defaultValue n hn) = h v
   simp [stateOfGlobal, hi]
 
@@ -70,7 +70,7 @@ theorem globalTrajectory_globalOf
   change (stateOfGlobal D n i (globalOfTrajectory D n hn K a) v.val).getD
       (defaultValue n hn) = ((a.1 i).val v.val).getD (defaultValue n hn)
   simp only [stateOfGlobal, v.property, ↓reduceIte, Option.getD_some]
-  exact extend_apply D.toPathDecomposition n (trajectoryAssignments D n hn K a) i v.val v.property
+  exact extend_apply D.toPaddedPathDecomposition n (trajectoryAssignments D n hn K a) i v.val v.property
 
 /-- The literal paths of the bag ABP are in bijection with global vertex assignments. -/
 noncomputable def globalPathEquiv : (F.A ⊕ F.B → Fin n) ≃ (abp D n hn K).Path :=
