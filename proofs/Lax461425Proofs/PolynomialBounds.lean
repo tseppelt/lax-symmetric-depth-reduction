@@ -1,11 +1,12 @@
 import Lax461425.SymmetricFamilies
+import Lax461425.SymmetricClasses
 import Mathlib.Tactic
 
 /-! Closure properties of the polynomial bounds used for orbit and auxiliary-variable counts. -/
 
 namespace Lax461425Proofs.PolynomialBounds
 
-open Lax461425.SymmetricFamilies
+open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses
 
 theorem constant (c : ℕ) : PolynomiallyBounded (fun _ => c) :=
   ⟨c, 0, by simp⟩

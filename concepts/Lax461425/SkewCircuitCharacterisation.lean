@@ -1,4 +1,5 @@
 import Lax461425.SymmetricFamilies
+import Lax461425.SymmetricClasses
 import Lax461425.SymmetricABPs
 import Lax461425.Supports
 import Lax461425.SupportTheorem
@@ -21,7 +22,7 @@ dependency after resolving the existing theorem interfaces to their checked proo
 namespace Lax461425.SkewCircuitCharacterisation
 
 open Circuits CircuitProperties MatrixSymmetry Supports
-open SymmetricFamilies SymmetricABPs HomomorphismPolynomials
+open SymmetricFamilies SymmetricClasses SymmetricABPs HomomorphismPolynomials
 
 /-- A bounded-support reduced skew circuit computes a combination of bounded-pathwidth
 homomorphism polynomials. The factor two comes from composing graph bags with a width-one

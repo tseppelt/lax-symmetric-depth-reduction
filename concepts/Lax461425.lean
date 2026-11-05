@@ -23,6 +23,7 @@ import Lax461425.SupportTheorem
 import Lax461425.Supports
 import Lax461425.SymmetricABPCharacterisation
 import Lax461425.SymmetricABPs
+import Lax461425.SymmetricClasses
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricFormulaWitness
 import Lax461425.SymmetricVNPCharacterisation

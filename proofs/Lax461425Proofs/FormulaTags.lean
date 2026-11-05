@@ -10,6 +10,7 @@ chosen independently at each operation level; their inverses avoid all child con
 namespace Lax461425Proofs.FormulaTags
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses
 open ComputedFormula TreeFormulaCircuit TreeFormulaOperations TreeFormulaOrbit
 open scoped Classical
 

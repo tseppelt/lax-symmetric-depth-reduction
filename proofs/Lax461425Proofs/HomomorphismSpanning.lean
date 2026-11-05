@@ -1,3 +1,4 @@
+import Lax461425.SymmetricClasses
 import Lax461425.HomomorphismSpanning
 import Lax461425Proofs.HomSpanningOrbits
 
@@ -5,6 +6,7 @@ import Lax461425Proofs.HomSpanningOrbits
 namespace Lax461425Proofs.HomomorphismSpanning
 
 open Lax461425.HomomorphismPolynomials Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses
 open HomSpanningQuotient HomSpanningInjective HomSpanningOrbits
 open scoped Classical
 noncomputable section

@@ -1,5 +1,6 @@
 import Lax461425Proofs.PermanentRyser
 import Lax461425.SymmetricFamilies
+import Lax461425.SymmetricClasses
 import Lax461425Proofs.CircuitFacts
 
 /-! The explicit polynomial-size symmetric circuit for Ryser's Boolean witness. -/
@@ -7,6 +8,7 @@ import Lax461425Proofs.CircuitFacts
 namespace Lax461425Proofs.PermanentCircuit
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses
 open Lax461425.Permanent
 open Lax461425Proofs.Permanent (ryserWitness)
 open scoped BigOperators Classical

@@ -10,7 +10,7 @@ open Lax461425.CircuitProperties
 
 namespace Lax461425Proofs.Section6ABPToSkew
 
-open Lax461425.SymmetricFamilies Lax461425.SymmetricABPs
+open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses Lax461425.SymmetricABPs
 
 /--
 ---

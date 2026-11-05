@@ -1,4 +1,5 @@
 import Lax461425.SymmetricFamilies
+import Lax461425.SymmetricClasses
 
 /-!
 ---
@@ -14,7 +15,7 @@ namespace Lax461425.BooleanSumSymmetry
 
 universe u
 
-open SymmetricFamilies
+open SymmetricFamilies SymmetricClasses
 
 /-- Every member of a symmetric VNP family is matrix-invariant. -/
 axiom matrixInvariant_of_mem {K : Type u} [CommSemiring K] (f : MatrixFamily K)

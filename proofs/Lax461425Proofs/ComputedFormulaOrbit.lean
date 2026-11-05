@@ -11,6 +11,7 @@ using their different input status, and restricts to their actual private occurr
 namespace Lax461425Proofs.ComputedFormulaOrbit
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses
 open TreeFormulaCircuit TreeFormulaOperations ComputedFormula
 open scoped Classical
 

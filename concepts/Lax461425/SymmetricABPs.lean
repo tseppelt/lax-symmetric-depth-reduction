@@ -1,5 +1,6 @@
 import Lax461425.MatrixSymmetry
 import Lax461425.SymmetricFamilies
+import Lax461425.SymmetricClasses
 import Lax461425.HomomorphismPolynomials
 import Lax183560.Pathwidth
 import Mathlib.LinearAlgebra.Span.Defs
@@ -124,7 +125,7 @@ decomposition with bags of size at most `k + 1`. -/
 def PathwidthLE (k : ℕ) (F : Pattern) : Prop :=
   Lax183560.Pathwidth.HasPathwidthAtMost (underlying F) k
 
-open SymmetricFamilies
+open SymmetricFamilies SymmetricClasses
 
 /-- Families computed by matrix-symmetric ABPs of polynomial vertex-orbit size. No bound on
 the total size or the degree is imposed. -/

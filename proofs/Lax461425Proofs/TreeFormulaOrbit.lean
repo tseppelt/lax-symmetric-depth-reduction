@@ -1,3 +1,4 @@
+import Lax461425.SymmetricClasses
 import Lax461425Proofs.TreeFormulaOperations
 import Lax461425Proofs.TaggedFormulaOrbit
 import Lax461425Proofs.CircuitFacts
@@ -11,6 +12,7 @@ automorphisms of the child circuit, so its previously proved orbit bound can be 
 namespace Lax461425Proofs.TreeFormulaOrbit
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses
 open TreeFormulaCircuit TreeFormulaOperations
 open scoped Classical
 

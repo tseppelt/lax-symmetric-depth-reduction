@@ -9,7 +9,8 @@ open Lax461425.CircuitProperties
 
 namespace Lax461425Proofs.Permanent
 
-open Lax461425.Permanent Lax461425.SymmetricFamilies Lax461425Proofs.CircuitConstants
+open Lax461425.Permanent Lax461425.SymmetricFamilies
+open Lax461425.SymmetricClasses Lax461425Proofs.CircuitConstants
 
 /--
 ---
