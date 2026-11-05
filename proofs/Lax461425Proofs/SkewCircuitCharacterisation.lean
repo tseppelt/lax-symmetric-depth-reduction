@@ -29,11 +29,7 @@ theorem mem_span_hom {K : Type*} [Field K] [CharZero K] {k n : ℕ} (hk : 2 ≤ 
     p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q} :=
   PathRefinementUnlabelled.mem_span_hom hk hn C hred hsym hsize hskew hp
 
-/--
----
-conclusion: Lax461425.SkewCircuitCharacterisation.eventually_pathwidth_span
----
-Rigidification preserves skewness and does not enlarge orbits. Tim's support theorem
+/-- Rigidification preserves skewness and does not enlarge orbits. Tim's support theorem
 and binomial estimate give a constant support bound for all sufficiently large orders.
 -/
 theorem eventually_pathwidth_span {K : Type*} [Field K] [CharZero K]

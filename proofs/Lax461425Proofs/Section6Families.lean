@@ -32,7 +32,7 @@ theorem uniform_pathwidth_span_of_inSymVS (hf : InSymVS f) :
     ∃ k : ℕ, ∀ n, 1 ≤ n →
       f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q} := by
   have hinv := matrixInvariant_of_inSymVS hf
-  obtain ⟨k, N, hN⟩ := Lax461425.SkewCircuitCharacterisation.eventually_pathwidth_span f hf
+  obtain ⟨k, N, hN⟩ := SkewCircuitCharacterisation.eventually_pathwidth_span f hf
   refine ⟨max k (2 * N), ?_⟩
   intro n hn
   by_cases hlarge : N ≤ n
@@ -44,5 +44,37 @@ theorem uniform_pathwidth_span_of_inSymVS (hf : InSymVS f) :
     rintro q ⟨F, hA, hB, rfl⟩
     have hF := pathwidthLE_two_mul hA hB
     exact ⟨F, pathwidthLE_mono (le_trans (by omega) (Nat.le_max_right k (2 * N))) hF, rfl⟩
+
+/-- The pattern without vertices. Its homomorphism polynomial is the constant `1`. -/
+@[reducible] def emptyPattern : Pattern where
+  A := Empty
+  B := Empty
+  mult := fun a => a.elim
+
+theorem pathwidthLE_emptyPattern : PathwidthLE 0 emptyPattern :=
+  pathwidthLE_two_mul (n := 0) (by simp) (by simp)
+
+omit [CharZero K] in
+theorem hom_emptyPattern (n : ℕ) : hom K emptyPattern n = 1 := by
+  simp [hom]
+
+/-- Every polynomial in no variables is a multiple of the homomorphism polynomial of the
+empty pattern. -/
+theorem mem_span_hom_zero (p : MatrixPolynomial 0 K) (k : ℕ) :
+    p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F 0 = q} := by
+  rw [MvPolynomial.eq_C_of_isEmpty p, ← mul_one (MvPolynomial.C _), ← MvPolynomial.smul_eq_C_mul]
+  refine Submodule.smul_mem _ _ (Submodule.subset_span ⟨emptyPattern, ?_, hom_emptyPattern 0⟩)
+  exact pathwidthLE_mono (Nat.zero_le k) pathwidthLE_emptyPattern
+
+/-- The forward direction of the `symVS` characterisation for every order, including the
+zero-dimensional one. -/
+theorem pathwidth_span_of_inSymVS (hf : InSymVS f) :
+    ∃ k : ℕ, ∀ n,
+      f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q} := by
+  obtain ⟨k, hk⟩ := uniform_pathwidth_span_of_inSymVS hf
+  refine ⟨k, fun n => ?_⟩
+  rcases Nat.eq_zero_or_pos n with rfl | hn
+  · exact mem_span_hom_zero (f 0) k
+  · exact hk n hn
 
 end Lax461425Proofs.Section6Families

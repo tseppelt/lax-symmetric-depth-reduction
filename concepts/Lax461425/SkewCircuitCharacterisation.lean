@@ -17,10 +17,11 @@ type: theorem
 Over a field of characteristic zero, a reduced matrix-symmetric skew circuit on an `n × n`
 matrix with support size at most `k`, where `2 ≤ k` and `2k + 1 ≤ n`, computes a linear
 combination of homomorphism polynomials of patterns of pathwidth at most `2k`.
-Consequently, for every family computed by symmetric skew circuits with polynomial orbits
-there is a uniform pathwidth bound such that, for all sufficiently large `n`, the `n`-th
-polynomial is a linear combination of homomorphism polynomials of patterns within that
-bound.
+Together with symmetric ABPs for patterns of bounded pathwidth, it follows that a family of
+polynomials $(p_n)$ is computed by matrix-symmetric skew circuits of polynomial orbit size
+if, and only if, there is a constant $k$ such that every $p_n$ is a
+linear combination of homomorphism polynomials $\hom_{F,n}$ of patterns $F$ of pathwidth at
+most $k$.
 -/
 namespace Lax461425.SkewCircuitCharacterisation
 
@@ -36,11 +37,10 @@ axiom mem_span_hom {K : Type*} [Field K] [CharZero K] {k n : ℕ} (hk : 2 ≤ k)
     (hskew : IsSkew C) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q}
 
-/-- Families computed by symmetric skew circuits with polynomial orbits are eventually spanned
-by homomorphism polynomials of patterns of uniformly bounded pathwidth. -/
-axiom eventually_pathwidth_span {K : Type*} [Field K] [CharZero K]
-    (f : MatrixFamily K) (hf : InSymVS f) :
-    ∃ k N : ℕ, ∀ n, N ≤ n →
+/-- `symVS` consists of the families spanned by homomorphism polynomials of patterns of
+bounded pathwidth. -/
+axiom characterisation {K : Type*} [Field K] [CharZero K] (f : MatrixFamily K) :
+    InSymVS f ↔ ∃ k : ℕ, ∀ n,
       f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q}
 
 end Lax461425.SkewCircuitCharacterisation

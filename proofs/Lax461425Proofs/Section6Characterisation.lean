@@ -3,6 +3,7 @@ import Lax461425Proofs.Section6ABPLinearCombination
 import Lax461425Proofs.Section6ABPToSkewFamily
 import Lax461425Proofs.Section6Families
 import Lax461425.SymmetricABPCharacterisation
+import Lax461425.SkewCircuitCharacterisation
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 
 /-!
@@ -67,22 +68,44 @@ theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
       _ = p := heq
   exact hsum ▸ hH
 
-/--
----
-conclusion: Lax461425.SymmetricABPCharacterisation.inSymVBP_of_inSymVS
----
-Lemma 6.5. The reverse inclusion uses a single uniform pathwidth bound. The positive finite
-exceptions and the zero-dimensional index are both represented by actual ABPs. -/
-theorem skew_to_abp (f : MatrixFamily K) (hf : InSymVS f) : InSymVBP f := by
-  obtain ⟨k, hk⟩ := Section6Families.uniform_pathwidth_span_of_inSymVS hf
+/-- Families spanned by homomorphism polynomials of patterns of uniformly bounded pathwidth
+have symmetric polynomial-orbit ABPs. The zero-dimensional index is represented by a
+constant ABP. -/
+theorem abp_of_pathwidth_span (f : MatrixFamily K) (hf : ∃ k : ℕ, ∀ n,
+    f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q}) :
+    InSymVBP f := by
+  obtain ⟨k, hk⟩ := hf
   refine ⟨(fun n => (n + 1) ^ (k + 1)), ⟨1, k + 1, fun n => by simp⟩, ?_⟩
   intro n
   by_cases hn : n = 0
   · subst n
     simpa using Section6ConstantABP.exists_zero_dimension (f 0)
   · have hn' : 1 ≤ n := by omega
-    obtain ⟨G, hG, hsym, hbound⟩ := exists_abp_of_mem_span hn' (f n) (hk n hn')
+    obtain ⟨G, hG, hsym, hbound⟩ := exists_abp_of_mem_span hn' (f n) (hk n)
     exact ⟨G, hG, hsym, hbound.trans (Nat.pow_le_pow_left (by omega) (k + 1))⟩
+
+/--
+---
+conclusion: Lax461425.SkewCircuitCharacterisation.characterisation
+---
+The forward direction is the pathwidth refinement of the support theorem, with finite
+exceptions absorbed by homomorphism spanning and the zero-dimensional index spanned by the
+empty pattern. The backward direction builds symmetric ABPs and converts them to skew
+circuits (Lemma 6.4). -/
+theorem symVS_characterisation (f : MatrixFamily K) :
+    InSymVS f ↔ ∃ k : ℕ, ∀ n,
+      f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q} :=
+  ⟨Section6Families.pathwidth_span_of_inSymVS, fun hf =>
+    Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP f (abp_of_pathwidth_span f hf)⟩
+
+/--
+---
+conclusion: Lax461425.SymmetricABPCharacterisation.inSymVBP_of_inSymVS
+---
+Lemma 6.5. The reverse inclusion uses a single uniform pathwidth bound. The zero-dimensional
+index is represented by an actual ABP. -/
+theorem skew_to_abp (f : MatrixFamily K) (hf : InSymVS f) : InSymVBP f :=
+  abp_of_pathwidth_span f ((Lax461425.SkewCircuitCharacterisation.characterisation f).mp hf)
 
 /--
 ---
