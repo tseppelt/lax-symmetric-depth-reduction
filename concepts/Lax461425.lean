@@ -7,12 +7,15 @@ import Lax461425.CircuitsForPatterns
 import Lax461425.DepthHierarchy
 import Lax461425.DixonMortimer
 import Lax461425.Forestwidth
+import Lax461425.FormulaSupportDepth
 import Lax461425.FormulaWitnessEquivalence
+import Lax461425.FormulasForPatterns
 import Lax461425.HomomorphismPolynomials
 import Lax461425.HomomorphismSpanning
 import Lax461425.MatrixSymmetry
 import Lax461425.NonUniformClosure
 import Lax461425.Oddomorphisms
+import Lax461425.PatternWidths
 import Lax461425.PatternsFromCircuits
 import Lax461425.Permanent
 import Lax461425.PermanentCompleteness
@@ -26,5 +29,9 @@ import Lax461425.SymmetricABPs
 import Lax461425.SymmetricClasses
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricFormulaWitness
+import Lax461425.SymmetricVFCharacterisation
 import Lax461425.SymmetricVNP
 import Lax461425.SymmetricVNPCharacterisation
+import Lax461425.SymmetricVPCharacterisation
+import Lax461425.TreedepthForestwidth
+import Lax461425.TreewidthForestwidth

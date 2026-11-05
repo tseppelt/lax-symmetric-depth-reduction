@@ -3,7 +3,6 @@ import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
 import Lax461425.SymmetricVNP
 import Lax461425.HomomorphismPolynomials
-import Lax183560.Pathwidth
 import Mathlib.LinearAlgebra.Span.Defs
 import Mathlib.Data.Fintype.Pi
 import Mathlib.Algebra.MvPolynomial.Rename
@@ -19,8 +18,6 @@ source-to-sink paths of the product of the edge labels. An ABP in matrix variabl
 matrix-symmetric if every row and column permutation extends to an ABP automorphism, and
 its vertex orbits range over all such extending automorphisms. `symVBP` is the class of
 families computed by matrix-symmetric ABPs with polynomial vertex orbits.
-
-The pathwidth of a pattern is the pathwidth of its underlying simple graph.
 -/
 
 namespace Lax461425.SymmetricABPs
@@ -123,11 +120,6 @@ noncomputable def orbitSize [CommSemiring K] : ℕ :=
   Finset.univ.sup fun v => (G.orbit v).ncard
 
 end ABP
-
-/-- The pattern has pathwidth at most `k`: its underlying simple graph has a path
-decomposition with bags of size at most `k + 1`. -/
-def PathwidthLE (k : ℕ) (F : Pattern) : Prop :=
-  Lax183560.Pathwidth.HasPathwidthAtMost (underlying F) k
 
 open SymmetricFamilies SymmetricClasses SymmetricVNP
 

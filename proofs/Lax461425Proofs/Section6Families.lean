@@ -13,6 +13,7 @@ absorbed by a single uniform width bound, using the checked finite homomorphism 
 namespace Lax461425Proofs.Section6Families
 
 open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses Lax461425.SymmetricABPs
+open Lax461425.PatternWidths
 open Lax461425.HomomorphismPolynomials Lax461425.MatrixSymmetry
 open SymmetricPathDecomposition
 

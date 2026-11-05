@@ -1,4 +1,5 @@
 import Lax461425.SymmetricABPs
+import Lax461425.PatternWidths
 
 /-!
 ---
@@ -12,7 +13,7 @@ matrices is computed by a matrix-symmetric ABP whose vertex orbits have size at 
 
 namespace Lax461425.ABPsForPatterns
 
-open SymmetricABPs HomomorphismPolynomials
+open SymmetricABPs HomomorphismPolynomials PatternWidths
 
 /-- Homomorphism polynomials of patterns of pathwidth at most `k` have matrix-symmetric ABPs
 with vertex orbits of size at most `n^(k+1)`. -/

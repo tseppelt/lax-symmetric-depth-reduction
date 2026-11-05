@@ -11,6 +11,7 @@ bound, evaluated over all extending automorphisms, and literal homomorphism comp
 namespace Lax461425Proofs.Section6ABPForPatterns
 
 open Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
+open Lax461425.PatternWidths
 
 /-- Every pattern of pathwidth at most `k` has a layered symmetric affine ABP with
 vertex-orbit size at most `n^(k+1)`. Empty endpoint bags supply arbitrary unit-labelled

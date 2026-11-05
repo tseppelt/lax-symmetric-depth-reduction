@@ -10,6 +10,7 @@ are added explicitly; this argument uses no padding or homomorphism-spanning ass
 namespace Lax461425Proofs.PathRefinementPathwidth
 
 open Lax461425.SymmetricABPs PatternsLabelledBasic PathRefinementSchedule
+open Lax461425.PatternWidths
 open PathRefinementDecomposition
 open scoped Classical
 

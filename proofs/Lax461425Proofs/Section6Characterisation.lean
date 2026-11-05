@@ -15,6 +15,7 @@ after resolving the theorem interfaces to their checked proofs.
 namespace Lax461425Proofs.Section6Characterisation
 
 open Lax461425.SymmetricABPs Lax461425.SymmetricFamilies Lax461425.SymmetricClasses
+open Lax461425.PatternWidths
 open Lax461425.SymmetricVNP
 open Lax461425.HomomorphismPolynomials
 open scoped Classical

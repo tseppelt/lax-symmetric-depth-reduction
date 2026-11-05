@@ -8,6 +8,7 @@ open Lax461425.SymmetricFamilies (MatrixPolynomial)
 namespace Lax461425Proofs.PathRefinementUnlabelled
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
 open Lax461425.HomomorphismPolynomials Lax461425.SymmetricABPs
+open Lax461425.PatternWidths
 open PatternsSupportAction PatternsSupportBasic PatternsSupportDepth PatternsInductionSetup
 open PatternsLabelledOps PatternsLabelledBasic PatternsFromCircuits PathRefinementClass
 open RigidComputes ReducedRigid

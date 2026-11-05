@@ -2,6 +2,7 @@ import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
 import Lax461425.SymmetricVNP
 import Lax461425.SymmetricABPs
+import Lax461425.PatternWidths
 import Lax461425.Supports
 import Lax461425.SupportTheorem
 import Lax461425.Rigidification
@@ -25,6 +26,7 @@ namespace Lax461425.SkewCircuitCharacterisation
 
 open Circuits CircuitProperties MatrixSymmetry Supports
 open SymmetricFamilies SymmetricClasses SymmetricVNP SymmetricABPs HomomorphismPolynomials
+open PatternWidths
 
 /-- A bounded-support reduced skew circuit computes a combination of bounded-pathwidth
 homomorphism polynomials. -/
