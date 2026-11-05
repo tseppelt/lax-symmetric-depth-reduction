@@ -198,7 +198,6 @@ import Lax461425Proofs.SymVFSupportDepth
 import Lax461425Proofs.SymVFSupportDepthBasic
 import Lax461425Proofs.SymVFSupportDepthOrbit
 import Lax461425Proofs.SymVFTreeSum
-import Lax461425Proofs.SymVPABP
 import Lax461425Proofs.SymVPCharacterisation
 import Lax461425Proofs.SymVPWidths
 import Lax461425Proofs.SymmetricABPBasic

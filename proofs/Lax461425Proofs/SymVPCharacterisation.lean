@@ -6,7 +6,7 @@ import Lax461425Proofs.PathRefinementBounds
 import Lax461425Proofs.CircuitFacts
 import Lax461425Proofs.ConverseOrbitSupport
 import Lax461425Proofs.SymmetricPathDecomposition
-import Lax461425Proofs.SymVPABP
+import Lax461425Proofs.Section6Characterisation
 import Lax461425Proofs.Section6ConstantABP
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 
@@ -110,7 +110,7 @@ theorem exists_circuits_below (f : MatrixFamily K) (k : ℕ)
         · simp only [g, if_neg hnN]
           exact Submodule.zero_mem _
       obtain ⟨G, hG, hsym, hbound⟩ :=
-        SymVPABP.exists_abp_of_mem_span hn (g n) hmem
+        Section6Characterisation.exists_abp_of_mem_span hn (g n) hmem
       exact ⟨G, hG, hsym, hbound.trans (Nat.pow_le_pow_left (by omega) _)⟩
   obtain ⟨b, ⟨c, d, hb⟩, hS⟩ := Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP g hg
   refine ⟨c, d, fun n hn => ?_⟩
