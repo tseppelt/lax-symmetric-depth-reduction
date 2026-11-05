@@ -18,8 +18,8 @@ lemma constForm_polynomial (a : K) : (constForm a : AffineForm V K).polynomial =
 def value : Vertex G → MvPolynomial V K
   | .source => 1
   | .entry i => MvPolynomial.C (c i)
-  | .branch i v => MvPolynomial.C (c i) * (G i).polynomialAt v
-  | .exit i => MvPolynomial.C (c i) * (G i).polynomial
+  | .branch i v => MvPolynomial.C (c i * tag i) * (G i).polynomialAt v
+  | .exit i => MvPolynomial.C (c i * tag i) * (G i).polynomial
   | .sink => ∑ i, MvPolynomial.C (c i) * (G i).polynomial
 
 lemma sum_single_predecessor {S : Type*} [AddCommMonoid S]
@@ -113,9 +113,9 @@ lemma local_branch (i : I) (v : (G i).Vertex) (hv : v ≠ (G i).source) :
         value G c u.val * (label G c u.val (.branch i v)).polynomial := by
   rw [← (incomingBranchEquiv G i v hv).symm.sum_comp
     (fun u => value G c u.val * (label G c u.val (.branch i v)).polynomial)]
-  change MvPolynomial.C (c i) * (G i).polynomialAt v =
+  change MvPolynomial.C (c i * tag i) * (G i).polynomialAt v =
     ∑ u : {u : (G i).Vertex // (G i).edge u v},
-      (MvPolynomial.C (c i) * (G i).polynomialAt u.val) *
+      (MvPolynomial.C (c i * tag i) * (G i).polynomialAt u.val) *
         (label G c (.branch i u.val) (.branch i v)).polynomial
   simp only [label, ↓reduceDIte]
   rw [SymmetricABPPaths.polynomialAt_eq_sum_predecessors (G i) hv, Finset.mul_sum]
@@ -130,6 +130,8 @@ lemma local_exit (i : I) :
     (predecessor_exit G i)]
   simp [value, label, constForm, AffineForm.polynomial, ABP.polynomial]
 
+variable [CharZero K]
+
 lemma local_sink :
     value G c .sink = ∑ u : {u : Vertex G // edge G u .sink},
       value G c u.val * (label G c u.val .sink).polynomial := by
@@ -139,7 +141,9 @@ lemma local_sink :
     ∑ i, value G c (.exit i) * (label G c (.exit i) .sink).polynomial
   apply Finset.sum_congr rfl
   intro i _
-  simp [value, label, constForm_polynomial]
+  have ht : (tag i : K) ≠ 0 := Nat.cast_add_one_ne_zero _
+  simp only [value, label, constForm_polynomial]
+  rw [mul_right_comm, ← MvPolynomial.C_mul, mul_assoc, mul_inv_cancel₀ ht, mul_one]
 
 /-- The path sum is the prescribed linear combination, including zero coefficients. -/
 theorem computes :

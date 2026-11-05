@@ -156,13 +156,13 @@ import Lax461425Proofs.STNumerics
 import Lax461425Proofs.STSupports
 import Lax461425Proofs.STUpgrade
 import Lax461425Proofs.Section6ABPForPatterns
-import Lax461425Proofs.Section6ABPLengths
 import Lax461425Proofs.Section6ABPLinearCombination
 import Lax461425Proofs.Section6ABPSum
 import Lax461425Proofs.Section6ABPSumBound
 import Lax461425Proofs.Section6ABPSumComputes
 import Lax461425Proofs.Section6ABPSumOrbits
 import Lax461425Proofs.Section6ABPSumSymmetry
+import Lax461425Proofs.Section6ABPSumTags
 import Lax461425Proofs.Section6ABPToSkew
 import Lax461425Proofs.Section6ABPToSkewComputes
 import Lax461425Proofs.Section6ABPToSkewFamily
@@ -174,7 +174,6 @@ import Lax461425Proofs.Section6BagComputes
 import Lax461425Proofs.Section6BagProgram
 import Lax461425Proofs.Section6BagSymmetry
 import Lax461425Proofs.Section6Characterisation
-import Lax461425Proofs.Section6Layering
 import Lax461425Proofs.Section6ConstantABP
 import Lax461425Proofs.Section6Families
 import Lax461425Proofs.Section6LayeredABP

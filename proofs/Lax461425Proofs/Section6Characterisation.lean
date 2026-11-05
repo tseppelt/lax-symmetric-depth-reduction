@@ -1,4 +1,4 @@
-import Lax461425Proofs.Section6ABPForPatterns
+import Lax461425.ABPsForPatterns
 import Lax461425Proofs.Section6ABPLinearCombination
 import Lax461425Proofs.Section6ABPToSkewFamily
 import Lax461425Proofs.Section6Families
@@ -26,7 +26,7 @@ variable {K : Type*} [Field K] [CharZero K]
 
 /-- Linear combinations of bounded-pathwidth homomorphism polynomials have symmetric
 ABPs with the same orbit bound as the individual patterns. As in Lemma 6.5, the
-layered branches are padded to distinct lengths before their endpoints are identified. -/
+branches are tagged by distinct constants before their endpoints are identified. -/
 theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
     (p : MatrixPolynomial n K)
     (hp : p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q}) :
@@ -34,30 +34,11 @@ theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
       G.Computes p ∧ G.IsMatrixSymmetric ∧ G.orbitSize ≤ n ^ (k + 1) := by
   obtain ⟨m, c, g, heq⟩ := Submodule.mem_span_set'.mp hp
   choose F hF hhom using fun i => (g i).2
-  choose ℓ hw using fun i =>
-    Section6ABPForPatterns.exists_layered_abp (K := K) hn (F i) (hF i)
-  let M : ℕ := Finset.univ.sup ℓ + 1
-  choose G hcomp hsym hbound L hlength using fun i => hw i (M * i.val)
-  have hsmall (i : Fin m) : ℓ i < M := by
-    have h := Finset.le_sup (f := ℓ) (Finset.mem_univ i)
-    dsimp only [M]
-    omega
-  have hdistinct : Function.Injective (fun i => (L i).layer (G i).sink) := by
-    intro i j hij
-    change (L i).layer (G i).sink = (L j).layer (G j).sink at hij
-    rw [hlength i, hlength j] at hij
-    apply Fin.ext
-    by_contra hne
-    have hi := hsmall i
-    have hj := hsmall j
-    rcases lt_or_gt_of_ne hne with hlt | hgt
-    · have hgap := Nat.mul_le_mul_left M (show i.val + 1 ≤ j.val by omega)
-      nlinarith
-    · have hgap := Nat.mul_le_mul_left M (show j.val + 1 ≤ i.val by omega)
-      nlinarith
+  choose G hcomp hsym hbound using fun i =>
+    Lax461425.ABPsForPatterns.exists_abp (K := K) hn (F i) (hF i)
   have hB : 1 ≤ n ^ (k + 1) := Nat.one_le_pow _ _ hn
   obtain ⟨H, hH, hsymH, hboundH⟩ :=
-    Section6ABPSum.exists_linear_combination c G L hdistinct hsym _ hB hbound
+    Section6ABPSum.exists_linear_combination c G hsym _ hB hbound
   refine ⟨H, ?_, hsymH, hboundH⟩
   have hsum : (∑ i, MvPolynomial.C (c i) * (G i).polynomial) = p := by
     calc

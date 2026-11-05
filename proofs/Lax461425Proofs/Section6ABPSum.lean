@@ -2,9 +2,9 @@ import Lax461425Proofs.Section6ABPToSkew
 import Lax461425Proofs.SymmetricABPPaths
 
 /-!
-Finite linear combinations of ABPs. Each branch has an initial coefficient edge; all
-other added edges have label one. The orbit argument uses distinct branch path lengths,
-proved separately, rather than labels that distinguish branches.
+Finite linear combinations of ABPs. Each branch has an initial coefficient edge, followed by
+an edge labelled with a nonzero constant tag that differs between branches; the final edge
+divides the tag out again. The tags keep every extending automorphism inside each branch.
 -/
 
 namespace Lax461425Proofs.Section6ABPSum
@@ -55,13 +55,16 @@ def edge : Vertex G → Vertex G → Prop
 
 def constForm (k : K) : AffineForm V K := ⟨k, fun _ => 0⟩
 
+/-- The constant tag of a branch, distinct and nonzero in characteristic zero. -/
+def tag (i : I) : K := ((Fintype.equivFin I i : ℕ) + 1 : K)
+
 def label : Vertex G → Vertex G → AffineForm V K
   | .source, .entry i => constForm (c i)
-  | .entry _, .branch _ _ => constForm 1
+  | .entry i, .branch _ _ => constForm (tag i)
   | .branch i u, .branch j v =>
       if h : i = j then (G i).label u (h.symm ▸ v) else constForm 0
   | .branch i _, .exit _ => constForm 1
-  | .exit _, .sink => constForm 1
+  | .exit i, .sink => constForm (tag i)⁻¹
   | _, _ => constForm 0
 
 def maxHeight : ℕ := Finset.univ.sup fun i =>
@@ -139,7 +142,7 @@ theorem reaches_sink (v : Vertex G) : Relation.ReflTransGen (edge G) v .sink := 
   | exit i => exact hx i
   | sink => exact .refl
 
-/-- A finite sum of branches with coefficient edges and unit-labelled padding. -/
+/-- A finite sum of branches with coefficient edges and tagged branch endpoints. -/
 abbrev abp : ABP V K where
   Vertex := Vertex G
   edge := edge G
