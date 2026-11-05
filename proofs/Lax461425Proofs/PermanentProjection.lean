@@ -156,7 +156,7 @@ theorem hardness (K : Type) [Field K] [CharZero K] :
 
 /-- Theorem 7.7: membership and hardness together give completeness. -/
 theorem completeness (K : Type) [Field K] [CharZero K] :
-    Lax461425.SymmetricFamilies.InSymVNP (polynomial K) ∧
+    Lax461425.SymmetricFamilies.InSymVNP (permanent K) ∧
       ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
         Lax461425.SymmetricFamilies.InSymVNP f → ∀ n,
           IsSymmetricProjection (Lax461425.SymmetricFamilies.matrixAction n) (f n) :=

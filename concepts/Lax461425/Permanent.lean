@@ -16,7 +16,7 @@ namespace Lax461425.Permanent
 open MatrixSymmetry
 
 /-- The permanent polynomial on an `n × n` variable matrix. -/
-noncomputable def polynomial (K : Type*) [CommSemiring K] (n : ℕ) :
+noncomputable def permanent (K : Type*) [CommSemiring K] (n : ℕ) :
     MvPolynomial (Fin n × Fin n) K :=
   Matrix.permanent (fun i j => MvPolynomial.X (i, j))
 

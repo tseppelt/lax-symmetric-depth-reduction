@@ -108,10 +108,10 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The polynomial Ryser witness sums to the permanent, including order zero. -/
 theorem ryserWitness_boolSum (K : Type*) [CommRing K] (n : ℕ) :
     Lax461425.SymmetricFamilies.boolSum (ryserWitness K n) =
-      Lax461425.Permanent.polynomial K n := by
+      Lax461425.Permanent.permanent K n := by
   classical
   unfold Lax461425.SymmetricFamilies.boolSum ryserWitness
-    Lax461425.Permanent.polynomial
+    Lax461425.Permanent.permanent
   convert ryser_boolean (fun i j : Fin n =>
     (MvPolynomial.X (i, j) : MvPolynomial (Fin n × Fin n) K)) using 1
   refine Finset.sum_congr (by ext e; simp) ?_

@@ -17,7 +17,7 @@ conclusion: Lax461425.PermanentCompleteness.membership
 ---
 The permanent family has a polynomial-size jointly symmetric Boolean witness.
 The result holds over every commutative ring, including characteristic two. -/
-theorem permanent_membership (K : Type*) [CommRing K] : InSymVNP (polynomial K) := by
+theorem permanent_membership (K : Type*) [CommRing K] : InSymVNP (permanent K) := by
   refine ⟨(fun n => n), (fun n => 2 * n ^ 2 + 3 * n + 4), ?_, ?_, ?_⟩
   · exact ⟨1, 1, fun n => by simp⟩
   · refine ⟨9, 2, fun n => ?_⟩
