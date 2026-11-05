@@ -186,6 +186,9 @@ import Lax461425Proofs.Section7FormulaConstruction
 import Lax461425Proofs.Section7Padding
 import Lax461425Proofs.SkewCircuitCharacterisation
 import Lax461425Proofs.SupportTheorem
+import Lax461425Proofs.SymVPABP
+import Lax461425Proofs.SymVPCharacterisation
+import Lax461425Proofs.SymVPWidths
 import Lax461425Proofs.SymmetricABPBasic
 import Lax461425Proofs.SymmetricABPEquivariance
 import Lax461425Proofs.SymmetricABPPaths
