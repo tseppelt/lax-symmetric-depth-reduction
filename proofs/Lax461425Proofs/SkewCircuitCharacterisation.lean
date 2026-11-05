@@ -12,7 +12,7 @@ import Lax461425Proofs.DixonMortimer
 namespace Lax461425Proofs.SkewCircuitCharacterisation
 
 open Lax461425.Circuits Lax461425.CircuitProperties Lax461425.MatrixSymmetry Lax461425.Supports
-open Lax461425.SymmetricFamilies
+open Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
 
 /--

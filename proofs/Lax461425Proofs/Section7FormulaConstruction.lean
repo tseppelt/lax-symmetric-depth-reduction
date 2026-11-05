@@ -20,7 +20,7 @@ namespace Lax461425Proofs.Section7FormulaConstruction
 
 universe u
 
-open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses
 open TreeFormulaCircuit TreeFormulaOperations TreeFormulaOrbit ComputedFormula
 open PatternFormulaBlocks TaggedPatternFormula FormulaTags

@@ -26,4 +26,5 @@ import Lax461425.SymmetricABPs
 import Lax461425.SymmetricClasses
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricFormulaWitness
+import Lax461425.SymmetricVNP
 import Lax461425.SymmetricVNPCharacterisation

@@ -1,3 +1,4 @@
+import Lax461425.SymmetricVNP
 import Lax461425Proofs.BooleanSelectors
 import Lax461425.HomomorphismPolynomials
 
@@ -9,7 +10,8 @@ proves the polynomial identity, separately from construction of its formula circ
 
 namespace Lax461425Proofs.PatternBooleanWitness
 
-open Lax461425.HomomorphismPolynomials Lax461425.SymmetricFamilies BooleanSelectors
+open Lax461425.HomomorphismPolynomials Lax461425.SymmetricFamilies
+open Lax461425.SymmetricVNP BooleanSelectors
 open scoped Classical BigOperators
 
 variable {K : Type*} [CommRing K]

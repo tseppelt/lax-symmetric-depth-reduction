@@ -1,6 +1,7 @@
 import Lax461425.CircuitProperties
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
+import Lax461425.SymmetricVNP
 import Lax461425Proofs.CircuitFacts
 
 open Lax461425.CircuitProperties
@@ -10,6 +11,7 @@ open Lax461425.CircuitProperties
 namespace Lax461425Proofs.CircuitFamilyFacts
 
 open Lax461425.Circuits Lax461425Proofs.CircuitConstants Lax461425.SymmetricFamilies
+open Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses
 
 variable {G V K : Type*} [Group G]

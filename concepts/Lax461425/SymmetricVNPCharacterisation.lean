@@ -15,7 +15,7 @@ Matrix order zero has a separate constant witness. The proof is
 
 namespace Lax461425.SymmetricVNPCharacterisation
 
-open SymmetricFamilies SymmetricClasses
+open SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- Symmetric VNP consists precisely of all matrix-invariant polynomial families. -/
 axiom all_matrix_symmetric_iff {K : Type*} [Field K] [CharZero K] (f : MatrixFamily K) :

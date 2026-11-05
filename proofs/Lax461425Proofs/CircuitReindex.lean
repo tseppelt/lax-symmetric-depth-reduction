@@ -1,6 +1,7 @@
 import Lax461425.CircuitProperties
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
+import Lax461425.SymmetricVNP
 import Mathlib.Algebra.MvPolynomial.Rename
 
 open Lax461425.CircuitProperties
@@ -12,7 +13,7 @@ all-automorphism orbits are preserved. -/
 namespace Lax461425Proofs.CircuitReindex
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry
-open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses
+open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses Lax461425.SymmetricVNP
 open scoped Classical
 
 variable {G V W K : Type*} [Group G]
@@ -144,7 +145,7 @@ theorem orbit_eq (e : V ≃ W) (ρ : G →* Equiv.Perm V) (C : Circuit V K) (g :
 
 theorem orbitSize_eq (e : V ≃ W) (ρ : G →* Equiv.Perm V) (C : Circuit V K) :
     orbitSize (action e ρ) (rename e C) = orbitSize ρ C := by
-  unfold Lax461425.SymmetricClasses.orbitSize
+  unfold Lax461425.SymmetricVNP.orbitSize
   congr 1
   funext g
   exact congrArg Set.ncard (orbit_eq e ρ C g)

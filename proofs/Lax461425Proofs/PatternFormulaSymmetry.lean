@@ -7,7 +7,7 @@ sorted after permutation, exchanging the two variable leaves when their order re
 
 namespace Lax461425Proofs.PatternFormulaSymmetry
 
-open Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies
+open Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open TreeFormulaCircuit TreeFormulaOperations TreeFormulaIsomorphism ComputedFormula PatternFormulaBlocks
 open scoped Classical
 

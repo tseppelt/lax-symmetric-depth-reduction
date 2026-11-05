@@ -1,5 +1,6 @@
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
+import Lax461425.SymmetricVNP
 import Lax461425.BooleanSumSymmetry
 import Lax461425Proofs.CircuitFacts
 
@@ -12,7 +13,7 @@ namespace Lax461425Proofs.BooleanWitnesses
 
 universe u
 
-open Lax461425.SymmetricFamilies
+open Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses Lax461425.MatrixSymmetry Lax461425.Circuits
 open scoped Classical
 

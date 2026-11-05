@@ -148,18 +148,18 @@ The hardness direction of Theorem 7.7, with unrestricted source order as in Defi
 -/
 theorem hardness (K : Type) [Field K] [CharZero K] :
     ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
-      Lax461425.SymmetricClasses.InSymVNP f → ∀ n,
-        IsSymmetricProjection (Lax461425.SymmetricFamilies.matrixAction n) (f n) := by
+      Lax461425.SymmetricVNP.InSymVNP f → ∀ n,
+        IsSymmetricProjection (Lax461425.SymmetricVNP.matrixAction n) (f n) := by
   intro f hf n
-  exact invariant_projection (Lax461425.SymmetricFamilies.matrixAction n) (f n)
+  exact invariant_projection (Lax461425.SymmetricVNP.matrixAction n) (f n)
     (Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem f hf n)
 
 /-- Theorem 7.7: membership and hardness together give completeness. -/
 theorem completeness (K : Type) [Field K] [CharZero K] :
-    Lax461425.SymmetricClasses.InSymVNP (permanent K) ∧
+    Lax461425.SymmetricVNP.InSymVNP (permanent K) ∧
       ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
-        Lax461425.SymmetricClasses.InSymVNP f → ∀ n,
-          IsSymmetricProjection (Lax461425.SymmetricFamilies.matrixAction n) (f n) :=
+        Lax461425.SymmetricVNP.InSymVNP f → ∀ n,
+          IsSymmetricProjection (Lax461425.SymmetricVNP.matrixAction n) (f n) :=
   ⟨Lax461425.PermanentCompleteness.membership K, hardness K⟩
 
 end Lax461425Proofs.PermanentProjection

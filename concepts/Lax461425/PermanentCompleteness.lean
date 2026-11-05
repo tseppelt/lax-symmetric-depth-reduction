@@ -13,7 +13,7 @@ unrestricted. Proofs use Ryser's identity and an explicit equivariant bouquet.
 
 namespace Lax461425.PermanentCompleteness
 
-open Permanent SymmetricFamilies SymmetricClasses
+open Permanent SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- The permanent has a jointly symmetric Boolean witness over every commutative ring. -/
 axiom membership (K : Type*) [CommRing K] : InSymVNP (permanent K)

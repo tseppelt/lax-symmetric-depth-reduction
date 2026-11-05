@@ -1,6 +1,7 @@
 import Lax461425.CircuitProperties
 import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
+import Lax461425.SymmetricVNP
 import Lax461425.HomomorphismSpanning
 
 open Lax461425.CircuitProperties
@@ -21,7 +22,7 @@ namespace Lax461425.SymmetricFormulaWitness
 
 universe u
 
-open Circuits MatrixSymmetry SymmetricFamilies SymmetricClasses
+open Circuits MatrixSymmetry SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- The quantitative formula witness for each positive matrix order. -/
 axiom formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}

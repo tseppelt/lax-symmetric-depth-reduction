@@ -11,6 +11,7 @@ namespace Lax461425Proofs.TaggedPatternFormula
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternPadding
 open Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies Lax461425.SymmetricClasses
+open Lax461425.SymmetricVNP
 open ComputedFormula PatternFormulaBlocks PatternFormulaSymmetry TreeFormulaIsomorphism
 open BooleanSelectors
 open scoped Classical

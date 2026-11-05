@@ -14,7 +14,7 @@ using a constant witness at matrix order zero. It is
 
 namespace Lax461425.FormulaWitnessEquivalence
 
-open SymmetricFamilies SymmetricClasses
+open SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- Formula witnesses and circuit witnesses define the same Boolean-sum class. -/
 axiom formula_witnesses_iff {K : Type*} [Field K] [CharZero K] (f : MatrixFamily K) :

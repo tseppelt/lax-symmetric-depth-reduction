@@ -19,7 +19,7 @@ spanning for the finitely many small positive indices.
 
 namespace Lax461425.SymmetricABPCharacterisation
 
-open SymmetricABPs SymmetricFamilies SymmetricClasses
+open SymmetricABPs SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- Lemma 6.4. The construction works over every commutative semiring. -/
 axiom inSymVS_of_inSymVBP {K : Type*} [CommSemiring K] (f : MatrixFamily K)
