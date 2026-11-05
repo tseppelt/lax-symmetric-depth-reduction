@@ -3,6 +3,8 @@ import Lax461425.SymmetricFamilies
 import Mathlib.GroupTheory.GroupAction.Quotient
 
 /-! Distinct monomial orbits and their embedding-polynomial normalisation (DPS, Lemma 4). -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.HomSpanningOrbits
 
 open Lax461425.HomomorphismPolynomials Lax461425.MatrixSymmetry
@@ -30,7 +32,7 @@ theorem mem_orbitFinset {n : ℕ} (d e : Exponent n) :
   simp [orbitFinset, MulAction.mem_orbit_iff]
 
 def orbitSum (K : Type*) [CommRing K] {n : ℕ} (d : Exponent n) :
-    MvPolynomial (Fin n × Fin n) K := ∑ e ∈ orbitFinset d, MvPolynomial.monomial e 1
+    MatrixPolynomial n K := ∑ e ∈ orbitFinset d, MvPolynomial.monomial e 1
 
 /-- Retain isolated matrix indices in the existing pattern encoding. They only alter
 its automorphism normalisation; both vertex sets still have size at most `n`. -/
@@ -44,7 +46,7 @@ theorem weight_id {K : Type*} [CommRing K] {n : ℕ} (d : (Fin n × Fin n) →�
   rw [MvPolynomial.monomial_eq, map_one, one_mul,
     Finsupp.prod_fintype d _ (fun _ => pow_zero _)]
   exact (Fintype.prod_prod_type (fun x : Fin n × Fin n =>
-    (MvPolynomial.X x : MvPolynomial (Fin n × Fin n) K) ^ d x)).symm
+    (MvPolynomial.X x : MatrixPolynomial n K) ^ d x)).symm
 
 theorem weight_perm {K : Type*} [CommRing K] {n : ℕ} (d : (Fin n × Fin n) →₀ ℕ)
     (γ : Γ n) :

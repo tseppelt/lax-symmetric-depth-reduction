@@ -3,6 +3,8 @@ import Lax461425Proofs.PathRefinementOrbit
 import Lax461425Proofs.PathRefinementSkew
 
 /-! The skew product step: one linear factor times Tim's input-only star factor. -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementProducts
 
 open Lax461425.Circuits Lax461425.CircuitProperties Lax461425.MatrixSymmetry Lax461425.Supports
@@ -16,15 +18,15 @@ variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g : C.Gate} {k : ℕ}
 
 theorem product_children (hskew : IsSkew C) (hg : C.label g = .mul)
     (hsize : supportSize C ≤ k) (hlr : leftCard hrig hn g + rightCard hrig hn g ≤ k)
-    (q : C.Gate → MvPolynomial (Fin n × Fin n) K)
+    (q : C.Gate → MatrixPolynomial n K)
     (hq : ∀ h, 0 < C.wire g h → C.ComputesAt h (q h))
     (hφ : ∀ h, 0 < C.wire g h →
       ∃ φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-          MvPolynomial (Fin n × Fin n) K,
+          MatrixPolynomial n K,
         φ ∈ spanLinear K (sc C h) k n Finset.univ ∧
         φ (leftEnum hrig hn h) (rightEnum hrig hn h) = q h) :
     ∃ φ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
       φ ∈ spanLinear K (sc C g) k n Finset.univ ∧
       φ (leftEnum hrig hn g) (rightEnum hrig hn g) = ∏ h, q h ^ C.wire g h := by
   have hsub : ∀ h ∈ inputChildren C g, 0 < C.wire g h :=

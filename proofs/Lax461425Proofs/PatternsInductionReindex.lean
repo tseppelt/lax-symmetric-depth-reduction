@@ -23,6 +23,8 @@ polynomial identity is a plain equality, not an identity-after-summing as in
 `PatternsRestrictedDelete`'s `labelledHom_restrict_eq_sum`).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionReindex
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -332,12 +334,12 @@ theorem padMult_prod_eq (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ ↪ F
     (hA0 : G.F.A → Fin n) (hA1 : ↥(Set.range (⇑ι))ᶜ → Fin n)
     (hB0 : G.F.B → Fin n) (hB1 : ↥(Set.range (⇑κ))ᶜ → Fin n) :
     (∏ x : G.F.A ⊕ ↥(Set.range (⇑ι))ᶜ, ∏ y : G.F.B ⊕ ↥(Set.range (⇑κ))ᶜ,
-      (MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) : MvPolynomial (Fin n × Fin n) K) ^
+      (MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) : MatrixPolynomial n K) ^
         (padGraph G ι κ).F.mult x y)
       = ∏ x0 : G.F.A, ∏ y0 : G.F.B,
-          (MvPolynomial.X (hA0 x0, hB0 y0) : MvPolynomial (Fin n × Fin n) K) ^ G.F.mult x0 y0 := by
+          (MvPolynomial.X (hA0 x0, hB0 y0) : MatrixPolynomial n K) ^ G.F.mult x0 y0 := by
   show (∏ x : G.F.A ⊕ ↥(Set.range (⇑ι))ᶜ, ∏ y : G.F.B ⊕ ↥(Set.range (⇑κ))ᶜ,
-      (MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) : MvPolynomial (Fin n × Fin n) K) ^
+      (MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) : MatrixPolynomial n K) ^
         Sum.elim (fun x0 => Sum.elim (G.F.mult x0) (fun _ => 0)) (fun _ => fun _ => 0) x y)
       = _
   simp only [Fintype.prod_sum_type, Sum.elim_inl, Sum.elim_inr, pow_zero, Finset.prod_const_one,
@@ -382,11 +384,11 @@ theorem labelledHom_padGraph (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ 
         if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧
             (∀ q, Sum.elim hB0 hB1 (padB G κ q) = w q) then
           (∏ x, ∏ y, MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) ^
-            (padGraph G ι κ).F.mult x y : MvPolynomial (Fin n × Fin n) K)
+            (padGraph G ι κ).F.mult x y : MatrixPolynomial n K)
         else 0) =
         if (∀ i, hA0 (G.a i) = (v ∘ ι) i) ∧ (∀ j, hB0 (G.b j) = (w ∘ κ) j) then
           (∏ x0, ∏ y0, MvPolynomial.X (hA0 x0, hB0 y0) ^ G.F.mult x0 y0 :
-            MvPolynomial (Fin n × Fin n) K)
+            MatrixPolynomial n K)
         else 0 := by
     intro hA0 hB0
     simp only [hcondA hA0, hcondB hB0]
@@ -416,36 +418,36 @@ theorem labelledHom_padGraph (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ 
       = ∑ hA0 : G.F.A → Fin n, ∑ hA1 : μ → Fin n, ∑ hB : G.F.B ⊕ μ' → Fin n,
           if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧ (∀ q, hB (padB G κ q) = w q) then
             (∏ x, ∏ y, MvPolynomial.X (Sum.elim hA0 hA1 x, hB y) ^
-              (padGraph G ι κ).F.mult x y : MvPolynomial (Fin n × Fin n) K)
+              (padGraph G ι κ).F.mult x y : MatrixPolynomial n K)
           else 0 :=
         sum_sumArrow (fun hA => ∑ hB : G.F.B ⊕ μ' → Fin n,
           if (∀ p, hA (padA G ι p) = v p) ∧ (∀ q, hB (padB G κ q) = w q) then
             (∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ (padGraph G ι κ).F.mult x y :
-              MvPolynomial (Fin n × Fin n) K)
+              MatrixPolynomial n K)
           else 0)
     _ = ∑ hA0 : G.F.A → Fin n, ∑ hA1 : μ → Fin n, ∑ hB0 : G.F.B → Fin n, ∑ hB1 : μ' → Fin n,
           if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧
               (∀ q, Sum.elim hB0 hB1 (padB G κ q) = w q) then
             (∏ x, ∏ y, MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) ^
-              (padGraph G ι κ).F.mult x y : MvPolynomial (Fin n × Fin n) K)
+              (padGraph G ι κ).F.mult x y : MatrixPolynomial n K)
           else 0 := by
         refine Finset.sum_congr rfl (fun hA0 _ => Finset.sum_congr rfl (fun hA1 _ => ?_))
         exact sum_sumArrow (fun hB =>
           if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧ (∀ q, hB (padB G κ q) = w q) then
             (∏ x, ∏ y, MvPolynomial.X (Sum.elim hA0 hA1 x, hB y) ^
-              (padGraph G ι κ).F.mult x y : MvPolynomial (Fin n × Fin n) K)
+              (padGraph G ι κ).F.mult x y : MatrixPolynomial n K)
           else 0)
     _ = ∑ hA0 : G.F.A → Fin n, ∑ hB0 : G.F.B → Fin n, ∑ hA1 : μ → Fin n, ∑ hB1 : μ' → Fin n,
           if (∀ p, Sum.elim hA0 hA1 (padA G ι p) = v p) ∧
               (∀ q, Sum.elim hB0 hB1 (padB G κ q) = w q) then
             (∏ x, ∏ y, MvPolynomial.X (Sum.elim hA0 hA1 x, Sum.elim hB0 hB1 y) ^
-              (padGraph G ι κ).F.mult x y : MvPolynomial (Fin n × Fin n) K)
+              (padGraph G ι κ).F.mult x y : MatrixPolynomial n K)
           else 0 :=
         Finset.sum_congr rfl (fun hA0 _ => Finset.sum_comm)
     _ = ∑ hA0 : G.F.A → Fin n, ∑ hB0 : G.F.B → Fin n,
           if (∀ i, hA0 (G.a i) = (v ∘ ι) i) ∧ (∀ j, hB0 (G.b j) = (w ∘ κ) j) then
             (∏ x0, ∏ y0, MvPolynomial.X (hA0 x0, hB0 y0) ^ G.F.mult x0 y0 :
-              MvPolynomial (Fin n × Fin n) K)
+              MatrixPolynomial n K)
           else 0 :=
         Finset.sum_congr rfl (fun hA0 _ => Finset.sum_congr rfl (fun hB0 _ => key hA0 hB0))
     _ = labelledHom K G n (v ∘ ι) (w ∘ κ) := rfl
@@ -458,7 +460,7 @@ theorem labelledHom_padGraph (G : LabelledPattern ℓ₀ r₀) (ι : Fin ℓ₀ 
 bound `Δ`. -/
 theorem span𝔗P_pad_mem {K : Type*} [Field K] {Δ k n : ℕ} (ι : Fin ℓ₀ ↪ Fin ℓ₁)
     (κ : Fin r₀ ↪ Fin r₁)
-    (φ : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n (Finset.univ : Finset (Fin ℓ₀ ⊕ Fin r₀))) :
     (fun v w => φ (v ∘ ι) (w ∘ κ)) ∈
       span𝔗P K Δ k n (Finset.univ : Finset (Fin ℓ₁ ⊕ Fin r₁)) := by
@@ -474,8 +476,8 @@ theorem span𝔗P_pad_mem {K : Type*} [Field K] {Δ k n : ℕ} (ι : Fin ℓ₀ 
         ⟨padGraph G ι κ, inClassP_univ_of_inClass (inClass_padGraph hG.1 ι κ), rfl⟩
   | zero =>
       have heq : (fun v w => (0 : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) →
-          MvPolynomial (Fin n × Fin n) K) (v ∘ ι) (w ∘ κ)) =
-          (0 : (Fin ℓ₁ → Fin n) → (Fin r₁ → Fin n) → MvPolynomial (Fin n × Fin n) K) := by
+          MatrixPolynomial n K) (v ∘ ι) (w ∘ κ)) =
+          (0 : (Fin ℓ₁ → Fin n) → (Fin r₁ → Fin n) → MatrixPolynomial n K) := by
         funext v w; rfl
       rw [heq]; exact Submodule.zero_mem _
   | add x y _ _ ihx ihy =>
@@ -496,7 +498,7 @@ whenever a subsequent step (e.g. `PatternsRestrictedSum.exists_ψSum`) requires 
 at the padded arity, not merely at the original one. -/
 theorem span𝔗P_pad_mem_restrict {K : Type*} [Field K] {Δ k n : ℕ} {P₀ : Finset (Fin ℓ₀ ⊕ Fin r₀)}
     (ι : Fin ℓ₀ ↪ Fin ℓ₁) (κ : Fin r₀ ↪ Fin r₁)
-    (φ : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n P₀) :
     (fun v w => φ (v ∘ ι) (w ∘ κ)) ∈ span𝔗P K Δ k n (P₀.image (Sum.map (⇑ι) (⇑κ))) := by
   induction hφ using Submodule.span_induction with
@@ -510,8 +512,8 @@ theorem span𝔗P_pad_mem_restrict {K : Type*} [Field K] {Δ k n : ℕ} {P₀ : 
       exact Submodule.subset_span ⟨padGraph G ι κ, inClassP_padGraph hG ι κ, rfl⟩
   | zero =>
       have heq : (fun v w => (0 : (Fin ℓ₀ → Fin n) → (Fin r₀ → Fin n) →
-          MvPolynomial (Fin n × Fin n) K) (v ∘ ι) (w ∘ κ)) =
-          (0 : (Fin ℓ₁ → Fin n) → (Fin r₁ → Fin n) → MvPolynomial (Fin n × Fin n) K) := by
+          MatrixPolynomial n K) (v ∘ ι) (w ∘ κ)) =
+          (0 : (Fin ℓ₁ → Fin n) → (Fin r₁ → Fin n) → MatrixPolynomial n K) := by
         funext v w; rfl
       rw [heq]; exact Submodule.zero_mem _
   | add x y _ _ ihx ihy =>

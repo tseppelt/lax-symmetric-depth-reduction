@@ -12,6 +12,8 @@ circuit) child relation `RigidHeight.wellFounded_child`, case-splitting on `C.la
 combined with `G ≤ gateStabilizer hrig g`), fed by the induction hypothesis at every child.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionMain
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -35,7 +37,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
     (hn' : 2 * k + 1 ≤ n) (hsize : supportSize C ≤ k) (hrig : IsRigid C)
     (hn : 2 * supportSize C < n) (g : C.Gate) :
     ∃ φ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       φ ∈ span𝔗P K (sc C g) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       C.ComputesAt g (φ (leftEnum hrig hn g) (rightEnum hrig hn g)) := by
@@ -72,7 +74,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
           rintro x ⟨i, -⟩
           exact i.elim0
         have hφ₀mem : (fun (_ : Fin 0 → Fin n) (_ : Fin 0 → Fin n) =>
-            (1 : MvPolynomial (Fin n × Fin n) K))
+            (1 : MatrixPolynomial n K))
             ∈ span𝔗P K 0 k n (Finset.univ : Finset (Fin 0 ⊕ Fin 0)) :=
           one_mem_span𝔗P K 0 k n _
         obtain ⟨ψ, hψmem, hψeq⟩ := exists_pad_of_range_eq hrig hn hv0 hv0 hvrange hwrange _ hφ₀mem
@@ -92,7 +94,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
           have hδg : δ ∈ gateStabilizer hrig g := fixingSubgroup_le_gateStabilizer hrig hn hδ
           rw [hSdef, Finset.mem_filter]
           exact ⟨Finset.mem_univ _, (wire_eq_of_mem_gateStabilizer hrig hδg h').symm ▸ hwire⟩
-        set q : C.Gate → MvPolynomial (Fin n × Fin n) K := fun h' =>
+        set q : C.Gate → MatrixPolynomial n K := fun h' =>
           if hh' : 0 < C.wire g h' then
             (ih h' (show RigidHeight.Child C g h' from hh')).choose (leftEnum hrig hn h') (rightEnum hrig hn h')
           else 0 with hqdef
@@ -102,7 +104,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
           exact (ih h' (show RigidHeight.Child C g h' from hh')).choose_spec.2
         have hφ : ∀ h', 0 < C.wire g h' →
             ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-              MvPolynomial (Fin n × Fin n) K,
+              MatrixPolynomial n K,
               φh' ∈ span𝔗P K (sc C h') k n
                 (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
               φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h' := by
@@ -131,7 +133,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
           have hδg : δ ∈ gateStabilizer hrig g := fixingSubgroup_le_gateStabilizer hrig hn hδ
           rw [hSdef, Finset.mem_filter]
           exact ⟨Finset.mem_univ _, (wire_eq_of_mem_gateStabilizer hrig hδg h').symm ▸ hwire⟩
-        set q : C.Gate → MvPolynomial (Fin n × Fin n) K := fun h' =>
+        set q : C.Gate → MatrixPolynomial n K := fun h' =>
           if hh' : 0 < C.wire g h' then
             (ih h' (show RigidHeight.Child C g h' from hh')).choose (leftEnum hrig hn h') (rightEnum hrig hn h')
           else 0 with hqdef
@@ -141,7 +143,7 @@ theorem exists_phi (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hk : 2 ≤
           exact (ih h' (show RigidHeight.Child C g h' from hh')).choose_spec.2
         have hφ : ∀ h', 0 < C.wire g h' →
             ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-              MvPolynomial (Fin n × Fin n) K,
+              MatrixPolynomial n K,
               φh' ∈ span𝔗P K (sc C h') k n
                 (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
               φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h' := by

@@ -23,7 +23,7 @@ open SymmetricFamilies HomomorphismPolynomials
 
 /-- General homomorphism spanning, with the finite vertex bounds used in Sections 6–7. -/
 axiom invariant_mem_span_hom {K : Type*} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p) :
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern,
       Fintype.card F.A ≤ n ∧ Fintype.card F.B ≤ n ∧ hom K F n = q}
 

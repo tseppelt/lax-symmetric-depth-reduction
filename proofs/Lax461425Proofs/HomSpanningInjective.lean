@@ -3,6 +3,8 @@ import Mathlib.Combinatorics.Enumerative.IncidenceAlgebra
 import Mathlib.LinearAlgebra.Span.Defs
 
 /-! The paper's embedding-to-homomorphism expansion by partition Möbius inversion. -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.HomSpanningInjective
 
 open Lax461425.HomomorphismPolynomials HomSpanningQuotient HomSpanningConstraints
@@ -12,13 +14,13 @@ attribute [local instance] setoidFintype
 attribute [local instance] Fintype.toLocallyFiniteOrder
 
 /-- The bounded-vertex homomorphism span used by Sections 6 and 7. -/
-def homSpan (K : Type*) [Field K] (n : ℕ) : Submodule K (MvPolynomial (Fin n × Fin n) K) :=
+def homSpan (K : Type*) [Field K] (n : ℕ) : Submodule K (MatrixPolynomial n K) :=
   Submodule.span K {q | ∃ F : Pattern,
     Fintype.card F.A ≤ n ∧ Fintype.card F.B ≤ n ∧ hom K F n = q}
 
 /-- The embedding polynomial `emb` from Appendix A, before automorphism normalisation. -/
 def injectiveHom (K : Type*) [CommRing K] (F : Pattern) (n : ℕ) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   ∑ a : F.A → Fin n, ∑ b : F.B → Fin n,
     if Function.Injective a ∧ Function.Injective b then weight F a b else 0
 

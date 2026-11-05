@@ -6,6 +6,8 @@ A two-vertex constant ABP, including the zero polynomial and zero-dimensional ma
 index. Both vertices are fixed by every extending automorphism.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.Section6ConstantABP
 
 open Lax461425.SymmetricABPs Lax461425.MatrixSymmetry
@@ -83,7 +85,7 @@ theorem orbitSize_le {K : Type*} [CommSemiring K] (n : ℕ) (c : K) :
 /-- At the zero-dimensional index there are no variables, so every polynomial has a
 constant ABP with singleton vertex orbits. -/
 theorem exists_zero_dimension {K : Type*} [CommSemiring K]
-    (p : MvPolynomial (Fin 0 × Fin 0) K) :
+    (p : MatrixPolynomial 0 K) :
     ∃ G : ABP (Fin 0 × Fin 0) K,
       G.Computes p ∧ G.IsMatrixSymmetric ∧ G.orbitSize ≤ 1 := by
   refine ⟨constant (Fin 0 × Fin 0) (p.coeff 0), ?_,

@@ -1,3 +1,4 @@
+import Lax461425.SymmetricFamilies
 import Mathlib.Algebra.MvPolynomial.Rename
 import Lax461425.MatrixSymmetry
 import Lax461425Proofs.RigidHeight
@@ -17,6 +18,8 @@ clause to match up the reindexed weights.
 Combined with `RigidComputes.computesAt_unique` (a gate computes at most one polynomial), this
 gives the paper's equivariance fact `p_{γ g} = γ · p_g` for a rigid, matrix-symmetric circuit.
 -/
+
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
 
 namespace Lax461425Proofs.PatternsInductionEquivariant
 
@@ -96,7 +99,7 @@ variable {n : ℕ}
 computes `p`, then `σOf hrig γ g` computes the renamed polynomial `MvPolynomial.rename
 (actVar γ) p`. -/
 theorem computesAt_σOf_rename {K : Type*} [Field K] {C : Circuit (Fin n × Fin n) K}
-    (hrig : IsRigid C) (γ : Γ n) {g : C.Gate} {p : MvPolynomial (Fin n × Fin n) K}
+    (hrig : IsRigid C) (γ : Γ n) {g : C.Gate} {p : MatrixPolynomial n K}
     (hp : C.ComputesAt g p) :
     C.ComputesAt (σOf hrig γ g) (MvPolynomial.rename (actVar γ) p) :=
   computesAt_rename C (σOf_extends hrig γ) hp

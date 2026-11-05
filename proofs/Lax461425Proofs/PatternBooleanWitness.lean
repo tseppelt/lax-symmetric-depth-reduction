@@ -42,17 +42,17 @@ noncomputable def witness (F : Pattern) (n : ℕ) :
 
 /-- Edge-factor value after a Boolean assignment. -/
 noncomputable def edgeValue (F : Pattern) (n : ℕ) (e : Aux F n → Bool)
-    (a : F.A) (b : F.B) : MvPolynomial (Fin n × Fin n) K :=
+    (a : F.A) (b : F.B) : MatrixPolynomial n K :=
   ∑ i, ∑ j, bit (e (.inl a, i)) * bit (e (.inr b, j)) * MvPolynomial.X (i, j)
 
 theorem eval_witness (F : Pattern) (n : ℕ) (e : Aux F n → Bool) :
     MvPolynomial.eval₂ MvPolynomial.C
       (Sum.elim MvPolynomial.X (fun y => MvPolynomial.C (if e y then 1 else 0)))
         (witness (K := K) F n) =
-      allSelectors (K := MvPolynomial (Fin n × Fin n) K) e *
+      allSelectors (K := MatrixPolynomial n K) e *
         ∏ a, ∏ b, (edgeValue F n e a b) ^ F.mult a b := by
   have hbit (y : Aux F n) :
-      (MvPolynomial.C (if e y then 1 else 0) : MvPolynomial (Fin n × Fin n) K) = bit (e y) := by
+      (MvPolynomial.C (if e y then 1 else 0) : MatrixPolynomial n K) = bit (e y) := by
     cases e y <;> simp [bit]
   change (MvPolynomial.eval₂Hom MvPolynomial.C
     (Sum.elim MvPolynomial.X (fun y => MvPolynomial.C (if e y then 1 else 0))))
@@ -82,7 +82,7 @@ theorem boolSum_witness (F : Pattern) (n : ℕ) :
     boolSum (witness (K := K) F n) = hom K F n := by
   letI : DecidableEq (F.A ⊕ F.B) := Classical.decEq _
   simp only [boolSum, eval_witness]
-  have hs := sum_allSelectors (K := MvPolynomial (Fin n × Fin n) K)
+  have hs := sum_allSelectors (K := MatrixPolynomial n K)
     (A := F.A ⊕ F.B) (n := n)
     (fun e => ∏ a, ∏ b, (edgeValue (K := K) F n e a b) ^ F.mult a b)
   convert hs.trans (show (∑ h : (F.A ⊕ F.B) → Fin n,
@@ -90,11 +90,11 @@ theorem boolSum_witness (F : Pattern) (n : ℕ) :
   all_goals try (apply Finset.sum_congr (by ext e; simp); intro e he; rfl)
   simp_rw [edgeValue_encodeMaps]
   change (∑ h : (F.A ⊕ F.B) → Fin n,
-    ∏ a, ∏ b, (MvPolynomial.X (h (.inl a), h (.inr b)) : MvPolynomial (Fin n × Fin n) K) ^
+    ∏ a, ∏ b, (MvPolynomial.X (h (.inl a), h (.inr b)) : MatrixPolynomial n K) ^
       F.mult a b) = hom K F n
   rw [Fintype.sum_equiv (mapsEquiv F n)
-    (fun h => ∏ a, ∏ b, (MvPolynomial.X (h (.inl a), h (.inr b)) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b)
-    (fun h => ∏ a, ∏ b, (MvPolynomial.X (h.1 a, h.2 b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b) (fun h => rfl)]
+    (fun h => ∏ a, ∏ b, (MvPolynomial.X (h (.inl a), h (.inr b)) : MatrixPolynomial n K) ^ F.mult a b)
+    (fun h => ∏ a, ∏ b, (MvPolynomial.X (h.1 a, h.2 b) : MatrixPolynomial n K) ^ F.mult a b) (fun h => rfl)]
   rw [Fintype.sum_prod_type]
   rfl
 

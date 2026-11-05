@@ -7,6 +7,8 @@ linear decomposition certificate. The orbit partition, wire multiplicities, and
 polynomial evaluation identities are unchanged.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementSums
 
 open PathRefinementClass
@@ -30,18 +32,18 @@ variable {K : Type*} [Field K] [CharZero K] {n : ℕ} {C : Circuit (Fin n × Fin
 variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g : C.Gate} {k : ℕ}
 
 theorem sum_children (hsize : supportSize C ≤ k)
-    (q : C.Gate → MvPolynomial (Fin n × Fin n) K)
+    (q : C.Gate → MatrixPolynomial n K)
     (hq : ∀ h', 0 < C.wire g h' → C.ComputesAt h' (q h'))
     (hφ : ∀ h', 0 < C.wire g h' →
       ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φh' ∈ spanLinear K (sc C h') k n
           (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
         φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h') :
     ∀ S : Finset C.Gate, (∀ h' ∈ S, 0 < C.wire g h') →
       (∀ h' ∈ S, ∀ δ ∈ fixingSubgroup (Γ n) (supOf hrig hn g), σOf hrig δ h' ∈ S) →
       ∃ φS : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φS ∈ spanLinear K (sc C g) k n
           (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
         φS (leftEnum hrig hn g) (rightEnum hrig hn g) = ∑ h' ∈ S, C.wire g h' • q h' := by
@@ -79,7 +81,7 @@ theorem sum_children (hsize : supportSize C ≤ k)
       have hφh0eval : C.ComputesAt h0 (φh0 (leftEnum hrig hn h0) (rightEnum hrig hn h0)) := by
         rw [hφh0val]; exact hq h0 hwire0
       have hOcontrib : ∃ φO : (Fin (leftCard hrig hn g) → Fin n) →
-          (Fin (rightCard hrig hn g) → Fin n) → MvPolynomial (Fin n × Fin n) K,
+          (Fin (rightCard hrig hn g) → Fin n) → MatrixPolynomial n K,
           φO ∈ spanLinear K (sc C g) k n
             (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
           φO (leftEnum hrig hn g) (rightEnum hrig hn g) = ∑ h' ∈ O, C.wire g h' • q h' := by

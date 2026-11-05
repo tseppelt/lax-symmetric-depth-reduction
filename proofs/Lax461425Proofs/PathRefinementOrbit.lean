@@ -9,6 +9,8 @@ certificate changes: the all-distinct indicator is a depth-zero factor, and forg
 labels attaches one new root to the existing decomposition.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementOrbit
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -30,9 +32,9 @@ variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h : C.Gate} {k : ℕ
 
 def orbitSum
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K) :
+      MatrixPolynomial n K) :
     (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K :=
+      MatrixPolynomial n K :=
   (cBlock hrig hn (g := g) (h := h) : K)⁻¹ • sumExt K n (fun v w =>
     δ K (leftCard hrig hn g) (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h))
       (rightCard hrig hn g) (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) n v w *
@@ -40,7 +42,7 @@ def orbitSum
 
 theorem ψh_mem_linear
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh : φh ∈ spanLinear K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ψh hrig hn φh ∈ spanLinear K (sc C h) k n
@@ -51,7 +53,7 @@ theorem ψh_mem_linear
 
 theorem orbitSum_mem
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh : φh ∈ spanLinear K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hsize : supportSize C ≤ k) :
@@ -75,7 +77,7 @@ theorem orbitSum_mem
 
 theorem orbitSum_eval
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh : φh ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hcomp : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h))) :
@@ -109,13 +111,13 @@ theorem orbitSum_eval
 
 theorem exists_orbitSum
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh : φh ∈ spanLinear K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hcomp : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
     (hsize : supportSize C ≤ k) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ spanLinear K (sc C h + 1) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) =
@@ -126,11 +128,11 @@ theorem exists_orbitSum
 theorem exists_pad_subset {Δ : ℕ}
     (hsub : supOf hrig hn h ⊆ supOf hrig hn g)
     (φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφ : φ ∈ spanLinear K Δ k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ spanLinear K Δ k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) := by
@@ -153,11 +155,11 @@ theorem exists_pad_subset {Δ : ℕ}
 theorem exists_pad_child (hwire : 0 < C.wire g h)
     (hsub : supOf hrig hn h ⊆ supOf hrig hn g)
     (φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφ : φ ∈ spanLinear K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ spanLinear K (sc C g) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) := by

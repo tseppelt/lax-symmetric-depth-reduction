@@ -15,6 +15,8 @@ induction hypothesis `p_h = φ_h(leftEnum h, rightEnum h)`, as a direct evaluati
 copies of) `φ_h` at the relabelled tuple, with no reference to `h_y` as a gate at all.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionHomRename
 
 open Lax461425.MatrixSymmetry
@@ -76,7 +78,7 @@ open Lax461425Proofs.PatternsLabelledOps
 exactly as `labelledHom` itself: this is `labelledHom_rename` extended by linearity
 (`Submodule.span_induction`) from the generators of `span𝔗P` to the whole span. -/
 theorem span𝔗P_rename {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
-    (γ : Γ n) {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    (γ : Γ n) {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hφ : φ ∈ span𝔗P K Δ k n P) :
     ∀ v w, φ (γ.1 ∘ v) (γ.2 ∘ w) = MvPolynomial.rename (actVar γ) (φ v w) := by
   induction hφ using Submodule.span_induction with
@@ -86,7 +88,7 @@ theorem span𝔗P_rename {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P :
       exact (labelledHom_rename K G γ v w).symm
   | zero =>
       intro v w
-      show (0 : MvPolynomial (Fin n × Fin n) K) = MvPolynomial.rename (actVar γ) 0
+      show (0 : MatrixPolynomial n K) = MvPolynomial.rename (actVar γ) 0
       rw [map_zero]
   | add x y _ _ ihx ihy =>
       intro v w

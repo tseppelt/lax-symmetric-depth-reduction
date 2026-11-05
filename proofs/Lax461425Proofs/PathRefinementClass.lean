@@ -9,6 +9,8 @@ tree. Depth-one terms are already linear. Gluing such a term to a linear term pr
 linearity: the old gluing construction merely attaches leaves to the old root.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementClass
 
 open PatternsLabelledBasic PatternsLabelledOps PatternsLabelledGlue PatternsRestrictedMono
@@ -25,7 +27,7 @@ def InLinearClassP (Δ k : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) (G : LabelledPa
     G.labelSupport ⊆ Finset.univ.image (fun p : P => G.labelVertex p)
 
 def spanLinear (K : Type*) [Field K] (Δ k n : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) :
-    Submodule K ((Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K) :=
+    Submodule K ((Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K) :=
   Submodule.span K {f | ∃ G : LabelledPattern ℓ r,
     InLinearClassP Δ k P G ∧ labelledHom K G n = f}
 

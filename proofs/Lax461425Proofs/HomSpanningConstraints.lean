@@ -1,6 +1,8 @@
 import Lax461425Proofs.HomSpanningQuotient
 
 /-! The paper's kernel-partition decomposition of vertex maps (Appendix A, Lemma A.2). -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.HomSpanningConstraints
 
 open Lax461425.HomomorphismPolynomials HomSpanningQuotient
@@ -18,12 +20,12 @@ abbrev Maps (F : Pattern) (n : ℕ) := (F.A → Fin n) × (F.B → Fin n)
 
 /-- Maps with precisely this pair of kernel partitions. -/
 def exactSum {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
-    (r : Partitions F) : MvPolynomial (Fin n × Fin n) K :=
+    (r : Partitions F) : MatrixPolynomial n K :=
   ∑ h : Maps F n, if (Setoid.ker h.1, Setoid.ker h.2) = r then weight F h.1 h.2 else 0
 
 /-- Maps constant on each block of the prescribed partitions. -/
 def upperSum {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
-    (r : Partitions F) : MvPolynomial (Fin n × Fin n) K :=
+    (r : Partitions F) : MatrixPolynomial n K :=
   ∑ h : Maps F n, if r ≤ (Setoid.ker h.1, Setoid.ker h.2) then weight F h.1 h.2 else 0
 
 /-- Group maps by their kernels, as in the first identity of Lemma A.2. -/

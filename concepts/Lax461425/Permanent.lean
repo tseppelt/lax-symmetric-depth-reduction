@@ -1,3 +1,4 @@
+import Lax461425.SymmetricFamilies
 import Mathlib.LinearAlgebra.Matrix.Permanent
 import Mathlib.Algebra.MvPolynomial.Rename
 import Lax461425.MatrixSymmetry
@@ -11,13 +12,15 @@ The permanent polynomial and the symmetric affine projections of Section 7.3. Th
 the source permanent is deliberately unrestricted: no polynomial size bound is asserted.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425.Permanent
 
 open MatrixSymmetry
 
 /-- The permanent polynomial on an `n × n` variable matrix. -/
 noncomputable def permanent (K : Type*) [CommSemiring K] (n : ℕ) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   Matrix.permanent (fun i j => MvPolynomial.X (i, j))
 
 /-- An affine linear polynomial, given by a constant and finitely many variable coefficients. -/

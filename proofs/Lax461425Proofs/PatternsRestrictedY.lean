@@ -16,6 +16,8 @@ at least one among the last `ℓ'` left or `r'` right positions, of `J_n - D^{i,
 (Fin.append w z)` is the `0`/`1` indicator of `(y, z) ∈ Y ℓ' r' n v w`, given `v, w` injective.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsRestrictedY
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -63,23 +65,23 @@ theorem mem_newPairs {m : ℕ} {p : Fin m × Fin m} : p ∈ newPairs m ↔ p.1 <
 
 /-- `J_n - D^{p,q}_n` on the `A`-side (left positions `p ≠ q` of `L`). -/
 noncomputable def factorA (K : Type*) [Field K] (L R n : ℕ) (p q : Fin L) (hpq : p ≠ q)
-    (v : Fin L → Fin n) (w : Fin R → Fin n) : MvPolynomial (Fin n × Fin n) K :=
+    (v : Fin L → Fin n) (w : Fin R → Fin n) : MatrixPolynomial n K :=
   labelledHom K (J L R) n v w - labelledHom K (mergeA L R p q hpq) n v w
 
 /-- `J_n - D^{p,q}_n` on the `B`-side (right positions `p ≠ q` of `R`). -/
 noncomputable def factorB (K : Type*) [Field K] (L R n : ℕ) (p q : Fin R) (hpq : p ≠ q)
-    (v : Fin L → Fin n) (w : Fin R → Fin n) : MvPolynomial (Fin n × Fin n) K :=
+    (v : Fin L → Fin n) (w : Fin R → Fin n) : MatrixPolynomial n K :=
   labelledHom K (J L R) n v w - labelledHom K (mergeB L R p q hpq) n v w
 
 theorem factorA_eval (K : Type*) [Field K] (L R n : ℕ) (p q : Fin L) (hpq : p ≠ q)
     (v : Fin L → Fin n) (w : Fin R → Fin n) :
-    factorA K L R n p q hpq v w = if v p = v q then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
+    factorA K L R n p q hpq v w = if v p = v q then (0 : MatrixPolynomial n K) else 1 := by
   rw [factorA, labelledHom_J, labelledHom_mergeA]
   by_cases h : v p = v q <;> simp [h]
 
 theorem factorB_eval (K : Type*) [Field K] (L R n : ℕ) (p q : Fin R) (hpq : p ≠ q)
     (v : Fin L → Fin n) (w : Fin R → Fin n) :
-    factorB K L R n p q hpq v w = if w p = w q then (0 : MvPolynomial (Fin n × Fin n) K) else 1 := by
+    factorB K L R n p q hpq v w = if w p = w q then (0 : MatrixPolynomial n K) else 1 := by
   rw [factorB, labelledHom_J, labelledHom_mergeB]
   by_cases h : w p = w q <;> simp [h]
 
@@ -88,7 +90,7 @@ theorem factorB_eval (K : Type*) [Field K] (L R n : ℕ) (p q : Fin R) (hpq : p 
 /-- **`δ`**: the pointwise product, over all pairs of distinct label positions on the same side
 with at least one among the last `ℓ'` left or `r'` right positions, of `J_n - D^{i,j}_n`. -/
 noncomputable def δ (K : Type*) [Field K] (ℓ ℓ' r r' : ℕ) (n : ℕ) :
-    (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+    (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K :=
   fun v w =>
     ((∏ p : Fin ℓ × Fin ℓ', factorA K (ℓ + ℓ') (r + r') n (Fin.castAdd ℓ' p.1) (Fin.natAdd ℓ p.2)
         (castAdd_ne_natAdd ℓ ℓ' p.1 p.2) v w) *
@@ -170,7 +172,7 @@ theorem δ_left_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (y 
       (∏ p ∈ (newPairs ℓ').attach, factorA K (ℓ + ℓ') (r + r') n
         (Fin.natAdd ℓ p.1.1) (Fin.natAdd ℓ p.1.2)
         (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) (Fin.append v y) w) =
-      if Function.Injective (Fin.append v y) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 :=
+      if Function.Injective (Fin.append v y) then (1 : MatrixPolynomial n K) else 0 :=
   prod_pairs_eval v y hv
     (fun p q hpq => factorA K (ℓ + ℓ') (r + r') n p q hpq (Fin.append v y) w)
     (fun _ _ _ => factorA_eval ..)
@@ -184,7 +186,7 @@ theorem δ_right_eval (K : Type*) [Field K] (n : ℕ) (w : Fin r → Fin n) (z :
       (∏ p ∈ (newPairs r').attach, factorB K (ℓ + ℓ') (r + r') n
         (Fin.natAdd r p.1.1) (Fin.natAdd r p.1.2)
         (natAdd_ne_natAdd_of_ne (ne_of_lt (mem_newPairs.mp p.2))) v (Fin.append w z)) =
-      if Function.Injective (Fin.append w z) then (1 : MvPolynomial (Fin n × Fin n) K) else 0 :=
+      if Function.Injective (Fin.append w z) then (1 : MatrixPolynomial n K) else 0 :=
   prod_pairs_eval w z hw
     (fun p q hpq => factorB K (ℓ + ℓ') (r + r') n p q hpq v (Fin.append w z))
     (fun _ _ _ => factorB_eval ..)
@@ -195,7 +197,7 @@ theorem δ_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (w : Fin
     (hv : Function.Injective v) (hw : Function.Injective w) (y : Fin ℓ' → Fin n)
     (z : Fin r' → Fin n) :
     δ K ℓ ℓ' r r' n (Fin.append v y) (Fin.append w z) =
-      if (y, z) ∈ Y ℓ' r' n v w then (1 : MvPolynomial (Fin n × Fin n) K) else 0 := by
+      if (y, z) ∈ Y ℓ' r' n v w then (1 : MatrixPolynomial n K) else 0 := by
   rw [δ, δ_left_eval K n v y (Fin.append w z) hv, δ_right_eval K n w z (Fin.append v y) hw,
     ite_mul_ite_one_zero]
   have hiff : (Function.Injective (Fin.append v y) ∧ Function.Injective (Fin.append w z)) ↔
@@ -208,7 +210,7 @@ theorem δ_eval (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n) (w : Fin
 (all for the same `Δ, k, P`) again lies in `span𝔗P K Δ k n P`. -/
 theorem span𝔗P_prod_mem {ℓ r : ℕ} {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
     (hP : P.card ≤ k) {ι : Type*} (s : Finset ι)
-    (f : ι → (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (f : ι → (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K)
     (hf : ∀ i ∈ s, f i ∈ span𝔗P K Δ k n P) :
     (fun v w => ∏ i ∈ s, f i v w) ∈ span𝔗P K Δ k n P := by
   classical

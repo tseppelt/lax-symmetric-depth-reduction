@@ -7,6 +7,8 @@ even when the product has unbounded fan-in or parallel input wires. We record bo
 this stronger bound and the original parent-depth bound for exactly the same witness.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementInputProduct
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -29,11 +31,11 @@ variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g : C.Gate} {k : ℕ}
 
 theorem input_product (hsize : supportSize C ≤ k)
     (hlr : leftCard hrig hn g + rightCard hrig hn g ≤ k)
-    (q : C.Gate → MvPolynomial (Fin n × Fin n) K)
+    (q : C.Gate → MatrixPolynomial n K)
     (hq : ∀ h', 0 < C.wire g h' → C.ComputesAt h' (q h'))
     (hφ : ∀ h', 0 < C.wire g h' →
       ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φh' ∈ span𝔗P K (sc C h') k n
           (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
         φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h') :
@@ -41,7 +43,7 @@ theorem input_product (hsize : supportSize C ≤ k)
       (∀ h' ∈ S, ∀ δ ∈ fixingSubgroup (Γ n) (supOf hrig hn g), σOf hrig δ h' ∈ S) →
       (∀ h' ∈ S, (C.label h').IsInput) →
       ∃ φS : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φS ∈ span𝔗P K (sc C g) k n
           (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
         φS ∈ span𝔗P K 1 k n
@@ -87,7 +89,7 @@ theorem input_product (hsize : supportSize C ≤ k)
       have hφh0eval : C.ComputesAt h0 (φh0 (leftEnum hrig hn h0) (rightEnum hrig hn h0)) := by
         rw [hφh0val]; exact hq h0 hwire0
       have hOcontrib : ∃ φO : (Fin (leftCard hrig hn g) → Fin n) →
-          (Fin (rightCard hrig hn g) → Fin n) → MvPolynomial (Fin n × Fin n) K,
+          (Fin (rightCard hrig hn g) → Fin n) → MatrixPolynomial n K,
           φO ∈ span𝔗P K (sc C g) k n
             (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
           φO ∈ span𝔗P K 1 k n

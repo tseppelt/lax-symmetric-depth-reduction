@@ -32,7 +32,7 @@ theorem boolSum_linearCombination {I : Type*} [Fintype I]
 /-- The zero-size variable matrix has only constant polynomials. A one-gate constant
 formula supplies the family witness; the positive-order bound `4n²` is not asserted here. -/
 theorem zero_formula_witness (K : Type*) [CommSemiring K]
-    (p : MvPolynomial (Fin 0 × Fin 0) K) :
+    (p : MatrixPolynomial 0 K) :
     ∃ (ρ : Γ 0 →* Equiv.Perm (Fin 0))
       (g : MvPolynomial ((Fin 0 × Fin 0) ⊕ Fin 0) K)
       (C : Circuit ((Fin 0 × Fin 0) ⊕ Fin 0) K),
@@ -50,7 +50,7 @@ theorem zero_formula_witness (K : Type*) [CommSemiring K]
 
 /-- Reindex a formula witness without changing its Boolean sum or any gate orbit. -/
 theorem reindex_formula_witness {n b : ℕ} {Y Z : Type} [Fintype Y] [Fintype Z]
-    (e : Y ≃ Z) (p : MvPolynomial (Fin n × Fin n) K)
+    (e : Y ≃ Z) (p : MatrixPolynomial n K)
     (h : ∃ (ρ : Γ n →* Equiv.Perm Y)
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Y) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Y) K),
@@ -79,7 +79,7 @@ theorem square_aux_card (n : ℕ) :
   ring
 
 /-- Put a square-pattern witness on `Fin (2n²)`, preserving the quantitative bound. -/
-theorem positive_witness_reindex {n b : ℕ} (p : MvPolynomial (Fin n × Fin n) K)
+theorem positive_witness_reindex {n b : ℕ} (p : MatrixPolynomial n K)
     (h : ∃ (ρ : Γ n →* Equiv.Perm ((Fin n ⊕ Fin n) × Fin n))
       (g : MvPolynomial ((Fin n × Fin n) ⊕ ((Fin n ⊕ Fin n) × Fin n)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ ((Fin n ⊕ Fin n) × Fin n)) K),

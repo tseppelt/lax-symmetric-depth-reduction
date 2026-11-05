@@ -31,7 +31,7 @@ path decomposition of their decomposition tree. -/
 axiom mem_span_hom {K : Type*} [Field K] [CharZero K] {k n : ℕ} (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
-    (hskew : IsSkew C) {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    (hskew : IsSkew C) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q}
 
 /-- Polynomial orbit bounds on skew circuits imply an eventual uniform pathwidth bound. -/

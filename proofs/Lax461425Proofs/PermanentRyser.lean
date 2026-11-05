@@ -9,6 +9,8 @@ Ryser's Boolean-cube identity, including characteristic two. This is an algebrai
 over every commutative ring; the circuit witness is treated separately.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.Permanent
 
 /-- The polynomial whose Boolean sum is Ryser's formula for the permanent. -/
@@ -114,7 +116,7 @@ theorem ryserWitness_boolSum (K : Type*) [CommRing K] (n : ℕ) :
   unfold Lax461425.SymmetricVNP.boolSum ryserWitness
     Lax461425.Permanent.permanent
   convert ryser_boolean (fun i j : Fin n =>
-    (MvPolynomial.X (i, j) : MvPolynomial (Fin n × Fin n) K)) using 1
+    (MvPolynomial.X (i, j) : MatrixPolynomial n K)) using 1
   refine Finset.sum_congr (by ext e; simp) ?_
   intro e _
   simp [MvPolynomial.eval₂_mul, MvPolynomial.eval₂_prod, MvPolynomial.eval₂_sub,

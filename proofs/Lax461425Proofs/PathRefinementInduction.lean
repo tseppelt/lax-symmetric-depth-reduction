@@ -3,6 +3,8 @@ import Lax461425Proofs.PathRefinementSums
 import Lax461425Proofs.PathRefinementProducts
 
 /-! Tim's gate induction with a linear decomposition certificate at skew product gates. -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementInduction
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -27,7 +29,7 @@ theorem exists_phi (hskew : Lax461425.CircuitProperties.IsSkew C) (hred : C.IsRe
     (hn' : 2 * k + 1 ≤ n) (hsize : supportSize C ≤ k) (hrig : IsRigid C)
     (hn : 2 * supportSize C < n) (g : C.Gate) :
     ∃ φ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       φ ∈ spanLinear K (sc C g) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       C.ComputesAt g (φ (leftEnum hrig hn g) (rightEnum hrig hn g)) := by
@@ -52,7 +54,7 @@ theorem exists_phi (hskew : Lax461425.CircuitProperties.IsSkew C) (hred : C.IsRe
           have hδg : δ ∈ gateStabilizer hrig g := fixingSubgroup_le_gateStabilizer hrig hn hδ
           rw [hSdef, Finset.mem_filter]
           exact ⟨Finset.mem_univ _, (wire_eq_of_mem_gateStabilizer hrig hδg h').symm ▸ hwire⟩
-        set q : C.Gate → MvPolynomial (Fin n × Fin n) K := fun h' =>
+        set q : C.Gate → MatrixPolynomial n K := fun h' =>
           if hh' : 0 < C.wire g h' then
             (ih h' (show RigidHeight.Child C g h' from hh')).choose (leftEnum hrig hn h') (rightEnum hrig hn h')
           else 0 with hqdef
@@ -62,7 +64,7 @@ theorem exists_phi (hskew : Lax461425.CircuitProperties.IsSkew C) (hred : C.IsRe
           exact (ih h' (show RigidHeight.Child C g h' from hh')).choose_spec.2
         have hφ : ∀ h', 0 < C.wire g h' →
             ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-              MvPolynomial (Fin n × Fin n) K,
+              MatrixPolynomial n K,
               φh' ∈ spanLinear K (sc C h') k n
                 (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
               φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h' := by
@@ -91,7 +93,7 @@ theorem exists_phi (hskew : Lax461425.CircuitProperties.IsSkew C) (hred : C.IsRe
           have hδg : δ ∈ gateStabilizer hrig g := fixingSubgroup_le_gateStabilizer hrig hn hδ
           rw [hSdef, Finset.mem_filter]
           exact ⟨Finset.mem_univ _, (wire_eq_of_mem_gateStabilizer hrig hδg h').symm ▸ hwire⟩
-        set q : C.Gate → MvPolynomial (Fin n × Fin n) K := fun h' =>
+        set q : C.Gate → MatrixPolynomial n K := fun h' =>
           if hh' : 0 < C.wire g h' then
             (ih h' (show RigidHeight.Child C g h' from hh')).choose (leftEnum hrig hn h') (rightEnum hrig hn h')
           else 0 with hqdef
@@ -101,7 +103,7 @@ theorem exists_phi (hskew : Lax461425.CircuitProperties.IsSkew C) (hred : C.IsRe
           exact (ih h' (show RigidHeight.Child C g h' from hh')).choose_spec.2
         have hφ : ∀ h', 0 < C.wire g h' →
             ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-              MvPolynomial (Fin n × Fin n) K,
+              MatrixPolynomial n K,
               φh' ∈ spanLinear K (sc C h') k n
                 (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
               φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h' := by

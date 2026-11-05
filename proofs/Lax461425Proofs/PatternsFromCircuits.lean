@@ -8,6 +8,8 @@ Discharges the concept axiom `Lax461425.PatternsFromCircuits.mem_span_hom` (thm:
 via `lem:induction` (`PatternsInductionMain.exists_phi`).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsFromCircuits
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -27,7 +29,7 @@ theorem labelledHom_eq_hom_of_zero {K : Type*} [CommSemiring K] (G : LabelledPat
     (v w : Fin 0 → Fin n) : labelledHom K G n v w = hom K G.F n := by
   show (∑ hA : G.F.A → Fin n, ∑ hB : G.F.B → Fin n,
       if (∀ i : Fin 0, hA (G.a i) = v i) ∧ (∀ j : Fin 0, hB (G.b j) = w j) then
-        (∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ G.F.mult x y : MvPolynomial (Fin n × Fin n) K)
+        (∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ G.F.mult x y : MatrixPolynomial n K)
       else 0) = hom K G.F n
   have hcond : ∀ hA : G.F.A → Fin n, ∀ hB : G.F.B → Fin n,
       ((∀ i : Fin 0, hA (G.a i) = v i) ∧ (∀ j : Fin 0, hB (G.b j) = w j)) := fun _ _ =>
@@ -49,7 +51,7 @@ target span.** Stated with `ℓ = r = 0` as hypotheses (rather than literal `Fin
 applied directly to `leftCard hrig hn C.out`/`rightCard hrig hn C.out` via `subst`. -/
 theorem eval_mem_span_hom {K : Type*} [Field K] {Δ k n ℓ r : ℕ} (hℓ : ℓ = 0) (hr : r = 0)
     (hΔ : 1 ≤ Δ) (hk1 : 1 ≤ k)
-    {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hφ : φ ∈ span𝔗P K Δ k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r))) (v : Fin ℓ → Fin n)
     (w : Fin r → Fin n) :
     φ v w ∈ Submodule.span K {q | ∃ F : Pattern, ForestwidthLE Δ (k - 1) F ∧ hom K F n = q} := by
@@ -99,7 +101,7 @@ maps out of `Fin 0` are forced to be `Fin.elim0`); `eval_mem_span_hom` packages 
 theorem mem_span_hom {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ) (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
-    (hdepth : supportDepth C ≤ Δ) {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    (hdepth : supportDepth C ≤ Δ) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, ForestwidthLE Δ (k - 1) F ∧ hom K F n = q} := by
   have hrig : IsRigid C := ReducedRigid.isRigid hsym hred
   have hn2 : 2 * supportSize C < n := by omega

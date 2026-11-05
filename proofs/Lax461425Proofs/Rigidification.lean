@@ -13,6 +13,8 @@ matrix-symmetric circuit computing the same polynomial, without increasing size,
 orbit size.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.Rigidification
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry
@@ -41,7 +43,7 @@ hence no larger (`RigidOrbit.orbitSize_reduced_le`).
 -/
 theorem exists_reduced {K : Type*} [CommSemiring K] {n : ℕ}
     (C : Circuit (Fin n × Fin n) K) (hsym : IsMatrixSymmetric C)
-    {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    {p : MatrixPolynomial n K} (hp : C.Computes p) :
     ∃ C' : Circuit (Fin n × Fin n) K,
       C'.IsReduced ∧ IsMatrixSymmetric C' ∧ C'.Computes p ∧
         C'.size ≤ C.size ∧ C'.depth ≤ C.depth ∧ orbitSize C' ≤ orbitSize C :=

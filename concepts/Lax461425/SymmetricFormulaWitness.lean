@@ -26,7 +26,7 @@ open Circuits MatrixSymmetry SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- The quantitative formula witness for each positive matrix order. -/
 axiom formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p) :
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)
       (C : Circuit ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K),

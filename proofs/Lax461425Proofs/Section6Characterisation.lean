@@ -25,7 +25,7 @@ variable {K : Type*} [Field K] [CharZero K]
 ABPs with the same orbit bound as the individual patterns. As in Lemma 6.5, the
 layered branches are padded to distinct lengths before their endpoints are identified. -/
 theorem exists_abp_of_mem_span {n k : ℕ} (hn : 1 ≤ n)
-    (p : MvPolynomial (Fin n × Fin n) K)
+    (p : MatrixPolynomial n K)
     (hp : p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q}) :
     ∃ G : ABP (Fin n × Fin n) K,
       G.Computes p ∧ G.IsMatrixSymmetric ∧ G.orbitSize ≤ n ^ (k + 1) := by

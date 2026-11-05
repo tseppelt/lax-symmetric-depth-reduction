@@ -34,6 +34,8 @@ way to avoid ever producing isolated vertices in the first place; see the sessio
 fuller discussion of the two options.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Classical Lax461425.Circuits Lax461425.Circuits.Circuit Lax461425.HomomorphismPolynomials
@@ -62,11 +64,11 @@ noncomputable def restrictFromParent {t : N.Node} (c : NonRoot N) (hp : N.parent
 leaf (decreasing `Δ - level t` towards children): the product of the edge variables
 represented at `t`, times the product over children `c` of `t` of the sum, over admissible
 maps `γ'` on `β(c)` whose restriction to `β(t) ∩ β(c)` agrees with `γ`, of the value at `c`. -/
-noncomputable def P : (t : N.Node) → Adm F n (N.bag t) → MvPolynomial (Fin n × Fin n) K
+noncomputable def P : (t : N.Node) → Adm F n (N.bag t) → MatrixPolynomial n K
   | t => fun γ =>
       (∏ ab ∈ (edgesAt N t).attach,
           (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩,
-                γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) : MvPolynomial (Fin n × Fin n) K)
+                γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) : MatrixPolynomial n K)
             ^ F.mult ab.1.1 ab.1.2) *
       ∏ cc ∈ (children N t).attach,
         have hp : N.parent cc.1.1 = t := (mem_children N).mp cc.2
@@ -85,7 +87,7 @@ decreasing_by assumption
 /-- The value computed at the gate `S c δ`: the sum, over admissible maps `γ'` on `β(c)` whose
 restriction to `β(parent c) ∩ β(c)` agrees with `δ`, of the value at `c`. -/
 noncomputable def Q (c : NonRoot N) (δ : Adm F n (N.bag (N.parent c.1) ∩ N.bag c.1)) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   ∑ γ' ∈ (Finset.univ : Finset (Adm F n (N.bag c.1))).filter
       (fun γ' => ∀ (x : F.A ⊕ F.B) (hx : x ∈ N.bag (N.parent c.1) ∩ N.bag c.1),
         γ' ⟨x, Finset.inter_subset_right hx⟩ = δ ⟨x, hx⟩),
@@ -96,7 +98,7 @@ theorem P_eq (t : N.Node) (γ : Adm F n (N.bag t)) :
     P N n (K := K) t γ =
       (∏ ab ∈ (edgesAt N t).attach,
           (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩,
-                γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) : MvPolynomial (Fin n × Fin n) K)
+                γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) : MatrixPolynomial n K)
             ^ F.mult ab.1.1 ab.1.2) *
       ∏ cc ∈ (children N t).attach,
         Q N n cc.1 (restrictFromParent N n cc.1 ((mem_children N).mp cc.2) γ) := by
@@ -135,10 +137,10 @@ variable (N : NormDecomp F Δ k) (n : ℕ) {K : Type*} [CommSemiring K]
 recovers the product over represented edges: this is the "nice form" of the input-gate
 contribution to `R t γ`. -/
 theorem prod_pow_wireRtoInp (t : N.Node) (γ : Adm F n (N.bag t)) :
-    ∏ p : Fin n × Fin n, (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2 =
+    ∏ p : Fin n × Fin n, (X p : MatrixPolynomial n K) ^ wireRtoInp N n t γ p.1 p.2 =
       ∏ ab ∈ (edgesAt N t).attach,
         (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) :
-          MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 := by
+          MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2 := by
   classical
   set g : {ab // ab ∈ edgesAt N t} → Fin n × Fin n :=
     fun ab => (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩)
@@ -154,14 +156,14 @@ theorem prod_pow_wireRtoInp (t : N.Node) (γ : Adm F n (N.bag t)) :
   have hmaps : ∀ ab ∈ (edgesAt N t).attach, g ab ∈ (Finset.univ : Finset (Fin n × Fin n)) :=
     fun ab _ => Finset.mem_univ _
   rw [← Finset.prod_fiberwise_of_maps_to hmaps
-    (fun ab => (X (g ab) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2)]
+    (fun ab => (X (g ab) : MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2)]
   apply Finset.prod_congr rfl
   intro p _
   rw [hw p]
   rw [show (∏ ab ∈ (edgesAt N t).attach.filter (fun ab => g ab = p),
-        (X (g ab) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2) =
+        (X (g ab) : MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2) =
       ∏ ab ∈ (edgesAt N t).attach.filter (fun ab => g ab = p),
-        (X p : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 from
+        (X p : MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2 from
     Finset.prod_congr rfl (fun ab hab => by rw [(Finset.mem_filter.mp hab).2]),
     Finset.prod_pow_eq_pow_sum]
 
@@ -273,7 +275,7 @@ variable (N : NormDecomp F Δ k) (n : ℕ) {K : Type*} [CommSemiring K]
 
 /-- The value the circuit should compute at each gate: `P` at `R`-gates, `Q` at `S`-gates, the
 corresponding variable at input gates. -/
-noncomputable def val : CGate N n → MvPolynomial (Fin n × Fin n) K
+noncomputable def val : CGate N n → MatrixPolynomial n K
   | .R t γ => P N n t γ
   | .S c δ => Q N n c δ
   | .inp i j => X (i, j)
@@ -299,17 +301,17 @@ theorem prod_val_wire_R (t : N.Node) (γ : Adm F n (N.bag t)) :
       (val N n (K := K) (CGate.inp i j)) ^ (wire N n (CGate.R t γ) (CGate.inp i j))) =
       ∏ ab ∈ (edgesAt N t).attach,
         (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) :
-          MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 := by
+          MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2 := by
     have step1 : (∏ i : Fin n, ∏ j : Fin n,
         (val N n (K := K) (CGate.inp i j)) ^ (wire N n (CGate.R t γ) (CGate.inp i j))) =
         ∏ i : Fin n, ∏ j : Fin n,
-          (X (i, j) : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ i j :=
+          (X (i, j) : MatrixPolynomial n K) ^ wireRtoInp N n t γ i j :=
       Finset.prod_congr rfl (fun i _ => Finset.prod_congr rfl (fun j _ => rfl))
     have step2 : (∏ i : Fin n, ∏ j : Fin n,
-        (X (i, j) : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ i j) =
-        ∏ p : Fin n × Fin n, (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2 :=
+        (X (i, j) : MatrixPolynomial n K) ^ wireRtoInp N n t γ i j) =
+        ∏ p : Fin n × Fin n, (X p : MatrixPolynomial n K) ^ wireRtoInp N n t γ p.1 p.2 :=
       (Fintype.prod_prod_type
-        (fun p : Fin n × Fin n => (X p : MvPolynomial (Fin n × Fin n) K) ^ wireRtoInp N n t γ p.1 p.2)).symm
+        (fun p : Fin n × Fin n => (X p : MatrixPolynomial n K) ^ wireRtoInp N n t γ p.1 p.2)).symm
     rw [step1, step2]
     exact prod_pow_wireRtoInp N n t γ
   rw [h1, h2, h3, one_mul, P_eq]

@@ -6,6 +6,8 @@ Computation of the path-decomposition ABP: its paths are global vertex assignmen
 and its edge-processing counts reproduce the multiplicities of the pattern.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.Section6BagComputes
 
 open Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
@@ -82,7 +84,7 @@ noncomputable def globalPathEquiv : (F.A ⊕ F.B → Fin n) ≃ (abp D n hn K).P
       (Section6LayeredPaths.trajectoryEquiv (program D n hn K))
 
 noncomputable def localWeight (h : F.A ⊕ F.B → Fin n) (i : Fin (D.length + 1)) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   match D.process i with
   | none => 1
   | some (a, b) => MvPolynomial.X (h (Sum.inl a), h (Sum.inr b))
@@ -109,7 +111,7 @@ theorem pathWeight_global (h : F.A ⊕ F.B → Fin n) :
 theorem product_localWeight (h : F.A ⊕ F.B → Fin n) :
     (∏ i : Fin D.length, localWeight D n K h i.castSucc) =
       ∏ a : F.A, ∏ b : F.B, MvPolynomial.X (h (Sum.inl a), h (Sum.inr b)) ^ F.mult a b := by
-  let w : Option (F.A × F.B) → MvPolynomial (Fin n × Fin n) K :=
+  let w : Option (F.A × F.B) → MatrixPolynomial n K :=
     fun e => match e with
       | none => 1
       | some (a, b) => MvPolynomial.X (h (Sum.inl a), h (Sum.inr b))

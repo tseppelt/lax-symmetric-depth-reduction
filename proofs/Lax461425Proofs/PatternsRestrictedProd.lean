@@ -29,6 +29,8 @@ in the span additionally uses that `ℓ + r ≤ k` (so that *pointwise products*
 support), matching the paper's own use of this hypothesis for `ψ_Π` (not needed for `ψ_Σ`).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsRestrictedProd
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -44,7 +46,7 @@ variable {ℓ ℓ' r r' : ℕ}
 
 /-- The span `𝔗^{Δ,k}_{n,P}(ℓ,r)` is closed under pointwise powers. -/
 theorem span𝔗P_pow_mem {K : Type*} [Field K] {Δ k n ℓ r : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
-    (hP : P.card ≤ k) {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    (hP : P.card ≤ k) {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hφ : φ ∈ span𝔗P K Δ k n P) (m : ℕ) :
     (fun v w => φ v w ^ m) ∈ span𝔗P K Δ k n P := by
   induction m with
@@ -60,14 +62,14 @@ theorem span𝔗P_pow_mem {K : Type*} [Field K] {Δ k n ℓ r : ℕ} {P : Finset
 /-- **`Q_m`**: `c⁻¹ • Σ^≠(δ ⊙ φ^{⊙m})`, mirroring the construction inside `exists_ψSum` with `φ`
 replaced by `φ^{⊙m}`. -/
 noncomputable def Q (K : Type*) [Field K] (ℓ ℓ' r r' n c : ℕ)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
-    (m : ℕ) : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
+    (m : ℕ) : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K :=
   (c : K)⁻¹ • sumExt K n (fun v' w' => δ K ℓ ℓ' r r' n v' w' * φ v' w' ^ m)
 
 /-- **`Q_m` lies in the (unrestricted) `Δ+1` span**, for every `m`. -/
 theorem Q_mem_span (K : Type*) [Field K] (Δ k n ℓ ℓ' r r' c : ℕ)
     (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r'))) (hP : P.card ≤ k)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n P) (m : ℕ) :
     Q K ℓ ℓ' r r' n c φ m ∈ span𝔗P K (Δ + 1) k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r)) := by
   unfold Q
@@ -78,7 +80,7 @@ theorem Q_mem_span (K : Type*) [Field K] (Δ k n ℓ ℓ' r r' c : ℕ)
 /-- **`Q_m`'s evaluation** at injective `v, w`: the `m`-th power sum of `φ` over `Y(v,w)`,
 divided by `c`. -/
 theorem Q_eval (K : Type*) [Field K] (ℓ ℓ' r r' n c : ℕ)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (v : Fin ℓ → Fin n) (w : Fin r → Fin n) (hv : Function.Injective v)
     (hw : Function.Injective w) (m : ℕ) :
     Q K ℓ ℓ' r r' n c φ m v w =
@@ -91,11 +93,11 @@ theorem Q_eval (K : Type*) [Field K] (ℓ ℓ' r r' n c : ℕ)
 `Σ_{B ∈ 𝒬} φ_B^m` of the constant values `φ_B` of `φ` on the classes of a partition `𝒬` of
 `Y(v,w)` into classes of size `c`. -/
 theorem Q_eval_partition (K : Type*) [Field K] [CharZero K] (ℓ ℓ' r r' n c : ℕ) (hc : c ≠ 0)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (v : Fin ℓ → Fin n) (w : Fin r → Fin n) (hv : Function.Injective v)
     (hw : Function.Injective w) (m : ℕ) (𝒬 : Finpartition (Y ℓ' r' n v w))
     (hsize : ∀ B ∈ 𝒬.parts, B.card = c)
-    (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MvPolynomial (Fin n × Fin n) K)
+    (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MatrixPolynomial n K)
     (hφB : ∀ B ∈ 𝒬.parts, ∀ x ∈ B, φ (Fin.append v x.1) (Fin.append w x.2) = φB B) :
     Q K ℓ ℓ' r r' n c φ m v w = ∑ B ∈ 𝒬.parts, (φB B) ^ m := by
   rw [Q_eval K ℓ ℓ' r r' n c φ v w hv hw m,
@@ -110,13 +112,13 @@ theorem Q_eval_partition (K : Type*) [Field K] [CharZero K] (ℓ ℓ' r r' n c :
 
 /-! ### Bridging `R`-valued `μ(π)` back to a `K`-scalar -/
 
-/-- `μ(π)`, computed inside `MvPolynomial (Fin n × Fin n) K`, is `C` applied to `μ(π)` computed
+/-- `μ(π)`, computed inside `MatrixPolynomial n K`, is `C` applied to `μ(π)` computed
 inside `K` itself: both are built from the same integer data (`-1`'s and factorials) via a ring
 homomorphism (`MvPolynomial.C`). -/
 theorem muC_eq {K : Type*} [Field K] [CharZero K] {n N : ℕ}
-    [Algebra ℚ (MvPolynomial (Fin n × Fin n) K)] (π : Finpartition (Finset.univ : Finset (Fin N))) :
+    [Algebra ℚ (MatrixPolynomial n K)] (π : Finpartition (Finset.univ : Finset (Fin N))) :
     MvPolynomial.C (PatternsNewton.mu (R := K) π) =
-      PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π := by
+      PatternsNewton.mu (R := MatrixPolynomial n K) π := by
   unfold PatternsNewton.mu
   rw [map_prod]
   refine Finset.prod_congr rfl (fun B _ => ?_)
@@ -132,16 +134,16 @@ and `ℓ + r ≤ k`, there is `ψ_Π ∈ 𝔗^{Δ+1,k}_n(ℓ,r)` with the follow
 theorem exists_ψProd (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
     (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r'))) (hP : P.card ≤ k) (hlr : ℓ + r ≤ k) (c : ℕ)
     (hc : c ≠ 0)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n P) :
-    ∃ ψProd : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K,
+    ∃ ψProd : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K,
       ψProd ∈ span𝔗P K (Δ + 1) k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r)) ∧
       ∀ (v : Fin ℓ → Fin n) (w : Fin r → Fin n), Function.Injective v → Function.Injective w →
       ∀ (𝒬 : Finpartition (Y ℓ' r' n v w)), (∀ B ∈ 𝒬.parts, B.card = c) →
-      ∀ (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MvPolynomial (Fin n × Fin n) K),
+      ∀ (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MatrixPolynomial n K),
         (∀ B ∈ 𝒬.parts, ∀ x ∈ B, φ (Fin.append v x.1) (Fin.append w x.2) = φB B) →
         ψProd v w = ∏ B ∈ 𝒬.parts, φB B := by
-  have hAlg : Algebra ℚ (MvPolynomial (Fin n × Fin n) K) :=
+  have hAlg : Algebra ℚ (MatrixPolynomial n K) :=
     RingHom.toAlgebra ((MvPolynomial.C).comp (algebraMap ℚ K))
   have hPunivlr : (Finset.univ : Finset (Fin ℓ ⊕ Fin r)).card ≤ k := by
     rw [Finset.card_univ, Fintype.card_sum, Fintype.card_fin, Fintype.card_fin]
@@ -149,27 +151,27 @@ theorem exists_ψProd (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
   set N : ℕ := cardY n ℓ ℓ' r r' / c with hN
   refine ⟨fun v w => (N.factorial : K)⁻¹ •
     ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-      PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+      PatternsNewton.mu (R := MatrixPolynomial n K) π *
         ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w, ?_, ?_⟩
   · -- Membership.
     apply Submodule.smul_mem
     have hsum_eq : (fun v w => ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-          PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+          PatternsNewton.mu (R := MatrixPolynomial n K) π *
             ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w) =
         ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-          (fun v w => PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+          (fun v w => PatternsNewton.mu (R := MatrixPolynomial n K) π *
             ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w) := by
       funext v w
       simp only [Finset.sum_apply]
     rw [hsum_eq]
     apply Submodule.sum_mem
     intro π _
-    have heq2 : (fun v w => PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+    have heq2 : (fun v w => PatternsNewton.mu (R := MatrixPolynomial n K) π *
           ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w) =
         (PatternsNewton.mu (R := K) π) •
           (fun v w => ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w) := by
       funext v w
-      show PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+      show PatternsNewton.mu (R := MatrixPolynomial n K) π *
           ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w =
         (PatternsNewton.mu (R := K) π) • (∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w)
       rw [Algebra.smul_def, MvPolynomial.algebraMap_eq, muC_eq]
@@ -181,7 +183,7 @@ theorem exists_ψProd (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
     intro v w hv hw 𝒬 hsize φB hφB
     show (N.factorial : K)⁻¹ •
       ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-        PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+        PatternsNewton.mu (R := MatrixPolynomial n K) π *
           ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w = ∏ B ∈ 𝒬.parts, φB B
     have hsumcard : ∑ B ∈ 𝒬.parts, B.card = (Y ℓ' r' n v w).card := Finpartition.sum_card_parts 𝒬
     have hsumcard' : ∑ B ∈ 𝒬.parts, B.card = 𝒬.parts.card * c := by
@@ -193,14 +195,14 @@ theorem exists_ψProd (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
       rw [hN, ← heqc, Nat.mul_comm, Nat.mul_div_cancel_left _ hc0]
     have hcardcoe : Fintype.card (↥𝒬.parts) = N := by rw [Fintype.card_coe, hNparts]
     set e : Fin N ≃ ↥𝒬.parts := (Fintype.equivFinOfCardEq hcardcoe).symm with he
-    set y : Fin N → MvPolynomial (Fin n × Fin n) K := fun i => φB (e i).1 with hy
+    set y : Fin N → MatrixPolynomial n K := fun i => φB (e i).1 with hy
     have hsum_coe : ∀ (g : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) →
-        MvPolynomial (Fin n × Fin n) K), ∑ x : ↥𝒬.parts, g x.1 = ∑ B ∈ 𝒬.parts, g B := by
+        MatrixPolynomial n K), ∑ x : ↥𝒬.parts, g x.1 = ∑ B ∈ 𝒬.parts, g B := by
       intro g
       show ∑ x ∈ (Finset.univ : Finset ↥𝒬.parts), g x.1 = ∑ B ∈ 𝒬.parts, g B
       rw [Finset.univ_eq_attach, Finset.sum_attach]
     have hprod_coe : ∀ (g : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) →
-        MvPolynomial (Fin n × Fin n) K), ∏ x : ↥𝒬.parts, g x.1 = ∏ B ∈ 𝒬.parts, g B := by
+        MatrixPolynomial n K), ∏ x : ↥𝒬.parts, g x.1 = ∏ B ∈ 𝒬.parts, g B := by
       intro g
       show ∏ x ∈ (Finset.univ : Finset ↥𝒬.parts), g x.1 = ∏ B ∈ 𝒬.parts, g B
       rw [Finset.univ_eq_attach, Finset.prod_attach]
@@ -218,27 +220,27 @@ theorem exists_ψProd (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
     have hQ : ∀ m : ℕ, Q K ℓ ℓ' r r' n c φ m v w = PatternsNewton.powerSum y m := by
       intro m
       rw [Q_eval_partition K ℓ ℓ' r r' n c hc φ v w hv hw m 𝒬 hsize φB hφB, hpowerSum]
-    have hstep : (N.factorial : MvPolynomial (Fin n × Fin n) K) * ∏ B ∈ 𝒬.parts, φB B =
+    have hstep : (N.factorial : MatrixPolynomial n K) * ∏ B ∈ 𝒬.parts, φB B =
         ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-          PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+          PatternsNewton.mu (R := MatrixPolynomial n K) π *
             ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w := by
       rw [← hprodY, PatternsNewton.newton y]
       refine Finset.sum_congr rfl (fun π _ => ?_)
-      refine congrArg (fun z => PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π * z) ?_
+      refine congrArg (fun z => PatternsNewton.mu (R := MatrixPolynomial n K) π * z) ?_
       exact Finset.prod_congr rfl (fun B _ => (hQ B.card).symm)
-    have hcast : (N.factorial : K) • (1 : MvPolynomial (Fin n × Fin n) K) =
-        (N.factorial : MvPolynomial (Fin n × Fin n) K) := by
+    have hcast : (N.factorial : K) • (1 : MatrixPolynomial n K) =
+        (N.factorial : MatrixPolynomial n K) := by
       rw [Algebra.smul_def, mul_one, MvPolynomial.algebraMap_eq, map_natCast]
     have hfacne : (N.factorial : K) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero N)
     calc (N.factorial : K)⁻¹ •
         ∑ π : Finpartition (Finset.univ : Finset (Fin N)),
-          PatternsNewton.mu (R := MvPolynomial (Fin n × Fin n) K) π *
+          PatternsNewton.mu (R := MatrixPolynomial n K) π *
             ∏ B ∈ π.parts, Q K ℓ ℓ' r r' n c φ B.card v w
         = (N.factorial : K)⁻¹ •
-            ((N.factorial : MvPolynomial (Fin n × Fin n) K) * ∏ B ∈ 𝒬.parts, φB B) := by
+            ((N.factorial : MatrixPolynomial n K) * ∏ B ∈ 𝒬.parts, φB B) := by
           rw [← hstep]
       _ = (N.factorial : K)⁻¹ •
-            (((N.factorial : K) • (1 : MvPolynomial (Fin n × Fin n) K)) * ∏ B ∈ 𝒬.parts, φB B) := by
+            (((N.factorial : K) • (1 : MatrixPolynomial n K)) * ∏ B ∈ 𝒬.parts, φB B) := by
           rw [hcast]
       _ = (N.factorial : K)⁻¹ • ((N.factorial : K) • (1 * ∏ B ∈ 𝒬.parts, φB B)) := by
           rw [smul_mul_assoc]

@@ -3,6 +3,8 @@ import Lax461425Proofs.PathRefinementPathwidth
 import Lax461425Proofs.PatternsFromCircuits
 
 /-! Evaluating Tim's labelled witnesses with the added path certificate. -/
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PathRefinementUnlabelled
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
 open Lax461425.HomomorphismPolynomials Lax461425.SymmetricABPs
@@ -12,7 +14,7 @@ open RigidComputes ReducedRigid
 open scoped Classical
 
 theorem eval_mem_span_hom {K : Type*} [Field K] {Δ k n ℓ r : ℕ} (hℓ : ℓ = 0) (hr : r = 0)
-    {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hφ : φ ∈ spanLinear K Δ k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r))) (v : Fin ℓ → Fin n)
     (w : Fin r → Fin n) :
     φ v w ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q} := by
@@ -39,7 +41,7 @@ theorem eval_mem_span_hom {K : Type*} [Field K] {Δ k n ℓ r : ℕ} (hℓ : ℓ
 theorem mem_span_hom {K : Type*} [Field K] [CharZero K] {k n : ℕ} (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
-    (hskew : Lax461425.CircuitProperties.IsSkew C) {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    (hskew : Lax461425.CircuitProperties.IsSkew C) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q} := by
   have hrig : IsRigid C := ReducedRigid.isRigid hsym hred
   have hn2 : 2 * supportSize C < n := by omega

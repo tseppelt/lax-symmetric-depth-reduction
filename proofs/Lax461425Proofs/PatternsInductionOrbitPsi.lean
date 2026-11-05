@@ -8,6 +8,8 @@ canonical enumeration is the sum/product of `qfun` over `Ofinset hrig hn g h` �
 by its members.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionOrbitPsi
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -28,14 +30,14 @@ set_option maxHeartbeats 4000000
 variable {K : Type*} [Field K] [CharZero K] {n : ℕ} {C : Circuit (Fin n × Fin n) K}
 variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h : C.Gate} {k : ℕ}
 variable (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-  MvPolynomial (Fin n × Fin n) K)
+  MatrixPolynomial n K)
 variable (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
   (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
 variable (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
 
 /-- **`φB`**: the constant-on-blocks function fed to `exists_ψSum`/`exists_ψProd`, built from
 `ψ_h` evaluated at each block's chosen representative. -/
-noncomputable def φBlock : Finset (Pairs hrig hn (g := g) (h := h)) → MvPolynomial (Fin n × Fin n) K :=
+noncomputable def φBlock : Finset (Pairs hrig hn (g := g) (h := h)) → MatrixPolynomial n K :=
   fun B =>
     if hB : B ∈ (Qpart hrig hn (g := g) (h := h)).parts then
       ψh hrig hn φh (Fin.append (leftEnum hrig hn g) (exists_rep_of_mem_Qpart hrig hn hB).choose.1)
@@ -74,7 +76,7 @@ theorem exists_ψOrbitSum
     (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
     (hsize : supportSize C ≤ k) :
     ∃ ψOSum : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψOSum ∈ span𝔗P K (sc C h + 1) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψOSum (leftEnum hrig hn g) (rightEnum hrig hn g) =
@@ -98,7 +100,7 @@ theorem exists_ψOrbitProd
     (hsize : supportSize C ≤ k)
     (hlr : leftCard hrig hn g + rightCard hrig hn g ≤ k) :
     ∃ ψOProd : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψOProd ∈ span𝔗P K (sc C h + 1) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψOProd (leftEnum hrig hn g) (rightEnum hrig hn g) =

@@ -16,6 +16,8 @@ restricted sum of `φ` over `Y(v,w)`. Finally, for a partition of `Y(v,w)` into 
 giving `lem:restricted`'s `ψ_Σ`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsRestrictedSum
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -30,7 +32,7 @@ variable {ℓ ℓ' r r' : ℕ}
 sum of `φ` over `Y(v,w)` alone (the non-`Y(v,w)` terms are killed by `δ`'s indicator, `δ_eval`). -/
 theorem sumExt_delta_mul_eq_sum_Y (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ → Fin n)
     (w : Fin r → Fin n) (hv : Function.Injective v) (hw : Function.Injective w)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K) :
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K) :
     sumExt K n (fun v' w' => δ K ℓ ℓ' r r' n v' w' * φ v' w') v w =
       ∑ yz ∈ Y ℓ' r' n v w, φ (Fin.append v yz.1) (Fin.append w yz.2) := by
   show (∑ y : Fin ℓ' → Fin n, ∑ z : Fin r' → Fin n,
@@ -40,7 +42,7 @@ theorem sumExt_delta_mul_eq_sum_Y (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ �
   simp_rw [δ_eval K n v w hv hw]
   rw [← Fintype.sum_prod_type']
   rw [show (∑ x : (Fin ℓ' → Fin n) × (Fin r' → Fin n),
-      (if x ∈ Y ℓ' r' n v w then (1 : MvPolynomial (Fin n × Fin n) K) else 0) *
+      (if x ∈ Y ℓ' r' n v w then (1 : MatrixPolynomial n K) else 0) *
         φ (Fin.append v x.1) (Fin.append w x.2)) =
       ∑ x : (Fin ℓ' → Fin n) × (Fin r' → Fin n),
         if x ∈ Y ℓ' r' n v w then φ (Fin.append v x.1) (Fin.append w x.2) else 0 from
@@ -55,9 +57,9 @@ theorem sumExt_delta_mul_eq_sum_Y (K : Type*) [Field K] (n : ℕ) (v : Fin ℓ �
 φ(vy,wz)`. -/
 theorem exists_sum_Y_mem_span (K : Type*) [Field K] (Δ k n : ℕ)
     (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r'))) (hP : P.card ≤ k)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n P) :
-    ∃ ψSumFull : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K,
+    ∃ ψSumFull : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K,
       ψSumFull ∈ span𝔗P K (Δ + 1) k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r)) ∧
       ∀ (v : Fin ℓ → Fin n) (w : Fin r → Fin n), Function.Injective v → Function.Injective w →
         ψSumFull v w = ∑ yz ∈ Y ℓ' r' n v w, φ (Fin.append v yz.1) (Fin.append w yz.2) := by
@@ -79,13 +81,13 @@ partition `𝒬` of `Y(v,w)` into classes of size exactly `c` (`c ≠ 0`) on whi
 (witnessed by `φB`, assigning each part its common value of `φ`), `ψ_Σ(v,w) = ∑_{B ∈ 𝒬} φ_B`. -/
 theorem exists_ψSum (K : Type*) [Field K] [CharZero K] (Δ k n : ℕ)
     (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r'))) (hP : P.card ≤ k) (c : ℕ) (hc : c ≠ 0)
-    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n P) :
-    ∃ ψSum : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K,
+    ∃ ψSum : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K,
       ψSum ∈ span𝔗P K (Δ + 1) k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r)) ∧
       ∀ (v : Fin ℓ → Fin n) (w : Fin r → Fin n), Function.Injective v → Function.Injective w →
       ∀ (𝒬 : Finpartition (Y ℓ' r' n v w)), (∀ B ∈ 𝒬.parts, B.card = c) →
-      ∀ (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MvPolynomial (Fin n × Fin n) K),
+      ∀ (φB : Finset ((Fin ℓ' → Fin n) × (Fin r' → Fin n)) → MatrixPolynomial n K),
         (∀ B ∈ 𝒬.parts, ∀ x ∈ B, φ (Fin.append v x.1) (Fin.append w x.2) = φB B) →
         ψSum v w = ∑ B ∈ 𝒬.parts, φB B := by
   obtain ⟨ψSumFull, hmem, hval⟩ := exists_sum_Y_mem_span (ℓ' := ℓ') (r' := r') K Δ k n P hP φ hφ

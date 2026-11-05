@@ -16,6 +16,8 @@ reindexes it to `g`'s arity while leaving its value at `(leftEnum g, rightEnum g
 old value at `(leftEnum h, rightEnum h)`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionChild
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -51,11 +53,11 @@ depth bound, with the same value at the canonical enumerations. -/
 theorem exists_pad_of_subset (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h : C.Gate}
     (hsub : supOf hrig hn h ⊆ supOf hrig hn g) {Δ k : ℕ}
     (φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ span𝔗P K Δ k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) := by
@@ -79,11 +81,11 @@ the induction: `Δ ≤ Δ'` (from `sc_mono`) lets the result land in the depth-`
 theorem exists_pad_of_subset_mono (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h : C.Gate}
     (hsub : supOf hrig hn h ⊆ supOf hrig hn g) {Δ Δ' k : ℕ} (hΔ : Δ ≤ Δ')
     (φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ span𝔗P K Δ' k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) := by
@@ -97,11 +99,11 @@ for `g` at depth `sc C g`. -/
 theorem exists_pad_of_child (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g h : C.Gate}
     (hwire : 0 < C.wire g h) (hsub : supOf hrig hn h ⊆ supOf hrig hn g) {k : ℕ}
     (φ : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ span𝔗P K (sc C g) k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ (leftEnum hrig hn h) (rightEnum hrig hn h) :=
@@ -117,10 +119,10 @@ theorem exists_pad_of_range_eq (hrig : IsRigid C) (hn : 2 * supportSize C < n) {
     {m r : ℕ} {v : Fin m → Fin n} {w : Fin r → Fin n} (hv : Function.Injective v)
     (hw : Function.Injective w) (hvrange : Set.range v = leftPart (supOf hrig hn g))
     (hwrange : Set.range w = rightPart (supOf hrig hn g)) {Δ k : ℕ}
-    (φ : (Fin m → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (φ : (Fin m → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K)
     (hφ : φ ∈ span𝔗P K Δ k n (Finset.univ : Finset (Fin m ⊕ Fin r))) :
     ∃ ψ : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K,
+      MatrixPolynomial n K,
       ψ ∈ span𝔗P K Δ k n
         (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
       ψ (leftEnum hrig hn g) (rightEnum hrig hn g) = φ v w := by

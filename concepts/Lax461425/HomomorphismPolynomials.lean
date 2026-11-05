@@ -1,3 +1,4 @@
+import Lax461425.SymmetricFamilies
 import Mathlib.Algebra.MvPolynomial.Basic
 import Mathlib.Combinatorics.SimpleGraph.Basic
 
@@ -19,6 +20,8 @@ $$
 where the product counts edges with multiplicity. On the bi-adjacency matrix of a bipartite
 graph, it counts the homomorphisms respecting the bipartitions.
 -/
+
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
 
 namespace Lax461425.HomomorphismPolynomials
 
@@ -43,7 +46,7 @@ def underlying (F : Pattern) : SimpleGraph (F.A ⊕ F.B) :=
 
 /-- The homomorphism polynomial `hom_{F,n}` in the variables `x_{i,j}` for `i, j ∈ [n]`. -/
 noncomputable def hom (K : Type*) [CommSemiring K] (F : Pattern) (n : ℕ) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   ∑ hA : F.A → Fin n, ∑ hB : F.B → Fin n, ∏ a, ∏ b, MvPolynomial.X (hA a, hB b) ^ F.mult a b
 
 end Lax461425.HomomorphismPolynomials

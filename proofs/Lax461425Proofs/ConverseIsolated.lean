@@ -30,6 +30,8 @@ assembly; this file collects the reusable pieces:
   exactly.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Classical Lax461425.Circuits Lax461425.HomomorphismPolynomials Lax461425.Forestwidth
@@ -166,19 +168,19 @@ variable {K : Type*} [CommSemiring K]
 /-- The homomorphism-counting product only depends on the restriction of `hA`, `hB` to the
 non-isolated vertices. -/
 theorem prod_eq_prod_nonIso (hA : F.A → Fin n) (hB : F.B → Fin n) :
-    (∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b) =
+    (∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^ F.mult a b) =
       ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-        (X (hA a0.1, hB b0.1) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1 := by
-  have step1 : (∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^
+        (X (hA a0.1, hB b0.1) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1 := by
+  have step1 : (∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^
         F.mult a b) =
-      ∏ a0 : NonIsoA F, ∏ b : F.B, (X (hA a0.1, hB b) : MvPolynomial (Fin n × Fin n) K) ^
+      ∏ a0 : NonIsoA F, ∏ b : F.B, (X (hA a0.1, hB b) : MatrixPolynomial n K) ^
         F.mult a0.1 b := by
     have heq : (∏ a ∈ Finset.univ.filter (fun a : F.A => ∃ b, F.mult a b ≠ 0),
-          ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b) =
+          ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^ F.mult a b) =
         ∏ a0 : NonIsoA F, ∏ b : F.B,
-          (X (hA a0.1, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b :=
+          (X (hA a0.1, hB b) : MatrixPolynomial n K) ^ F.mult a0.1 b :=
       Finset.prod_subtype (Finset.univ.filter (fun a : F.A => ∃ b, F.mult a b ≠ 0)) (by simp)
-        (fun a => ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b)
+        (fun a => ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^ F.mult a b)
     rw [← heq]
     refine (Finset.prod_subset (Finset.filter_subset _ _) (fun a _ ha => ?_)).symm
     have ha' : ¬ ∃ b, F.mult a b ≠ 0 := by simpa using ha
@@ -189,11 +191,11 @@ theorem prod_eq_prod_nonIso (hA : F.A → Fin n) (hB : F.B → Fin n) :
   rw [step1]
   refine Finset.prod_congr rfl (fun a0 _ => ?_)
   have heq : (∏ b ∈ Finset.univ.filter (fun b : F.B => ∃ a, F.mult a b ≠ 0),
-        (X (hA a0.1, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b) =
-      ∏ b0 : NonIsoB F, (X (hA a0.1, hB b0.1) : MvPolynomial (Fin n × Fin n) K) ^
+        (X (hA a0.1, hB b) : MatrixPolynomial n K) ^ F.mult a0.1 b) =
+      ∏ b0 : NonIsoB F, (X (hA a0.1, hB b0.1) : MatrixPolynomial n K) ^
         F.mult a0.1 b0.1 :=
     Finset.prod_subtype (Finset.univ.filter (fun b : F.B => ∃ a, F.mult a b ≠ 0)) (by simp)
-      (fun b => (X (hA a0.1, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b)
+      (fun b => (X (hA a0.1, hB b) : MatrixPolynomial n K) ^ F.mult a0.1 b)
   rw [← heq]
   refine (Finset.prod_subset (Finset.filter_subset _ _) (fun b _ hb => ?_)).symm
   have hb' : ¬ ∃ a, F.mult a b ≠ 0 := by simpa using hb
@@ -204,7 +206,7 @@ theorem prod_eq_prod_nonIso (hA : F.A → Fin n) (hB : F.B → Fin n) :
 `(Fiso F).B = NonIsoB F`, `(Fiso F).mult a b = F.mult a.1 b.1`. -/
 theorem hom_Fiso_eq : hom K (Fiso F) n = ∑ hA1 : NonIsoA F → Fin n, ∑ hB1 : NonIsoB F → Fin n,
     ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-      (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1 := by
+      (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1 := by
   apply Finset.sum_congr rfl
   intro hA1 _
   apply Finset.sum_congr rfl
@@ -217,21 +219,21 @@ theorem hom_Fiso_eq : hom K (Fiso F) n = ∑ hA1 : NonIsoA F → Fin n, ∑ hB1 
 
 /-- **The polynomial identity.** `hom K F n = n ^ (isoJ F) * hom K (Fiso F) n`. -/
 theorem hom_eq_pow_mul_hom_Fiso :
-    hom K F n = (n : MvPolynomial (Fin n × Fin n) K) ^ (isoJ F) * hom K (Fiso F) n := by
+    hom K F n = (n : MatrixPolynomial n K) ^ (isoJ F) * hom K (Fiso F) n := by
   have hmain : hom K F n = ∑ hA1 : NonIsoA F → Fin n, ∑ hA2 : IsoA F → Fin n,
       ∑ hB1 : NonIsoB F → Fin n, ∑ hB2 : IsoB F → Fin n,
         ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-          (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1 := by
+          (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1 := by
     show (∑ hA : F.A → Fin n, ∑ hB : F.B → Fin n,
-        ∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b) = _
+        ∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^ F.mult a b) = _
     rw [← Equiv.sum_comp (ΦA F n).symm
       (fun hA => ∑ hB : F.B → Fin n,
-        ∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b),
+        ∏ a : F.A, ∏ b : F.B, (X (hA a, hB b) : MatrixPolynomial n K) ^ F.mult a b),
       Fintype.sum_prod_type]
     refine Finset.sum_congr rfl (fun hA1 _ => Finset.sum_congr rfl (fun hA2 _ => ?_))
     rw [← Equiv.sum_comp (ΦB F n).symm
       (fun hB => ∏ a : F.A, ∏ b : F.B,
-        (X (((ΦA F n).symm (hA1, hA2)) a, hB b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b),
+        (X (((ΦA F n).symm (hA1, hA2)) a, hB b) : MatrixPolynomial n K) ^ F.mult a b),
       Fintype.sum_prod_type]
     refine Finset.sum_congr rfl (fun hB1 _ => Finset.sum_congr rfl (fun hB2 _ => ?_))
     rw [prod_eq_prod_nonIso F n ((ΦA F n).symm (hA1, hA2)) ((ΦB F n).symm (hB1, hB2))]
@@ -240,18 +242,18 @@ theorem hom_eq_pow_mul_hom_Fiso :
   rw [hmain, hom_Fiso_eq]
   have hswap : (∑ hA1 : NonIsoA F → Fin n, ∑ hA2 : IsoA F → Fin n, ∑ hB1 : NonIsoB F → Fin n,
       ∑ hB2 : IsoB F → Fin n, ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-        (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1) =
+        (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1) =
       ∑ hA1 : NonIsoA F → Fin n, ∑ hB1 : NonIsoB F → Fin n, ∑ hA2 : IsoA F → Fin n,
         ∑ hB2 : IsoB F → Fin n, ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-          (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1 :=
+          (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1 :=
     Finset.sum_congr rfl (fun hA1 _ => Finset.sum_comm)
   rw [hswap]
   have hconst : ∀ hA1 : NonIsoA F → Fin n, ∀ hB1 : NonIsoB F → Fin n,
       (∑ hA2 : IsoA F → Fin n, ∑ hB2 : IsoB F → Fin n,
         ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-          (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1) =
-      (n : MvPolynomial (Fin n × Fin n) K) ^ (isoJ F) * ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
-        (X (hA1 a0, hB1 b0) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a0.1 b0.1 := by
+          (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1) =
+      (n : MatrixPolynomial n K) ^ (isoJ F) * ∏ a0 : NonIsoA F, ∏ b0 : NonIsoB F,
+        (X (hA1 a0, hB1 b0) : MatrixPolynomial n K) ^ F.mult a0.1 b0.1 := by
     intro hA1 hB1
     rw [Finset.sum_const, Finset.sum_const, Finset.card_univ, Finset.card_univ,
       Fintype.card_fun, Fintype.card_fun, Fintype.card_fin, smul_smul, nsmul_eq_mul]
@@ -470,14 +472,14 @@ theorem child_ne_out {y x : R0.Gate} (h : 0 < R0.wire y x) : x ≠ R0.out := by
 filled in by a constant `1`, irrelevant since its multiplicity is always `0`) matches the
 weighted sum over `R0`'s own gates exactly. -/
 theorem wsum_inl_eq (y : R0.Gate) (hyout : y ≠ R0.out)
-    (qf : R0.Gate → MvPolynomial (Fin n × Fin n) K) :
+    (qf : R0.Gate → MatrixPolynomial n K) :
     (∑ h, wwire R0 j (Sum.inl y) h •
-        (Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K))) h) =
+        (Sum.elim qf (fun _ => (1 : MatrixPolynomial n K))) h) =
       ∑ x, R0.wire y x • qf x := by
   rw [Fintype.sum_sum_type]
   simp only [Sum.elim_inl, Sum.elim_inr]
   have hz : (∑ w : WrapGate, wwire R0 j (Sum.inl y) (Sum.inr w) •
-      (1 : MvPolynomial (Fin n × Fin n) K)) = 0 := by
+      (1 : MatrixPolynomial n K)) = 0 := by
     apply Finset.sum_eq_zero
     intro w _
     have h0 : wwire R0 j (Sum.inl y) (Sum.inr w) = 0 := by
@@ -490,13 +492,13 @@ theorem wsum_inl_eq (y : R0.Gate) (hyout : y ≠ R0.out)
 
 /-- The product analogue of `wsum_inl_eq`. -/
 theorem wprod_inl_eq (y : R0.Gate) (hyout : y ≠ R0.out)
-    (qf : R0.Gate → MvPolynomial (Fin n × Fin n) K) :
-    (∏ h, (Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K))) h ^
+    (qf : R0.Gate → MatrixPolynomial n K) :
+    (∏ h, (Sum.elim qf (fun _ => (1 : MatrixPolynomial n K))) h ^
         wwire R0 j (Sum.inl y) h) = ∏ x, qf x ^ R0.wire y x := by
   rw [Fintype.prod_sum_type]
   simp only [Sum.elim_inl, Sum.elim_inr]
   have hz : (∏ w : WrapGate,
-      (1 : MvPolynomial (Fin n × Fin n) K) ^ wwire R0 j (Sum.inl y) (Sum.inr w)) = 1 :=
+      (1 : MatrixPolynomial n K) ^ wwire R0 j (Sum.inl y) (Sum.inr w)) = 1 :=
     Finset.prod_eq_one (fun w _ => one_pow _)
   rw [hz, mul_one]
   rfl
@@ -506,9 +508,9 @@ set_option maxHeartbeats 1000000 in
 computes, the corresponding wrapper gate `Sum.inl y` computes `p` unchanged if `y ≠ R0.out`, and
 computes `p * n ^ j` if `y = R0.out` (absorbing the extra pendant structure). -/
 theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (hn0 : 0 < n) :
-    ∀ y : R0.Gate, ∀ {p : MvPolynomial (Fin n × Fin n) K}, R0.ComputesAt y p →
+    ∀ y : R0.Gate, ∀ {p : MatrixPolynomial n K}, R0.ComputesAt y p →
       (wcircuit R0 j hout hj hn0).ComputesAt (Sum.inl y)
-        (if y = R0.out then p * (n : MvPolynomial (Fin n × Fin n) K) ^ j else p) := by
+        (if y = R0.out then p * (n : MatrixPolynomial n K) ^ j else p) := by
   intro y
   induction y using (wellFounded_child R0).induction with
   | _ y ih =>
@@ -517,8 +519,8 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
     · subst hyout
       obtain ⟨q, hq, hpeq⟩ := exists_mul_decomp R0 hout hp
       rw [if_pos rfl]
-      set Q : WGate R0 → MvPolynomial (Fin n × Fin n) K := Sum.elim q (fun w => match w with
-          | WrapGate.addG => (n : MvPolynomial (Fin n × Fin n) K)
+      set Q : WGate R0 → MatrixPolynomial n K := Sum.elim q (fun w => match w with
+          | WrapGate.addG => (n : MatrixPolynomial n K)
           | WrapGate.constG => 1) with hQdef
       have hchildren : ∀ h'', 0 < (wcircuit R0 j hout hj hn0).wire (Sum.inl R0.out) h'' →
           (wcircuit R0 j hout hj hn0).ComputesAt h'' (Q h'') := by
@@ -529,11 +531,11 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
         · cases w with
         | addG =>
             show (wcircuit R0 j hout hj hn0).ComputesAt (Sum.inr WrapGate.addG)
-              (n : MvPolynomial (Fin n × Fin n) K)
+              (n : MatrixPolynomial n K)
             have hval : (wcircuit R0 j hout hj hn0).ComputesAt (Sum.inr WrapGate.addG)
                 (∑ h, (wcircuit R0 j hout hj hn0).wire (Sum.inr WrapGate.addG) h •
-                  (1 : MvPolynomial (Fin n × Fin n) K)) := by
-              apply Circuit.ComputesAt.add (fun _ => (1 : MvPolynomial (Fin n × Fin n) K))
+                  (1 : MatrixPolynomial n K)) := by
+              apply Circuit.ComputesAt.add (fun _ => (1 : MatrixPolynomial n K))
                 (show (wcircuit R0 j hout hj hn0).label (Sum.inr WrapGate.addG) = .add from rfl)
               intro h' hpos'
               have hc : h' = Sum.inr WrapGate.constG := by
@@ -549,10 +551,10 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
                 (show (wcircuit R0 j hout hj hn0).label (Sum.inr WrapGate.constG) = .const 1
                   from rfl)
             have hsum : (∑ h, (wcircuit R0 j hout hj hn0).wire (Sum.inr WrapGate.addG) h •
-                  (1 : MvPolynomial (Fin n × Fin n) K)) = (n : MvPolynomial (Fin n × Fin n) K) := by
+                  (1 : MatrixPolynomial n K)) = (n : MatrixPolynomial n K) := by
               rw [Finset.sum_eq_single (Sum.inr WrapGate.constG)]
-              · show (n : ℕ) • (1 : MvPolynomial (Fin n × Fin n) K) =
-                  (n : MvPolynomial (Fin n × Fin n) K)
+              · show (n : ℕ) • (1 : MatrixPolynomial n K) =
+                  (n : MatrixPolynomial n K)
                 rw [nsmul_eq_mul, mul_one]
               · intro h' _ hne
                 have h0 : (wcircuit R0 j hout hj hn0).wire (Sum.inr WrapGate.addG) h' = 0 := by
@@ -571,24 +573,24 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
       have hmulcomp := Circuit.ComputesAt.mul Q
         (show (wcircuit R0 j hout hj hn0).label (Sum.inl R0.out) = .mul from hout) hchildren
       have hprodeq : (∏ h : WGate R0, Q h ^ (wcircuit R0 j hout hj hn0).wire (Sum.inl R0.out) h)
-          = p * (n : MvPolynomial (Fin n × Fin n) K) ^ j := by
+          = p * (n : MatrixPolynomial n K) ^ j := by
         rw [hpeq]
         show (∏ h : R0.Gate ⊕ WrapGate, Q h ^ wwire R0 j (Sum.inl R0.out) h) =
-          (∏ h', q h' ^ R0.wire R0.out h') * (n : MvPolynomial (Fin n × Fin n) K) ^ j
+          (∏ h', q h' ^ R0.wire R0.out h') * (n : MatrixPolynomial n K) ^ j
         rw [Fintype.prod_sum_type]
         have hleft : (∏ x : R0.Gate, Q (Sum.inl x) ^ wwire R0 j (Sum.inl R0.out) (Sum.inl x))
             = ∏ h', q h' ^ R0.wire R0.out h' := rfl
         have hright : (∏ w : WrapGate, Q (Sum.inr w) ^ wwire R0 j (Sum.inl R0.out) (Sum.inr w))
-            = (n : MvPolynomial (Fin n × Fin n) K) ^ j := by
+            = (n : MatrixPolynomial n K) ^ j := by
           have hWG : (Finset.univ : Finset WrapGate) = {WrapGate.addG, WrapGate.constG} := rfl
           rw [hWG, Finset.prod_insert (by decide), Finset.prod_singleton]
-          show (n : MvPolynomial (Fin n × Fin n) K) ^ (if R0.out = R0.out then j else 0) *
-              (1 : MvPolynomial (Fin n × Fin n) K) ^
+          show (n : MatrixPolynomial n K) ^ (if R0.out = R0.out then j else 0) *
+              (1 : MatrixPolynomial n K) ^
                 wwire R0 j (Sum.inl R0.out) (Sum.inr WrapGate.constG)
-            = (n : MvPolynomial (Fin n × Fin n) K) ^ j
+            = (n : MatrixPolynomial n K) ^ j
           rw [if_pos rfl]
-          show (n : MvPolynomial (Fin n × Fin n) K) ^ j * (1 : MvPolynomial (Fin n × Fin n) K) ^
-              (0 : ℕ) = (n : MvPolynomial (Fin n × Fin n) K) ^ j
+          show (n : MatrixPolynomial n K) ^ j * (1 : MatrixPolynomial n K) ^
+              (0 : ℕ) = (n : MatrixPolynomial n K) ^ j
           rw [pow_zero, mul_one]
         rw [hleft, hright]
       rw [← hprodeq]
@@ -604,7 +606,7 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
       | add qf hl hqf =>
           have hchildren : ∀ h, 0 < (wcircuit R0 j hout hj hn0).wire (Sum.inl y) h →
               (wcircuit R0 j hout hj hn0).ComputesAt h
-                ((Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K))) h) := by
+                ((Sum.elim qf (fun _ => (1 : MatrixPolynomial n K))) h) := by
             rintro (x | w) hpos
             · have hR0x : 0 < R0.wire y x := hpos
               have hihx := ih x hR0x (hqf x hR0x)
@@ -617,13 +619,13 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
               rw [h0] at hpos
               exact absurd hpos (by omega)
           have hval := Circuit.ComputesAt.add
-            (Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K)))
+            (Sum.elim qf (fun _ => (1 : MatrixPolynomial n K)))
             (show (wcircuit R0 j hout hj hn0).label (Sum.inl y) = .add from hl) hchildren
           rwa [wsum_inl_eq R0 j y hyout qf] at hval
       | mul qf hl hqf =>
           have hchildren : ∀ h, 0 < (wcircuit R0 j hout hj hn0).wire (Sum.inl y) h →
               (wcircuit R0 j hout hj hn0).ComputesAt h
-                ((Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K))) h) := by
+                ((Sum.elim qf (fun _ => (1 : MatrixPolynomial n K))) h) := by
             rintro (x | w) hpos
             · have hR0x : 0 < R0.wire y x := hpos
               have hihx := ih x hR0x (hqf x hR0x)
@@ -636,15 +638,15 @@ theorem wcircuit_lift_computesAt (hout : R0.label R0.out = .mul) (hj : 0 < j) (h
               rw [h0] at hpos
               exact absurd hpos (by omega)
           have hval := Circuit.ComputesAt.mul
-            (Sum.elim qf (fun _ => (1 : MvPolynomial (Fin n × Fin n) K)))
+            (Sum.elim qf (fun _ => (1 : MatrixPolynomial n K)))
             (show (wcircuit R0 j hout hj hn0).label (Sum.inl y) = .mul from hl) hchildren
           rwa [wprod_inl_eq R0 j y hyout qf] at hval
 
 /-- **The wrapper circuit computes `p0 * n ^ j`** whenever `R0.Computes p0`. -/
 theorem wcircuit_computes (hout : R0.label R0.out = .mul) (hj : 0 < j) (hn0 : 0 < n)
-    {p0 : MvPolynomial (Fin n × Fin n) K} (hp0 : R0.Computes p0) :
+    {p0 : MatrixPolynomial n K} (hp0 : R0.Computes p0) :
     (wcircuit R0 j hout hj hn0).Computes
-      (p0 * (n : MvPolynomial (Fin n × Fin n) K) ^ j) := by
+      (p0 * (n : MatrixPolynomial n K) ^ j) := by
   have := wcircuit_lift_computesAt R0 j hout hj hn0 R0.out hp0
   rwa [if_pos rfl] at this
 

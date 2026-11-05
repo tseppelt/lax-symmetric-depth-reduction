@@ -31,20 +31,20 @@ section Coefficients
 variable {K : Type*} [Field K] {n : ℕ}
 
 /-- Symmetry makes coefficients constant on each monomial orbit. -/
-theorem coeff_smul (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p)
+theorem coeff_smul (p : MatrixPolynomial n K) (hp : MatrixInvariant p)
     (γ : Γ n) (d : Exponent n) : p.coeff (γ • d) = p.coeff d := by
   have h := MvPolynomial.coeff_rename_mapDomain (actVar γ)
     (show Function.Injective (actVar γ) from (Equiv.prodCongr γ.1 γ.2).injective) p d
   rw [hp γ] at h
   exact h
 
-theorem coeff_of_orbit (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p)
+theorem coeff_of_orbit (p : MatrixPolynomial n K) (hp : MatrixInvariant p)
     (d e : Exponent n) (he : e ∈ MulAction.orbit (Γ n) d) : p.coeff e = p.coeff d := by
   obtain ⟨γ, rfl⟩ := he
   exact coeff_smul p hp γ d
 
 /-- Each support fiber is one entire orbit with a common coefficient. -/
-theorem fiber_sum (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p)
+theorem fiber_sum (p : MatrixPolynomial n K) (hp : MatrixInvariant p)
     (q : OrbitClass n) (hq : q ∈ p.support.image monomialClass) :
     (∑ d ∈ p.support.filter (fun d => monomialClass d = q), MvPolynomial.monomial d (p.coeff d)) =
       p.coeff q.out • orbitSum K q.out := by
@@ -79,7 +79,7 @@ polynomial divided by its nonzero automorphism factor; partition Möbius inversi
 expresses it in the bounded-vertex homomorphism span, as in DPS, Lemma 4 and Corollary A.3.
 -/
 theorem invariant_mem_span_hom {K : Type*} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p) :
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern,
       Fintype.card F.A ≤ n ∧ Fintype.card F.B ≤ n ∧ hom K F n = q} := by
   change p ∈ homSpan K n

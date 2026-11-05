@@ -15,6 +15,8 @@ by `inClassP_glue`; the remaining cases (`0`, `+`, scalar `•` on either factor
 bilinearity of pointwise multiplication.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsLabelledSpanMul
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -27,7 +29,7 @@ variable {ℓ r : ℕ}
 closed under pointwise multiplication. -/
 theorem span𝔗P_mul_mem {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
     (hP : P.card ≤ k)
-    {x y : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K}
+    {x y : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hx : x ∈ span𝔗P K Δ k n P) (hy : y ∈ span𝔗P K Δ k n P) :
     (fun v w => x v w * y v w) ∈ span𝔗P K Δ k n P := by
   induction hx, hy using Submodule.span_induction₂ with
@@ -42,18 +44,18 @@ theorem span𝔗P_mul_mem {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin 
       exact Submodule.subset_span ⟨glue G G', inClassP_glue G G' hP hG hG', rfl⟩
   | zero_left y _ =>
       have heq : (fun v w =>
-          (0 : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K) v w * y v w)
+          (0 : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K) v w * y v w)
           = 0 := by
         funext v w
-        show (0 : MvPolynomial (Fin n × Fin n) K) * y v w = 0
+        show (0 : MatrixPolynomial n K) * y v w = 0
         rw [zero_mul]
       rw [heq]
       exact Submodule.zero_mem _
   | zero_right x _ =>
       have heq : (fun v w => x v w *
-          (0 : (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K) v w) = 0 := by
+          (0 : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K) v w) = 0 := by
         funext v w
-        show x v w * (0 : MvPolynomial (Fin n × Fin n) K) = 0
+        show x v w * (0 : MatrixPolynomial n K) = 0
         rw [mul_zero]
       rw [heq]
       exact Submodule.zero_mem _

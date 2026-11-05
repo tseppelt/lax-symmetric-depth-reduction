@@ -75,7 +75,7 @@ variable [CharZero K]
 
 /-- Positive-order matrix-invariant polynomials have an actual formula witness with the
 paper's exact gate-orbit bound and the common square auxiliary-variable set. -/
-theorem square_formula_witness (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K)
+theorem square_formula_witness (hn : 1 ≤ n) (p : MatrixPolynomial n K)
     (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Aux n))
       (g : MvPolynomial (Variables n) K) (C : Circuit (Variables n) K),
@@ -98,7 +98,7 @@ conclusion: Lax461425.SymmetricFormulaWitness.formula_witness
 The same witness with auxiliary variables indexed by exactly `Fin (2n²)`.
 -/
 theorem formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K)
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K)
     (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)

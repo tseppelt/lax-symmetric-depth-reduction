@@ -24,7 +24,7 @@ The independent gate induction retains a path certificate at each step.
 theorem mem_span_hom {K : Type*} [Field K] [CharZero K] {k n : ℕ} (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
-    (hskew : IsSkew C) {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    (hskew : IsSkew C) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE (2 * k) F ∧ hom K F n = q} :=
   PathRefinementUnlabelled.mem_span_hom hk hn C hred hsym hsize hskew hp
 

@@ -19,6 +19,8 @@ point of `Y_u`, not just the real `N`-tuple, corresponds to an honest sibling ga
 value there is exactly that gate's computed polynomial.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionPsiH
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -81,10 +83,10 @@ theorem hYtot_eq_of_valid
 /-- **`ψ_h`**: `φ_h`, padded along `ιPadEmb` on each side to `g`'s arity plus `N`'s. -/
 noncomputable def ψh
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K) :
+      MatrixPolynomial n K) :
     (Fin (leftCard hrig hn g + ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n) →
     (Fin (rightCard hrig hn g + ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n) →
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   fun v' w' =>
     φh (v' ∘ ιPadEmb (leftEnum_injective hrig hn g) (leftEnum_injective hrig hn h))
       (w' ∘ ιPadEmb (rightEnum_injective hrig hn g) (rightEnum_injective hrig hn h))
@@ -93,7 +95,7 @@ noncomputable def ψh
 positions. -/
 theorem ψh_mem {k : ℕ}
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h)))) :
     ψh hrig hn φh ∈ span𝔗P K (sc C h) k n
@@ -119,7 +121,7 @@ sending the real `N`-tuple to `(y, z)`, `ψ_h` evaluated at `(Fin.append u.1 y, 
 equals `φ_h` evaluated at `(γ.1 ∘ leftEnum h, γ.2 ∘ rightEnum h)`. -/
 theorem ψh_eval_of_γ
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     {y : Fin (ℓN (leftEnum hrig hn g) (leftEnum hrig hn h)) → Fin n}
     {z : Fin (ℓN (rightEnum hrig hn g) (rightEnum hrig hn h)) → Fin n} {γ : Γ n}
     (hγmem : γ ∈ fixingSubgroup (Γ n) (supOf hrig hn g))
@@ -150,7 +152,7 @@ theorem ψh_eval_of_γ
 polynomial of the sibling gate `hYtot y z`. -/
 theorem ψh_computesAt {k : ℕ}
     (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-      MvPolynomial (Fin n × Fin n) K)
+      MatrixPolynomial n K)
     (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))

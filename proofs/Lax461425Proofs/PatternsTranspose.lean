@@ -8,9 +8,11 @@ type: definition
 ---
 Swapping the two sides of a bipartite pattern: `patternTranspose`, `LabelledPattern.transpose`,
 and the effect on homomorphism polynomials, which are mapped by the coordinate swap
-`Prod.swap` on `MvPolynomial (Fin n × Fin n) K`. This lets `B`-side statements be derived from
+`Prod.swap` on `MatrixPolynomial n K`. This lets `B`-side statements be derived from
 their `A`-side twins.
 -/
+
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
 
 namespace Lax461425Proofs.PatternsTranspose
 
@@ -29,9 +31,9 @@ def _root_.Lax461425Proofs.PatternsLabelledBasic.LabelledPattern.transpose {ℓ 
   a := G.b
   b := G.a
 
-/-- The coordinate swap on `MvPolynomial (Fin n × Fin n) K`. -/
+/-- The coordinate swap on `MatrixPolynomial n K`. -/
 noncomputable def swapPoly (K : Type*) [CommSemiring K] (n : ℕ) :
-    MvPolynomial (Fin n × Fin n) K →ₐ[K] MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K →ₐ[K] MatrixPolynomial n K :=
   MvPolynomial.rename Prod.swap
 
 theorem labelledHom_transpose (K : Type*) [CommSemiring K] {ℓ r : ℕ} (G : LabelledPattern ℓ r)

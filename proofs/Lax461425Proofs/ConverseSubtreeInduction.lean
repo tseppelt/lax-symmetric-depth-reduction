@@ -14,6 +14,8 @@ gluing bijection of `ConverseSubtreeGlue.lean` (via `Finset.sum_bij'`), and
 products).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Classical Lax461425.Circuits Lax461425.Circuits.Circuit Lax461425.HomomorphismPolynomials
@@ -102,7 +104,7 @@ theorem GvalAt_eq_of_ExtV {t : N.Node} (γ : Adm F n (N.bag t)) (h : Adm F n (V 
     GvalAt N n (K := K) t h =
       ∏ ab ∈ (edgesAt N t).attach,
         (X (γ ⟨Sum.inl ab.1.1, mem_bag_left N ab.2⟩, γ ⟨Sum.inr ab.1.2, mem_bag_right N ab.2⟩) :
-          MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2 := by
+          MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2 := by
   unfold GvalAt
   apply Finset.prod_congr rfl
   intro ab _

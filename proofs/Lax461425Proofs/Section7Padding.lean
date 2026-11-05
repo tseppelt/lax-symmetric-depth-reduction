@@ -57,7 +57,7 @@ theorem hom_padPattern {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ) :
     pow_zero, Finset.prod_const_one, mul_one, one_mul]
   let w := fun (a : F.A → Fin n) (b : F.B → Fin n) =>
     ∏ x : F.A, ∏ y : F.B,
-      (MvPolynomial.X (a x, b y) : MvPolynomial (Fin n × Fin n) K) ^ F.mult x y
+      (MvPolynomial.X (a x, b y) : MatrixPolynomial n K) ^ F.mult x y
   have hconst : ∀ (a : F.A → Fin n) (b : F.B → Fin n),
       (∑ _a : Fin (n - Fintype.card F.A) → Fin n,
         ∑ _b : Fin (n - Fintype.card F.B) → Fin n, w a b) =
@@ -116,7 +116,7 @@ theorem exists_square_hom {K : Type*} [CommSemiring K] (F : Pattern) (n : ℕ)
 /-- Padding converts the earlier spanning theorem to generators on exactly `n` vertices
 per side. The nonzero isolated-vertex factor is absorbed into coefficients. -/
 theorem invariant_mem_span_square {K : Type*} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p) :
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     p ∈ Submodule.span K {q | ∃ m : Fin n → Fin n → ℕ,
       hom K (squarePattern n m) n = q} := by
   have hspan := Lax461425.HomomorphismSpanning.invariant_mem_span_hom hn p hp
@@ -145,7 +145,7 @@ theorem invariant_mem_span_square {K : Type*} [Field K] [CharZero K] {n : ℕ}
 /-- A matrix-invariant polynomial is a finite linear combination of homomorphism
 polynomials on one common square bipartition. -/
 theorem finite_square_combination {K : Type*} [Field K] [CharZero K] {n : ℕ}
-    (hn : 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) (hp : MatrixInvariant p) :
+    (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     ∃ (r : ℕ) (c : Fin r → K) (m : Fin r → Fin n → Fin n → ℕ),
       p = ∑ i, MvPolynomial.C (c i) * hom K (squarePattern n (m i)) n := by
   obtain ⟨r, c, g, hg⟩ := Submodule.mem_span_set'.1 (invariant_mem_span_square hn p hp)

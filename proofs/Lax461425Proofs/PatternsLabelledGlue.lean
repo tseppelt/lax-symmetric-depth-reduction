@@ -22,6 +22,8 @@ original graphs), and it is what makes the key multiplicativity identity
 (`labelledHom_glue` below) true.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsLabelledGlue
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -197,24 +199,24 @@ vertex sets (no label-matching hypothesis is needed here): it is simply the stat
 theorem prod_pow_glueMult' (n : ℕ) (K : Type*) [CommSemiring K]
     (hA : GlueA G G' → Fin n) (hB : GlueB G G' → Fin n) :
     (∏ qa : GlueA G G', ∏ qb : GlueB G G',
-        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+        (X (hA qa, hB qb) : MatrixPolynomial n K) ^ glueMult' G G' qa qb)
       = ∏ x : G.F.A ⊕ G'.F.A, ∏ y : G.F.B ⊕ G'.F.B,
           (X (hA (glueπA G G' x), hB (glueπB G G' y)) :
-              MvPolynomial (Fin n × Fin n) K) ^ glueMult0 G G' x y := by
+              MatrixPolynomial n K) ^ glueMult0 G G' x y := by
   set g : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) → GlueA G G' × GlueB G G' :=
     fun p => (glueπA G G' p.1, glueπB G G' p.2) with hg
-  set f : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) → MvPolynomial (Fin n × Fin n) K :=
+  set f : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) → MatrixPolynomial n K :=
     fun p => X (hA (glueπA G G' p.1), hB (glueπB G G' p.2)) ^ glueMult0 G G' p.1 p.2 with hf
   calc (∏ qa : GlueA G G', ∏ qb : GlueB G G',
-        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+        (X (hA qa, hB qb) : MatrixPolynomial n K) ^ glueMult' G G' qa qb)
       = ∏ j : GlueA G G' × GlueB G G',
-          (X (hA j.1, hB j.2) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' j.1 j.2 :=
+          (X (hA j.1, hB j.2) : MatrixPolynomial n K) ^ glueMult' G G' j.1 j.2 :=
         (Fintype.prod_prod_type' _).symm
     _ = ∏ j : GlueA G G' × GlueB G G',
           ∏ p : {p : (G.F.A ⊕ G'.F.A) × (G.F.B ⊕ G'.F.B) // g p = j}, f p.1 := by
         apply Finset.prod_congr rfl
         intro j _
-        show (X (hA j.1, hB j.2) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' j.1 j.2 = _
+        show (X (hA j.1, hB j.2) : MatrixPolynomial n K) ^ glueMult' G G' j.1 j.2 = _
         rw [glueMult', ← Finset.prod_pow_eq_pow_sum]
         apply Finset.prod_congr rfl
         intro p _
@@ -235,13 +237,13 @@ factors as a product of the inner products for `G` and for `G'`. -/
 theorem prod_pow_glueMult'_eq_mul (n : ℕ) (K : Type*) [CommSemiring K]
     (hA : GlueA G G' → Fin n) (hB : GlueB G G' → Fin n) :
     (∏ qa : GlueA G G', ∏ qb : GlueB G G',
-        (X (hA qa, hB qb) : MvPolynomial (Fin n × Fin n) K) ^ glueMult' G G' qa qb)
+        (X (hA qa, hB qb) : MatrixPolynomial n K) ^ glueMult' G G' qa qb)
       = (∏ x : G.F.A, ∏ y : G.F.B,
           (X (hA (glueπA G G' (Sum.inl x)), hB (glueπB G G' (Sum.inl y))) :
-              MvPolynomial (Fin n × Fin n) K) ^ G.F.mult x y)
+              MatrixPolynomial n K) ^ G.F.mult x y)
         * ∏ x' : G'.F.A, ∏ y' : G'.F.B,
             (X (hA (glueπA G G' (Sum.inr x')), hB (glueπB G G' (Sum.inr y'))) :
-                MvPolynomial (Fin n × Fin n) K) ^ G'.F.mult x' y' := by
+                MatrixPolynomial n K) ^ G'.F.mult x' y' := by
   rw [prod_pow_glueMult']
   simp only [Fintype.prod_sum_type]
   congr 1
@@ -383,9 +385,9 @@ established here). -/
 theorem labelledHom_glue (n : ℕ) (K : Type*) [CommSemiring K]
     (v : Fin ℓ → Fin n) (w : Fin r → Fin n) :
     labelledHom K (glue G G') n v w = labelledHom K G n v w * labelledHom K G' n v w := by
-  set ΦG : (G.F.A → Fin n) → (G.F.B → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+  set ΦG : (G.F.A → Fin n) → (G.F.B → Fin n) → MatrixPolynomial n K :=
     fun hAG hBG => ∏ x, ∏ y, X (hAG x, hBG y) ^ G.F.mult x y with hΦG
-  set ΦG' : (G'.F.A → Fin n) → (G'.F.B → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+  set ΦG' : (G'.F.A → Fin n) → (G'.F.B → Fin n) → MatrixPolynomial n K :=
     fun hAG' hBG' => ∏ x', ∏ y', X (hAG' x', hBG' y') ^ G'.F.mult x' y' with hΦG'
   have hhomG : labelledHom K G n v w =
       ∑ hAG : G.F.A → Fin n, ∑ hBG : G.F.B → Fin n,
@@ -402,7 +404,7 @@ theorem labelledHom_glue (n : ℕ) (K : Type*) [CommSemiring K]
         else 0 := by
     show (∑ hA : GlueA G G' → Fin n, ∑ hB : GlueB G G' → Fin n,
         if (∀ i, hA ((glue G G').a i) = v i) ∧ (∀ j, hB ((glue G G').b j) = w j) then
-          (∏ x, ∏ y, X (hA x, hB y) ^ (glue G G').F.mult x y : MvPolynomial (Fin n × Fin n) K)
+          (∏ x, ∏ y, X (hA x, hB y) ^ (glue G G').F.mult x y : MatrixPolynomial n K)
         else 0) = _
     apply Finset.sum_congr rfl
     intro hA _

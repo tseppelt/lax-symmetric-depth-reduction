@@ -23,6 +23,8 @@ gate (its label is preserved by every renaming), so `∅` is a support of it, an
 labelled graph is a scalar multiple of `J 0 0` (so `ℓ = r = 0`).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionBase
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -304,7 +306,7 @@ theorem labelledHom_edgeGraph (n : ℕ) (v w : Fin 1 → Fin n) :
   show (∑ hA : Unit → Fin n, ∑ hB : Unit → Fin n,
       if (∀ i : Fin 1, hA () = v i) ∧ (∀ j : Fin 1, hB () = w j) then
         (∏ _x : Unit, ∏ _y : Unit, MvPolynomial.X (hA (), hB ()) ^ (1 : ℕ) :
-          MvPolynomial (Fin n × Fin n) K)
+          MatrixPolynomial n K)
       else 0) = MvPolynomial.X (v 0, w 0)
   have hcond : ∀ hA hB : Unit → Fin n,
       ((∀ i : Fin 1, hA () = v i) ∧ (∀ j : Fin 1, hB () = w j)) ↔
@@ -355,7 +357,7 @@ theorem exists_phi_input {K : Type*} [Field K] {n k : ℕ} (hk : 2 ≤ k) (hn : 
     {C : Circuit (Fin n × Fin n) K} (hred : C.IsReduced) (hsym : IsMatrixSymmetric C)
     (hsize : supportSize C ≤ k) {i j : Fin n} {g : C.Gate}
     (hg : C.label g = GateLabel.var (i, j)) :
-    ∃ φ : (Fin 1 → Fin n) → (Fin 1 → Fin n) → MvPolynomial (Fin n × Fin n) K,
+    ∃ φ : (Fin 1 → Fin n) → (Fin 1 → Fin n) → MatrixPolynomial n K,
       φ ∈ span𝔗P K 0 k n (Finset.univ : Finset (Fin 1 ⊕ Fin 1)) ∧
       φ (fun _ => i) (fun _ => j) = MvPolynomial.X (i, j) ∧
       sc C g = 0 ∧

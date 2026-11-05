@@ -6,6 +6,8 @@ If a pattern `F` has no edges, its homomorphism polynomial `hom K F n` is just t
 term of the defining double sum is `1`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Lax461425.HomomorphismPolynomials
@@ -14,7 +16,7 @@ theorem hom_eq_const_of_no_edge {K : Type*} [CommSemiring K] (F : Pattern) (n : 
     (hF : ∀ a b, F.mult a b = 0) :
     hom K F n = MvPolynomial.C ((n : K) ^ Fintype.card F.A * (n : K) ^ Fintype.card F.B) := by
   have hone : hom K F n =
-      ∑ _hA : F.A → Fin n, ∑ _hB : F.B → Fin n, (1 : MvPolynomial (Fin n × Fin n) K) := by
+      ∑ _hA : F.A → Fin n, ∑ _hB : F.B → Fin n, (1 : MatrixPolynomial n K) := by
     unfold hom
     refine Finset.sum_congr rfl (fun hA _ => Finset.sum_congr rfl (fun hB _ => ?_))
     refine Finset.prod_eq_one (fun a _ => Finset.prod_eq_one (fun b _ => ?_))
@@ -22,7 +24,7 @@ theorem hom_eq_const_of_no_edge {K : Type*} [CommSemiring K] (F : Pattern) (n : 
   rw [hone, Finset.sum_const, Finset.sum_const, Finset.card_univ, Finset.card_univ,
     Fintype.card_fun, Fintype.card_fun, Fintype.card_fin, smul_smul, nsmul_eq_mul, mul_one]
   rw [show ((n ^ Fintype.card F.A * n ^ Fintype.card F.B : ℕ) :
-      MvPolynomial (Fin n × Fin n) K) =
+      MatrixPolynomial n K) =
       MvPolynomial.C ((n ^ Fintype.card F.A * n ^ Fintype.card F.B : ℕ) : K) from
     (map_natCast MvPolynomial.C _).symm]
   congr 1

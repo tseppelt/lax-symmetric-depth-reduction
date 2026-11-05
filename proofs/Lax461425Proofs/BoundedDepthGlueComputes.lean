@@ -1,3 +1,4 @@
+import Lax461425.SymmetricFamilies
 import Lax461425Proofs.BoundedDepthGlueCircuit
 import Lax461425Proofs.BoundedDepthProdSum
 import Lax461425Proofs.RigidHeight
@@ -6,6 +7,8 @@ import Lax461425Proofs.RigidHeight
 **The glue circuit computes the scaled sum.** Given `(D i).Computes (p i)` for every block `i`,
 `glueCircuit D f` computes `∑ i, f i • p i`.
 -/
+
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
 
 namespace Lax461425Proofs
 
@@ -37,7 +40,7 @@ theorem gwire_blk_blk_self (i : Fin m) (y y' : (D i).Gate) :
 
 /-- **Lifting `ComputesAt` through a block embedding.** -/
 theorem blk_computesAt_lift (i : Fin m) :
-    ∀ y : (D i).Gate, ∀ {q : MvPolynomial (Fin n × Fin n) K}, (D i).ComputesAt y q →
+    ∀ y : (D i).Gate, ∀ {q : MatrixPolynomial n K}, (D i).ComputesAt y q →
       (glueCircuit D f).ComputesAt (blk D i y) q := by
   intro y
   induction y using (wellFounded_child (D i)).induction with
@@ -48,7 +51,7 @@ theorem blk_computesAt_lift (i : Fin m) :
     | const hl =>
         exact Circuit.ComputesAt.const (show (glueCircuit D f).label (blk D i y) = _ from hl)
     | add qf hl hqf =>
-        set Q : GGate D → MvPolynomial (Fin n × Fin n) K :=
+        set Q : GGate D → MatrixPolynomial n K :=
           fun h => match h with
             | Sum.inl ⟨j, y'⟩ => if hh : j = i then qf (hh ▸ y') else 0
             | Sum.inr _ => 0 with hQdef
@@ -84,7 +87,7 @@ theorem blk_computesAt_lift (i : Fin m) :
         rw [← hsumeq]
         exact hval
     | mul qf hl hqf =>
-        set Q : GGate D → MvPolynomial (Fin n × Fin n) K :=
+        set Q : GGate D → MatrixPolynomial n K :=
           fun h => match h with
             | Sum.inl ⟨j, y'⟩ => if hh : j = i then qf (hh ▸ y') else 1
             | Sum.inr _ => 1 with hQdef
@@ -121,10 +124,10 @@ theorem blk_computesAt_lift (i : Fin m) :
         exact hval
 
 /-- **The `scaledG i` gate computes `(output of block i) * f i`.** -/
-theorem scaledG_computesAt (i : Fin m) {p : MvPolynomial (Fin n × Fin n) K}
+theorem scaledG_computesAt (i : Fin m) {p : MatrixPolynomial n K}
     (hp : (D i).Computes p) :
     (glueCircuit D f).ComputesAt (scaledG D i) (p * MvPolynomial.C (f i)) := by
-  set Q : GGate D → MvPolynomial (Fin n × Fin n) K :=
+  set Q : GGate D → MatrixPolynomial n K :=
     fun h => if h = blk D i (D i).out then p else if h = constG D i then MvPolynomial.C (f i)
       else 1 with hQdef
   have hab : blk D i (D i).out ≠ constG D i := by
@@ -191,10 +194,10 @@ theorem scaledG_computesAt (i : Fin m) {p : MvPolynomial (Fin n × Fin n) K}
   exact hval
 
 /-- **The glue circuit computes `∑ i, f i • p i`.** -/
-theorem glueCircuit_computes {p : Fin m → MvPolynomial (Fin n × Fin n) K}
+theorem glueCircuit_computes {p : Fin m → MatrixPolynomial n K}
     (hp : ∀ i, (D i).Computes (p i)) :
     (glueCircuit D f).Computes (∑ i, f i • p i) := by
-  set Q : GGate D → MvPolynomial (Fin n × Fin n) K :=
+  set Q : GGate D → MatrixPolynomial n K :=
     fun h => if hh : ∃ i, h = scaledG D i then p hh.choose * MvPolynomial.C (f hh.choose)
       else 0 with hQdef
   have hQscaled : ∀ i, Q (scaledG D i) = p i * MvPolynomial.C (f i) := by
