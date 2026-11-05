@@ -8,8 +8,8 @@ import Lax461425.MatrixSymmetry
 title: Permanent polynomials and symmetric projections
 type: definition
 ---
-The permanent polynomial and the symmetric affine projections of Section 7.3. The order of
-the source permanent is deliberately unrestricted: no polynomial size bound is asserted.
+The permanent polynomial, affine linear polynomials, and symmetric affine projections of
+permanents. The order of the projected permanent is unrestricted.
 -/
 
 open Lax461425.SymmetricFamilies (MatrixPolynomial)

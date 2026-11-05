@@ -4,12 +4,11 @@ import Lax461425.SymmetricVNP
 
 /-!
 ---
-title: Boolean-sum symmetry — Observation 7.2
+title: Boolean-sum symmetry
 type: theorem
 ---
-Joint symmetry of a Boolean witness implies matrix symmetry of its Boolean sum.
-Observation 7.2 follows by circuit evaluation equivariance and reindexing Boolean assignments.
-Its proof is `BooleanWitnesses.matrixInvariant_of_mem`.
+Every polynomial of a family in symmetric VNP is invariant under independent row and
+column permutations of the matrix variables.
 -/
 
 namespace Lax461425.BooleanSumSymmetry

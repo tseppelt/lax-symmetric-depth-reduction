@@ -3,13 +3,11 @@ import Lax461425.SymmetricFormulaWitness
 
 /-!
 ---
-title: Formula-witness equivalence — Corollary 7.4
+title: Formula-witness equivalence
 type: theorem
 ---
-Corollary 7.4: symmetric circuit and formula witnesses define the same Boolean-sum class.
-The proof combines Observation 7.2 with the quantitative formula witnesses of Theorem 7.3,
-using a constant witness at matrix order zero. It is
-`Section7FormulaConstruction.formula_witnesses_iff`.
+Over a field of characteristic zero, symmetric VNP is unchanged when the witnessing
+circuits are required to be formulas.
 -/
 
 namespace Lax461425.FormulaWitnessEquivalence

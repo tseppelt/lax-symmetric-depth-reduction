@@ -6,9 +6,9 @@ import Lax461425.BooleanSumSymmetry
 title: Symmetric membership and hardness of the permanent
 type: theorem
 ---
-Proposition 7.5 and the hardness direction of Theorem 7.7. Together these give completeness,
-proved by `Lax461425Proofs.PermanentProjection.completeness`. The projection order is
-unrestricted. Proofs use Ryser's identity and an explicit equivariant bouquet.
+The permanent family lies in symmetric VNP over every commutative ring. Over a field of
+characteristic zero, every polynomial of a family in symmetric VNP is a symmetric affine
+projection of a permanent of some order.
 -/
 
 namespace Lax461425.PermanentCompleteness

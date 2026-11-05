@@ -8,14 +8,12 @@ open Lax461425.CircuitProperties
 
 /-!
 ---
-title: Symmetric formula witnesses — Theorem 7.3
+title: Symmetric formula witnesses
 type: theorem
 ---
-The quantitative part of Theorem 7.3. Every matrix-invariant polynomial of positive
-matrix order has a jointly symmetric formula witness with exactly `2n²` Boolean
-variables and gate orbits at most `4n²`.
-The proof uses homomorphism spanning, isolated-vertex padding, and the paper's selectors
-and fresh inverse tags. It is `Section7FormulaConstruction.formula_witness`.
+Over a field of characteristic zero, every matrix-invariant polynomial on an `n × n`
+matrix, for `n ≥ 1`, is the hypercube sum of a polynomial with `2n²` auxiliary variables
+that is computed by a jointly symmetric formula with gate orbits of size at most `4n²`.
 -/
 
 namespace Lax461425.SymmetricFormulaWitness
@@ -24,7 +22,8 @@ universe u
 
 open Circuits MatrixSymmetry SymmetricFamilies SymmetricClasses SymmetricVNP
 
-/-- The quantitative formula witness for each positive matrix order. -/
+/-- Matrix-invariant polynomials have jointly symmetric formula witnesses with `2n²`
+auxiliary variables and gate orbits of size at most `4n²`. -/
 axiom formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
     (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))

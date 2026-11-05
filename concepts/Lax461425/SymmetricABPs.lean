@@ -13,9 +13,12 @@ import Mathlib.Algebra.MvPolynomial.Rename
 title: Symmetric algebraic branching programs
 type: definition
 ---
-Definitions for Section 6. An ABP is a finite simple directed acyclic graph with affine
-edge labels, a unique source and a unique sink. Vertex orbits range over all extending
-automorphisms, rather than over a selected action of the symmetry group.
+An algebraic branching program (ABP) is a finite simple directed acyclic graph with
+affine edge labels, a unique source and a unique sink; it computes the sum over all
+source-to-sink paths of the product of the edge labels. An ABP in matrix variables is
+matrix-symmetric if every row and column permutation extends to an ABP automorphism, and
+its vertex orbits range over all such extending automorphisms. `symVBP` is the class of
+families computed by matrix-symmetric ABPs with polynomial vertex orbits.
 
 The pathwidth of a pattern is the pathwidth of its underlying simple graph.
 -/

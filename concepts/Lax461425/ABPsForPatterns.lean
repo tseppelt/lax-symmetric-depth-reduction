@@ -5,16 +5,17 @@ import Lax461425.SymmetricABPs
 title: Symmetric ABPs for bounded-pathwidth patterns
 type: theorem
 ---
-The path-decomposition construction used in the proof of Lemma 6.5. A pattern of
-pathwidth at most `k` has a matrix-symmetric ABP computing its homomorphism polynomial
-with vertex-orbit size at most `n^(k+1)`, for `n ≥ 1`.
+For `n ≥ 1`, the homomorphism polynomial of a pattern of pathwidth at most `k` on `n × n`
+matrices is computed by a matrix-symmetric ABP whose vertex orbits have size at most
+`n^(k+1)`.
 -/
 
 namespace Lax461425.ABPsForPatterns
 
 open SymmetricABPs HomomorphismPolynomials
 
-/-- The bounded-pathwidth ABP construction in the proof of Lemma 6.5. -/
+/-- Homomorphism polynomials of patterns of pathwidth at most `k` have matrix-symmetric ABPs
+with vertex orbits of size at most `n^(k+1)`. -/
 axiom exists_abp {K : Type*} [CommSemiring K] {n k : ℕ} (hn : 1 ≤ n)
     (F : Pattern) (hF : PathwidthLE k F) :
     ∃ G : ABP (Fin n × Fin n) K,
