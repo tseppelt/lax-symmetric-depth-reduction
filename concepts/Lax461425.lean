@@ -22,6 +22,7 @@ import Lax461425.PermanentCompleteness
 import Lax461425.ReducedRigid
 import Lax461425.Rigidification
 import Lax461425.SkewCircuitCharacterisation
+import Lax461425.SkewFromABP
 import Lax461425.SupportTheorem
 import Lax461425.Supports
 import Lax461425.SymmetricABPCharacterisation

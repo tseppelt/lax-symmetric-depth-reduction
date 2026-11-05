@@ -2,6 +2,7 @@ import Lax461425.SymmetricFamilies
 import Lax461425.SymmetricClasses
 import Lax461425.SymmetricVNP
 import Lax461425.SymmetricABPs
+import Lax461425.SkewFromABP
 import Lax461425.PatternWidths
 import Lax461425.Supports
 import Lax461425.SupportTheorem

@@ -1,5 +1,5 @@
 import Lax461425.CircuitProperties
-import Lax461425.SymmetricABPCharacterisation
+import Lax461425.SkewFromABP
 import Lax461425Proofs.Section6ABPToSkewOrbits
 import Lax461425Proofs.PolynomialBounds
 import Lax461425Proofs.Section6ABPToSkewComputes
@@ -14,7 +14,7 @@ open Lax461425.SymmetricFamilies Lax461425.SymmetricClasses Lax461425.SymmetricA
 
 /--
 ---
-conclusion: Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP
+conclusion: Lax461425.SkewFromABP.inSymVS_of_inSymVBP
 ---
 Lemma 6.4. The explicit conversion preserves computation and symmetry, and its gate orbits are bounded
 by `B + B² (n² + 1) + 1` whenever the ABP vertex orbits are bounded by `B`.

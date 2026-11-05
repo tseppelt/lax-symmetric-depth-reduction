@@ -1,6 +1,6 @@
 import Lax461425.SymmetricVPCharacterisation
 import Lax461425.ReducedRigid
-import Lax461425.SymmetricABPCharacterisation
+import Lax461425.SkewFromABP
 import Lax461425Proofs.SymVPWidths
 import Lax461425Proofs.PathRefinementBounds
 import Lax461425Proofs.CircuitFacts
@@ -112,7 +112,7 @@ theorem exists_circuits_below (f : MatrixFamily K) (k : ℕ)
       obtain ⟨G, hG, hsym, hbound⟩ :=
         Section6Characterisation.exists_abp_of_mem_span hn (g n) hmem
       exact ⟨G, hG, hsym, hbound.trans (Nat.pow_le_pow_left (by omega) _)⟩
-  obtain ⟨b, ⟨c, d, hb⟩, hS⟩ := Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP g hg
+  obtain ⟨b, ⟨c, d, hb⟩, hS⟩ := Lax461425.SkewFromABP.inSymVS_of_inSymVBP g hg
   refine ⟨c, d, fun n hn => ?_⟩
   obtain ⟨C, hC, hsym, horb, -⟩ := hS n
   refine ⟨C, ?_, hsym, horb.trans (hb n)⟩

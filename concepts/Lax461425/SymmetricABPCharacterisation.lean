@@ -1,4 +1,5 @@
 import Lax461425.SymmetricABPs
+import Lax461425.SkewFromABP
 import Lax461425.ABPsForPatterns
 import Lax461425.SkewCircuitCharacterisation
 import Lax461425.HomomorphismSpanning
@@ -11,17 +12,13 @@ type: theorem
 Families computed by matrix-symmetric ABPs with polynomial vertex orbits and families
 computed by matrix-symmetric skew circuits with polynomial gate orbits coincide over a
 field of characteristic zero, that is, `symVBP = symVS`. The inclusion `symVBP ⊆ symVS`
-holds over every commutative semiring.
+is the theorem on symmetric skew circuits from symmetric ABPs; the reverse inclusion follows
+from the characterisation of matrix-symmetric skew circuits by bounded-pathwidth patterns.
 -/
 
 namespace Lax461425.SymmetricABPCharacterisation
 
 open SymmetricABPs SymmetricFamilies SymmetricClasses SymmetricVNP
-
-/-- Families with symmetric polynomial-orbit ABPs have symmetric polynomial-orbit skew
-circuits, over every commutative semiring. -/
-axiom inSymVS_of_inSymVBP {K : Type*} [CommSemiring K] (f : MatrixFamily K)
-    (hf : InSymVBP f) : InSymVS f
 
 /-- Symmetric polynomial-orbit skew-circuit families have symmetric
 polynomial-orbit ABPs. -/

@@ -3,6 +3,7 @@ import Lax461425Proofs.Section6ABPLinearCombination
 import Lax461425Proofs.Section6ABPToSkewFamily
 import Lax461425Proofs.Section6Families
 import Lax461425.SymmetricABPCharacterisation
+import Lax461425.SkewFromABP
 import Lax461425.SkewCircuitCharacterisation
 import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 
@@ -96,7 +97,7 @@ theorem symVS_characterisation (f : MatrixFamily K) :
     InSymVS f ↔ ∃ k : ℕ, ∀ n,
       f n ∈ Submodule.span K {q | ∃ F : Pattern, PathwidthLE k F ∧ hom K F n = q} :=
   ⟨Section6Families.pathwidth_span_of_inSymVS, fun hf =>
-    Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP f (abp_of_pathwidth_span f hf)⟩
+    Lax461425.SkewFromABP.inSymVS_of_inSymVBP f (abp_of_pathwidth_span f hf)⟩
 
 /--
 ---
@@ -113,7 +114,7 @@ conclusion: Lax461425.SymmetricABPCharacterisation.characterisation
 ---
 Theorem 6.3: equality of the polynomial-orbit family classes, from Lemmas 6.4 and 6.5. -/
 theorem equivalence (f : MatrixFamily K) : InSymVBP f ↔ InSymVS f :=
-  ⟨Lax461425.SymmetricABPCharacterisation.inSymVS_of_inSymVBP f,
+  ⟨Lax461425.SkewFromABP.inSymVS_of_inSymVBP f,
     Lax461425.SymmetricABPCharacterisation.inSymVBP_of_inSymVS f⟩
 
 end Lax461425Proofs.Section6Characterisation
