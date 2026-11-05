@@ -220,7 +220,7 @@ wires are moved by stabilisers so that each adds a new point to the union of sup
 to the formula, where non-input gates have unique parents, bounds both sides of this union by
 `κ - 1` while the path ends in a non-input gate.
 -/
-theorem exists_reduced {K : Type*} [CommSemiring K] {n κ : ℕ} (hn : 20 ≤ n)
+theorem exists_reduced {K : Type u_1} [CommSemiring K] {n κ : ℕ} (hn : 20 ≤ n)
     (hκ : 3 * κ ≤ n + 2) (C : Circuit (Fin n × Fin n) K) (hformula : IsFormula C)
     (hsym : IsMatrixSymmetric C) (horb : orbitSize C < n.choose κ)
     {p : MatrixPolynomial n K} (hp : C.Computes p) :

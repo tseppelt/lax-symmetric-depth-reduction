@@ -197,7 +197,7 @@ conclusion: Lax461425.SymmetricVFCharacterisation.characterisation
 `symVF` consists of the families spanned by homomorphism polynomials of patterns of bounded
 treedepth.
 -/
-theorem characterisation {K : Type*} [Field K] [CharZero K] (f : MatrixFamily K) :
+theorem characterisation {K : Type u_1} [Field K] [CharZero K] (f : MatrixFamily K) :
     InSymVF f ↔ ∃ t : ℕ, ∀ n,
       f n ∈ Submodule.span K {q | ∃ F : Pattern, TreedepthLE t F ∧ hom K F n = q} :=
   ⟨span_of_inSymVF f, fun ⟨t, ht⟩ => inSymVF_of_span f t ht⟩
