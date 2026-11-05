@@ -203,5 +203,3 @@ theorem characterisation {K : Type*} [Field K] [CharZero K] (f : MatrixFamily K)
   ⟨span_of_inSymVF f, fun ⟨t, ht⟩ => inSymVF_of_span f t ht⟩
 
 end Lax461425Proofs.SymVFCharacterisation
-
-#print axioms Lax461425Proofs.SymVFCharacterisation.characterisation
