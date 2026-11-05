@@ -201,3 +201,6 @@ import Lax461425Proofs.TreeFormulaIsomorphism
 import Lax461425Proofs.TreeFormulaOperations
 import Lax461425Proofs.TreeFormulaOrbit
 import Lax461425Proofs.TreeFormulaSemantics
+import Lax461425Proofs.TreedepthForestwidth
+import Lax461425Proofs.TreewidthForestwidth
+import Lax461425Proofs.TreewidthForestwidthBasic
