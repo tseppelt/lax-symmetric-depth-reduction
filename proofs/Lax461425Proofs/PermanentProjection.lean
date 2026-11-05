@@ -86,7 +86,7 @@ lemma matrix_affine {V K : Type*} [CommSemiring K] {d : B → ℕ}
 set_option backward.isDefEq.respectTransparency false in
 /-- Every invariant polynomial for a finite variable group is a symmetric projection of
 some permanent. This asserts equivariance only, with no bound on the source order. -/
-theorem invariant_projection {V G K : Type} [Group G] [Fintype G] [Field K] [CharZero K]
+theorem invariant_projection {V G : Type} {K : Type*} [Group G] [Fintype G] [Field K] [CharZero K]
     (ρ : G →* Equiv.Perm V) (p : MvPolynomial V K)
     (hinv : ∀ γ, MvPolynomial.rename (ρ γ) p = p) : IsSymmetricProjection ρ p := by
   obtain ⟨B, hB, hdB, d, c, z, hp⟩ := PermanentPresentation.exists_presentation p
@@ -146,7 +146,7 @@ conclusion: Lax461425.PermanentCompleteness.hardness
 ---
 The hardness direction of Theorem 7.7, with unrestricted source order as in Definition 7.6.
 -/
-theorem hardness (K : Type) [Field K] [CharZero K] :
+theorem hardness {K : Type u_1} [Field K] [CharZero K] :
     ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
       Lax461425.SymmetricVNP.InSymVNP f → ∀ n,
         IsSymmetricProjection (Lax461425.SymmetricVNP.matrixAction n) (f n) := by
@@ -155,11 +155,11 @@ theorem hardness (K : Type) [Field K] [CharZero K] :
     (Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem f hf n)
 
 /-- Theorem 7.7: membership and hardness together give completeness. -/
-theorem completeness (K : Type) [Field K] [CharZero K] :
+theorem completeness (K : Type*) [Field K] [CharZero K] :
     Lax461425.SymmetricVNP.InSymVNP (permanent K) ∧
       ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
         Lax461425.SymmetricVNP.InSymVNP f → ∀ n,
           IsSymmetricProjection (Lax461425.SymmetricVNP.matrixAction n) (f n) :=
-  ⟨Lax461425.PermanentCompleteness.membership K, hardness K⟩
+  ⟨Lax461425.PermanentCompleteness.membership, hardness⟩
 
 end Lax461425Proofs.PermanentProjection

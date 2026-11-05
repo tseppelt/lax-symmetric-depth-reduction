@@ -18,13 +18,11 @@ that is computed by a jointly symmetric formula with gate orbits of size at most
 
 namespace Lax461425.SymmetricFormulaWitness
 
-universe u
-
 open Circuits MatrixSymmetry SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- Matrix-invariant polynomials have jointly symmetric formula witnesses with `2n²`
 auxiliary variables and gate orbits of size at most `4n²`. -/
-axiom formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
+axiom formula_witness {K : Type*} [Field K] [CharZero K] {n : ℕ}
     (hn : 1 ≤ n) (p : MatrixPolynomial n K) (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))
       (g : MvPolynomial ((Fin n × Fin n) ⊕ Fin (2 * n ^ 2)) K)

@@ -11,7 +11,6 @@ assignments are reindexed by a genuine equivalence of Boolean functions.
 
 namespace Lax461425Proofs.BooleanWitnesses
 
-universe u
 
 open Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses Lax461425.MatrixSymmetry Lax461425.Circuits
@@ -110,7 +109,7 @@ conclusion: Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem
 ---
 Every polynomial in a symmetric VNP family is matrix-invariant.
 -/
-theorem matrixInvariant_of_mem {K : Type u} [CommSemiring K]
+theorem matrixInvariant_of_mem {K : Type u_1} [CommSemiring K]
     (f : MatrixFamily K) (hf : InSymVNP f) (n : ℕ) :
     MatrixInvariant (f n) := by
   obtain ⟨q, b, hq, hb, hw⟩ := hf

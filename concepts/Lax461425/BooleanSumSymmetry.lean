@@ -13,12 +13,10 @@ column permutations of the matrix variables.
 
 namespace Lax461425.BooleanSumSymmetry
 
-universe u
-
 open SymmetricFamilies SymmetricClasses SymmetricVNP
 
 /-- Every member of a symmetric VNP family is matrix-invariant. -/
-axiom matrixInvariant_of_mem {K : Type u} [CommSemiring K] (f : MatrixFamily K)
+axiom matrixInvariant_of_mem {K : Type*} [CommSemiring K] (f : MatrixFamily K)
     (hf : InSymVNP f) (n : ℕ) : MatrixInvariant (f n)
 
 end Lax461425.BooleanSumSymmetry

@@ -18,7 +18,6 @@ gate, automorphism and orbit bound is constructed and proved in the new proof mo
 
 namespace Lax461425Proofs.Section7FormulaConstruction
 
-universe u
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.SymmetricFamilies Lax461425.SymmetricVNP
 open Lax461425.SymmetricClasses
@@ -97,7 +96,7 @@ conclusion: Lax461425.SymmetricFormulaWitness.formula_witness
 ---
 The same witness with auxiliary variables indexed by exactly `Fin (2n²)`.
 -/
-theorem formula_witness {K : Type u} [Field K] [CharZero K] {n : ℕ}
+theorem formula_witness {K : Type u_1} [Field K] [CharZero K] {n : ℕ}
     (hn : 1 ≤ n) (p : MatrixPolynomial n K)
     (hp : MatrixInvariant p) :
     ∃ (ρ : Γ n →* Equiv.Perm (Fin (2 * n ^ 2)))
