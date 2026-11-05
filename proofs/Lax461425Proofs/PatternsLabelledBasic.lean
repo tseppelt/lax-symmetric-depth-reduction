@@ -28,6 +28,8 @@ span of the homomorphism polynomials `labelledHom K G n` of labelled graphs `G` 
 decomposition (resp. such that every vertex of $L^+(G)$ carries a label at a position in $P$).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsLabelledBasic
 
 open Lax461425.HomomorphismPolynomials
@@ -136,7 +138,7 @@ def InClassP (Δ k : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) (G : LabelledPattern 
 /-- The `(ℓ,r)`-labelled homomorphism polynomial $\boldsymbol F_n$, as a curried function of the
 label images `v : Fin ℓ → Fin n` and `w : Fin r → Fin n`. -/
 noncomputable def labelledHom (K : Type*) [CommSemiring K] (G : LabelledPattern ℓ r) (n : ℕ)
-    (v : Fin ℓ → Fin n) (w : Fin r → Fin n) : MvPolynomial (Fin n × Fin n) K :=
+    (v : Fin ℓ → Fin n) (w : Fin r → Fin n) : MatrixPolynomial n K :=
   ∑ hA : G.F.A → Fin n, ∑ hB : G.F.B → Fin n,
     if (∀ i, hA (G.a i) = v i) ∧ (∀ j, hB (G.b j) = w j) then
       ∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ G.F.mult x y

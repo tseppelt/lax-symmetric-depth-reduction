@@ -22,6 +22,8 @@ linear combination as in the theorem on circuits for patterns of bounded forestw
 multiplies the output gates by the coefficients, adds an output sum gate, and rigidifies.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425.BoundedDepthCharacterisation
 
 open Circuits MatrixSymmetry Supports HomomorphismPolynomials Forestwidth
@@ -30,7 +32,7 @@ open Circuits MatrixSymmetry Supports HomomorphismPolynomials Forestwidth
 support depth `≤ Δ` if, and only if, it is a linear combination of homomorphism polynomials of
 patterns of `Δ`-forestwidth at most `k - 1`. -/
 axiom characterisation {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ)
-    (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) :
+    (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MatrixPolynomial n K) :
     (∃ C : Circuit (Fin n × Fin n) K,
         C.Computes p ∧ C.IsReduced ∧ IsMatrixSymmetric C ∧
           supportSize C ≤ k ∧ supportDepth C ≤ Δ) ↔

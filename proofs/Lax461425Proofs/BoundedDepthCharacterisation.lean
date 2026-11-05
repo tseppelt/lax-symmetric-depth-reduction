@@ -16,6 +16,8 @@ Final assembly, discharging the concept axiom
 `Lax461425.BoundedDepthCharacterisation.characterisation`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -64,7 +66,7 @@ The concept `Rigidification.exists_reduced` is deliberately not used: it does no
 size or support depth, so the proof rigidifies with `RigidConstruction.reduced` and tracks the
 supports of the block gates through it directly. -/
 theorem characterisation {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ)
-    (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MvPolynomial (Fin n × Fin n) K) :
+    (hk : 2 ≤ k) (hn : 2 * k + 1 ≤ n) (p : MatrixPolynomial n K) :
     (∃ C : Circuit (Fin n × Fin n) K,
         C.Computes p ∧ C.IsReduced ∧ IsMatrixSymmetric C ∧
           supportSize C ≤ k ∧ supportDepth C ≤ Δ) ↔

@@ -8,6 +8,8 @@ import Lax461425Proofs.PatternsInductionOrbitDecomp
 orbit via `PatternsInductionOrbitPsi.exists_ψOrbitSum`/`exists_ψOrbitProd`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionCombine
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -30,18 +32,18 @@ variable (hrig : IsRigid C) (hn : 2 * supportSize C < n) {g : C.Gate} {k : ℕ}
 
 /-- **Combining a `G`-invariant `Finset` of children of `g` into a single `Σ`-witness.** -/
 theorem exists_combine_sum (hsize : supportSize C ≤ k)
-    (q : C.Gate → MvPolynomial (Fin n × Fin n) K)
+    (q : C.Gate → MatrixPolynomial n K)
     (hq : ∀ h', 0 < C.wire g h' → C.ComputesAt h' (q h'))
     (hφ : ∀ h', 0 < C.wire g h' →
       ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φh' ∈ span𝔗P K (sc C h') k n
           (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
         φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h') :
     ∀ S : Finset C.Gate, (∀ h' ∈ S, 0 < C.wire g h') →
       (∀ h' ∈ S, ∀ δ ∈ fixingSubgroup (Γ n) (supOf hrig hn g), σOf hrig δ h' ∈ S) →
       ∃ φS : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φS ∈ span𝔗P K (sc C g) k n
           (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
         φS (leftEnum hrig hn g) (rightEnum hrig hn g) = ∑ h' ∈ S, C.wire g h' • q h' := by
@@ -79,7 +81,7 @@ theorem exists_combine_sum (hsize : supportSize C ≤ k)
       have hφh0eval : C.ComputesAt h0 (φh0 (leftEnum hrig hn h0) (rightEnum hrig hn h0)) := by
         rw [hφh0val]; exact hq h0 hwire0
       have hOcontrib : ∃ φO : (Fin (leftCard hrig hn g) → Fin n) →
-          (Fin (rightCard hrig hn g) → Fin n) → MvPolynomial (Fin n × Fin n) K,
+          (Fin (rightCard hrig hn g) → Fin n) → MatrixPolynomial n K,
           φO ∈ span𝔗P K (sc C g) k n
             (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
           φO (leftEnum hrig hn g) (rightEnum hrig hn g) = ∑ h' ∈ O, C.wire g h' • q h' := by
@@ -120,18 +122,18 @@ theorem exists_combine_sum (hsize : supportSize C ≤ k)
 /-- **Combining a `G`-invariant `Finset` of children of `g` into a single `Π`-witness.** -/
 theorem exists_combine_prod (hsize : supportSize C ≤ k)
     (hlr : leftCard hrig hn g + rightCard hrig hn g ≤ k)
-    (q : C.Gate → MvPolynomial (Fin n × Fin n) K)
+    (q : C.Gate → MatrixPolynomial n K)
     (hq : ∀ h', 0 < C.wire g h' → C.ComputesAt h' (q h'))
     (hφ : ∀ h', 0 < C.wire g h' →
       ∃ φh' : (Fin (leftCard hrig hn h') → Fin n) → (Fin (rightCard hrig hn h') → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φh' ∈ span𝔗P K (sc C h') k n
           (Finset.univ : Finset (Fin (leftCard hrig hn h') ⊕ Fin (rightCard hrig hn h'))) ∧
         φh' (leftEnum hrig hn h') (rightEnum hrig hn h') = q h') :
     ∀ S : Finset C.Gate, (∀ h' ∈ S, 0 < C.wire g h') →
       (∀ h' ∈ S, ∀ δ ∈ fixingSubgroup (Γ n) (supOf hrig hn g), σOf hrig δ h' ∈ S) →
       ∃ φS : (Fin (leftCard hrig hn g) → Fin n) → (Fin (rightCard hrig hn g) → Fin n) →
-        MvPolynomial (Fin n × Fin n) K,
+        MatrixPolynomial n K,
         φS ∈ span𝔗P K (sc C g) k n
           (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
         φS (leftEnum hrig hn g) (rightEnum hrig hn g) = ∏ h' ∈ S, q h' ^ C.wire g h' := by
@@ -173,7 +175,7 @@ theorem exists_combine_prod (hsize : supportSize C ≤ k)
       have hφh0eval : C.ComputesAt h0 (φh0 (leftEnum hrig hn h0) (rightEnum hrig hn h0)) := by
         rw [hφh0val]; exact hq h0 hwire0
       have hOcontrib : ∃ φO : (Fin (leftCard hrig hn g) → Fin n) →
-          (Fin (rightCard hrig hn g) → Fin n) → MvPolynomial (Fin n × Fin n) K,
+          (Fin (rightCard hrig hn g) → Fin n) → MatrixPolynomial n K,
           φO ∈ span𝔗P K (sc C g) k n
             (Finset.univ : Finset (Fin (leftCard hrig hn g) ⊕ Fin (rightCard hrig hn g))) ∧
           φO (leftEnum hrig hn g) (rightEnum hrig hn g) = ∏ h' ∈ O, q h' ^ C.wire g h' := by

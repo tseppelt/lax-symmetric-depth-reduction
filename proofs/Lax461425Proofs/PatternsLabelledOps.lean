@@ -20,6 +20,8 @@ We establish the four closure properties of Appendix C's `lem:labelled-ops` for 
    above the old one, with bag = the remaining labelled non-isolated vertices).
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsLabelledOps
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -276,7 +278,7 @@ theorem labelledHom_J (K : Type*) [CommSemiring K] (n : ℕ) (v : Fin ℓ → Fi
     simp only [id_eq, funext_iff]
   show (∑ hA : Fin ℓ → Fin n, ∑ hB : Fin r → Fin n,
       if (∀ i, hA (id i) = v i) ∧ (∀ j, hB (id j) = w j) then
-        (∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ (0 : ℕ) : MvPolynomial (Fin n × Fin n) K)
+        (∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ (0 : ℕ) : MatrixPolynomial n K)
       else 0) = 1
   simp only [hcond, pow_zero, Finset.prod_const_one]
   rw [Finset.sum_eq_single v]
@@ -293,14 +295,14 @@ theorem labelledHom_J (K : Type*) [CommSemiring K] (n : ℕ) (v : Fin ℓ → Fi
 /-- $\mathfrak T^{\Delta,k}_{n,P}(\ell,r)$: the `K`-linear span of the homomorphism polynomials
 of labelled graphs in `𝒯^{Δ,k}_P(ℓ,r)`. -/
 noncomputable def span𝔗P (K : Type*) [Field K] (Δ k n : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) :
-    Submodule K ((Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K) :=
+    Submodule K ((Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K) :=
   Submodule.span K {f | ∃ G : LabelledPattern ℓ r, InClassP Δ k P G ∧ f = labelledHom K G n}
 
 /-- **Part of the concluding fact of `lem:labelled-ops`: `1 ∈ 𝔗^{Δ,k}_{n,P}(ℓ,r)`**, via item 1
 applied to `J` (no hypothesis on `ℓ + r` vs `k`, nor on `P`, is needed, matching
 `inClassP_of_edgeless`). -/
 theorem one_mem_span𝔗P (K : Type*) [Field K] (Δ k n : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) :
-    (fun (_ : Fin ℓ → Fin n) (_ : Fin r → Fin n) => (1 : MvPolynomial (Fin n × Fin n) K)) ∈
+    (fun (_ : Fin ℓ → Fin n) (_ : Fin r → Fin n) => (1 : MatrixPolynomial n K)) ∈
       span𝔗P K Δ k n P := by
   apply Submodule.subset_span
   exact ⟨J ℓ r, inClassP_of_edgeless' (J_isEdgeless ℓ r) Δ k P,

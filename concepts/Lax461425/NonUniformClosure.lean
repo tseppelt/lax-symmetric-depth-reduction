@@ -11,10 +11,8 @@ import Lax461425.Oddomorphisms
 title: Homomorphism polynomials outside the span of a graph class
 type: theorem
 ---
-The *underlying simple graph* of a pattern $F$ with bipartition $A \uplus B$ has vertex set
-$A \uplus B$, with $a \in A$ and $b \in B$ adjacent if $F(a, b) > 0$. A pattern $F$ belongs to
-a class $\mathcal{F}$ of finite simple graphs if its underlying simple graph does. For a graph
-$G$, let $\gamma(G) = \sum_{v \in V(G)} 2^{\deg_G(v) - 1}$, the number of vertices of a CFI
+A pattern $F$ belongs to a class $\mathcal{F}$ of finite simple graphs if its underlying
+simple graph does. For a graph $G$, let $\gamma(G) = \sum_{v \in V(G)} 2^{\deg_G(v) - 1}$, the number of vertices of a CFI
 graph of $G$.
 
 Let $\mathbb{K}$ be a field of characteristic zero. Let $\mathcal{F}$ be a class of finite
@@ -34,10 +32,6 @@ namespace Lax461425.NonUniformClosure
 
 open HomomorphismPolynomials Oddomorphisms Lax871432.GraphClasses Lax871432.ClosureProperties
   Lax68.GraphMinors
-
-/-- The underlying simple graph of a pattern: `a` and `b` are adjacent if `F.mult a b ≠ 0`. -/
-def underlying (F : Pattern) : SimpleGraph (F.A ⊕ F.B) :=
-  SimpleGraph.fromRel fun u v => ∃ a b, u = Sum.inl a ∧ v = Sum.inr b ∧ F.mult a b ≠ 0
 
 /-- `γ(G) = ∑_v 2^(deg v - 1)`, the number of vertices of a CFI graph of `G`. -/
 noncomputable def cfiSize {V : Type*} [Fintype V] (G : SimpleGraph V) : ℕ :=

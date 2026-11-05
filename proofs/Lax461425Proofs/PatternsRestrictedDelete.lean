@@ -15,6 +15,8 @@ the deleted positions become unconstrained free summation variables. We make thi
 `span𝔗P_mul_mem` lifted `inClassP_glue`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsRestrictedDelete
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -65,13 +67,13 @@ theorem labelledHom_restrict_eq_sum (n : ℕ) (K : Type*) [CommSemiring K] (v : 
         labelledHom K G n (Fin.append v y) (Fin.append w z) := by
   set y0 : (G.F.A → Fin n) → Fin ℓ' → Fin n := fun hA j => hA (G.a (Fin.natAdd ℓ j)) with hy0
   set z0 : (G.F.B → Fin n) → Fin r' → Fin n := fun hB j => hB (G.b (Fin.natAdd r j)) with hz0
-  set Φ : (G.F.A → Fin n) → (G.F.B → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+  set Φ : (G.F.A → Fin n) → (G.F.B → Fin n) → MatrixPolynomial n K :=
     fun hA hB => ∏ x, ∏ y, MvPolynomial.X (hA x, hB y) ^ G.F.mult x y with hΦ
   have hcollapse : ∀ hA hB,
       (∑ y : Fin ℓ' → Fin n, ∑ z : Fin r' → Fin n,
         if (∀ p : Fin (ℓ + ℓ'), hA (G.a p) = Fin.append v y p) ∧
             (∀ q : Fin (r + r'), hB (G.b q) = Fin.append w z q) then Φ hA hB
-          else (0 : MvPolynomial (Fin n × Fin n) K)) =
+          else (0 : MatrixPolynomial n K)) =
         if (∀ i : Fin ℓ, hA (G.a (Fin.castAdd ℓ' i)) = v i) ∧
             (∀ j : Fin r, hB (G.b (Fin.castAdd r' j)) = w j) then Φ hA hB else 0 := by
     intro hA hB
@@ -139,8 +141,8 @@ label positions, producing an `(ℓ,r)`-labelled function. (When multiplied by `
 `lem:restricted`'s proof, the non-`Y(v,w)` terms vanish and this becomes the genuinely
 *restricted* sum over `Y(v,w)`; see `PatternsRestrictedSum`.) -/
 noncomputable def sumExt (K : Type*) [Field K] (n : ℕ)
-    (ψ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K) :
-    (Fin ℓ → Fin n) → (Fin r → Fin n) → MvPolynomial (Fin n × Fin n) K :=
+    (ψ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K) :
+    (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K :=
   fun v w => ∑ y : Fin ℓ' → Fin n, ∑ z : Fin r' → Fin n, ψ (Fin.append v y) (Fin.append w z)
 
 /-- **Deleting labels at the span level**: if `ψ ∈ 𝔗^{Δ,k}_{n,P}(ℓ+ℓ',r+r')` for *any* `P`, then
@@ -149,7 +151,7 @@ noncomputable def sumExt (K : Type*) [Field K] (n : ℕ)
 Lifted from `labelledHom_restrict_eq_sum` on generators via `Submodule.span_induction`. -/
 theorem span𝔗P_restrict_sum (K : Type*) [Field K] (Δ k n : ℕ)
     (P : Finset (Fin (ℓ + ℓ') ⊕ Fin (r + r')))
-    (ψ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MvPolynomial (Fin n × Fin n) K)
+    (ψ : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) → MatrixPolynomial n K)
     (hψ : ψ ∈ span𝔗P K Δ k n P) :
     sumExt K n ψ ∈ span𝔗P K (Δ + 1) k n (Finset.univ : Finset (Fin ℓ ⊕ Fin r)) := by
   induction hψ using Submodule.span_induction with
@@ -164,11 +166,11 @@ theorem span𝔗P_restrict_sum (K : Type*) [Field K] (Δ k n : ℕ)
         inClassP_univ_of_inClass (inClass_restrict hG.1 _ _), rfl⟩
   | zero =>
       have heq : sumExt K n (0 : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) →
-          MvPolynomial (Fin n × Fin n) K) = 0 := by
+          MatrixPolynomial n K) = 0 := by
         funext v w
         show (∑ y : Fin ℓ' → Fin n, ∑ z : Fin r' → Fin n,
           (0 : (Fin (ℓ + ℓ') → Fin n) → (Fin (r + r') → Fin n) →
-            MvPolynomial (Fin n × Fin n) K) (Fin.append v y) (Fin.append w z)) = 0
+            MatrixPolynomial n K) (Fin.append v y) (Fin.append w z)) = 0
         simp
       rw [heq]
       exact Submodule.zero_mem _

@@ -18,6 +18,8 @@ and the distribution identity combines this with `Finset.prod_univ_sum` (product
 sum over a Pi type of products) and the edge decomposition `Gval_eq_mul_prod`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Classical Lax461425.Circuits Lax461425.Circuits.Circuit Lax461425.HomomorphismPolynomials
@@ -63,17 +65,17 @@ variable {K : Type*} [CommSemiring K]
 
 /-- The product, over all edges represented at-or-below `t`, of the corresponding variable
 (raised to the edge's multiplicity), evaluated at `h`. -/
-noncomputable def Gval (t : N.Node) (h : Adm F n (V N t)) : MvPolynomial (Fin n × Fin n) K :=
+noncomputable def Gval (t : N.Node) (h : Adm F n (V N t)) : MatrixPolynomial n K :=
   ∏ ab ∈ (edgesBelow N t).attach,
     (X (h ⟨Sum.inl ab.1.1, mem_V_left N ab.2⟩, h ⟨Sum.inr ab.1.2, mem_V_right N ab.2⟩) :
-      MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2
+      MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2
 
 /-- The product, over the edges represented exactly at `t`, of the corresponding variable. -/
-noncomputable def GvalAt (t : N.Node) (h : Adm F n (V N t)) : MvPolynomial (Fin n × Fin n) K :=
+noncomputable def GvalAt (t : N.Node) (h : Adm F n (V N t)) : MatrixPolynomial n K :=
   ∏ ab ∈ (edgesAt N t).attach,
     (X (h ⟨Sum.inl ab.1.1, bag_subset_V N t (mem_bag_left N ab.2)⟩,
           h ⟨Sum.inr ab.1.2, bag_subset_V N t (mem_bag_right N ab.2)⟩) :
-      MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1.1 ab.1.2
+      MatrixPolynomial n K) ^ F.mult ab.1.1 ab.1.2
 
 end Defs
 
@@ -84,10 +86,10 @@ variable (N : NormDecomp F Δ k) (n : ℕ) {K : Type*} [CommSemiring K]
 /-- The total edge term at `ab`, as a function of `ab` alone (not of a membership proof),
 agreeing with the summand of `Gval` whenever `ab ∈ edgesBelow N t`. -/
 noncomputable def edgeTerm (t : N.Node) (h : Adm F n (V N t)) (ab : F.A × F.B) :
-    MvPolynomial (Fin n × Fin n) K :=
+    MatrixPolynomial n K :=
   if hab : ab ∈ edgesBelow N t then
     (X (h ⟨Sum.inl ab.1, mem_V_left N hab⟩, h ⟨Sum.inr ab.2, mem_V_right N hab⟩) :
-      MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1 ab.2
+      MatrixPolynomial n K) ^ F.mult ab.1 ab.2
   else 1
 
 theorem Gval_eq_prod_edgeTerm (t : N.Node) (h : Adm F n (V N t)) :

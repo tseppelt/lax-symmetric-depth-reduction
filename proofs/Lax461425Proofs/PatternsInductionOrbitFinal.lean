@@ -9,6 +9,8 @@ image of `hYtot` over `Yu`, i.e. the full orbit of `h` under `fixingSubgroup (Γ
 a choice function `q` with `C.ComputesAt h' (q h')` for every `h'` in the orbit.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsInductionOrbitFinal
 
 open Lax461425.Circuits Lax461425.MatrixSymmetry Lax461425.Supports
@@ -46,7 +48,7 @@ theorem mem_Ofinset_iff {h' : C.Gate} :
 
 variable {k : ℕ}
 variable (φh : (Fin (leftCard hrig hn h) → Fin n) → (Fin (rightCard hrig hn h) → Fin n) →
-  MvPolynomial (Fin n × Fin n) K)
+  MatrixPolynomial n K)
 variable (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
   (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
 variable (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
@@ -70,7 +72,7 @@ theorem ψh_eq_of_hYtot_eq
 
 /-- **`qfun`**: for `h' ∈ Ofinset`, the (well-defined, by `ψh_eq_of_hYtot_eq`) value `ψ_h` takes
 on the fibre of `h'`; `0` outside `Ofinset`. -/
-noncomputable def qfun (h' : C.Gate) : MvPolynomial (Fin n × Fin n) K :=
+noncomputable def qfun (h' : C.Gate) : MatrixPolynomial n K :=
   if hh' : ∃ x : Pairs hrig hn (g := g) (h := h), x ∈ Yu hrig hn ∧ hYtot hrig hn x.1 x.2 = h' then
     ψh hrig hn φh (Fin.append (leftEnum hrig hn g) hh'.choose.1)
       (Fin.append (rightEnum hrig hn g) hh'.choose.2)
@@ -158,7 +160,7 @@ theorem sum_parts_eq_sum_Ofinset
     (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
-    (φB : Finset (Pairs hrig hn (g := g) (h := h)) → MvPolynomial (Fin n × Fin n) K)
+    (φB : Finset (Pairs hrig hn (g := g) (h := h)) → MatrixPolynomial n K)
     (hφB : ∀ B (hB : B ∈ (Qpart hrig hn (g := g) (h := h)).parts),
       φB B = ψh hrig hn φh
         (Fin.append (leftEnum hrig hn g) (exists_rep_of_mem_Qpart hrig hn hB).choose.1)
@@ -201,7 +203,7 @@ theorem prod_parts_eq_prod_Ofinset
     (hφh_mem : φh ∈ span𝔗P K (sc C h) k n
       (Finset.univ : Finset (Fin (leftCard hrig hn h) ⊕ Fin (rightCard hrig hn h))))
     (hφh_eval : C.ComputesAt h (φh (leftEnum hrig hn h) (rightEnum hrig hn h)))
-    (φB : Finset (Pairs hrig hn (g := g) (h := h)) → MvPolynomial (Fin n × Fin n) K)
+    (φB : Finset (Pairs hrig hn (g := g) (h := h)) → MatrixPolynomial n K)
     (hφB : ∀ B (hB : B ∈ (Qpart hrig hn (g := g) (h := h)).parts),
       φB B = ψh hrig hn φh
         (Fin.append (leftEnum hrig hn g) (exists_rep_of_mem_Qpart hrig hn hB).choose.1)

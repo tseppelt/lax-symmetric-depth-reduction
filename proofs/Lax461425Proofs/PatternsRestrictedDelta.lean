@@ -23,6 +23,8 @@ positions get the same value, so the product is `1` exactly when all these posit
 pairwise distinct.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs.PatternsRestrictedDelta
 
 open Lax461425.HomomorphismPolynomials Lax461425Proofs.PatternsLabelledBasic
@@ -135,7 +137,7 @@ theorem labelledHom_mergeA (L R : ℕ) (p q : Fin L) (hpq : p ≠ q) (n : ℕ) (
   show (∑ hA : {x : Fin L // x ≠ q} → Fin n, ∑ hB : Fin R → Fin n,
       if (∀ i, hA ((mergeA L R p q hpq).a i) = v i) ∧ (∀ j, hB (id j) = w j) then
         (∏ x : {x : Fin L // x ≠ q}, ∏ y, MvPolynomial.X (hA x, hB y) ^ (0 : ℕ) :
-          MvPolynomial (Fin n × Fin n) K)
+          MatrixPolynomial n K)
       else 0) = if v p = v q then 1 else 0
   simp only [pow_zero, Finset.prod_const_one]
   by_cases hvpq : v p = v q

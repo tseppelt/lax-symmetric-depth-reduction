@@ -19,6 +19,8 @@ easy transfer of `ForestwidthLE`) is left, as planned, to whoever assembles the 
 `CircuitsForPatterns.exists_circuit`.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425Proofs
 
 open Classical Lax461425.Circuits Lax461425.Circuits.Circuit Lax461425.HomomorphismPolynomials
@@ -102,13 +104,13 @@ variable {hVroot : V N N.root = Finset.univ}
 homomorphism-counting product. -/
 theorem Gval_root_admOfPair (p : (F.A → Fin n) × (F.B → Fin n)) :
     Gval N n (K := K) N.root (admOfPair N n p) =
-      ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b := by
+      ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MatrixPolynomial n K) ^ F.mult a b := by
   have hterm : ∀ ab : F.A × F.B,
       (if hab : ab ∈ edgesBelow N N.root then
           (X ((admOfPair N n p) ⟨Sum.inl ab.1, mem_V_left N hab⟩,
                 (admOfPair N n p) ⟨Sum.inr ab.2, mem_V_right N hab⟩) :
-            MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1 ab.2
-        else 1) = (X (p.1 ab.1, p.2 ab.2) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1 ab.2 := by
+            MatrixPolynomial n K) ^ F.mult ab.1 ab.2
+        else 1) = (X (p.1 ab.1, p.2 ab.2) : MatrixPolynomial n K) ^ F.mult ab.1 ab.2 := by
     intro ab
     by_cases hab : ab ∈ edgesBelow N N.root
     · rw [dif_pos hab]; rfl
@@ -125,9 +127,9 @@ theorem Gval_root_admOfPair (p : (F.A → Fin n) × (F.B → Fin n)) :
         intro ab _ hab
         unfold edgeTerm
         rw [dif_neg hab]
-    _ = ∏ ab : F.A × F.B, (X (p.1 ab.1, p.2 ab.2) : MvPolynomial (Fin n × Fin n) K) ^ F.mult ab.1 ab.2 :=
+    _ = ∏ ab : F.A × F.B, (X (p.1 ab.1, p.2 ab.2) : MatrixPolynomial n K) ^ F.mult ab.1 ab.2 :=
         Finset.prod_congr rfl (fun ab _ => hterm ab)
-    _ = ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b :=
+    _ = ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MatrixPolynomial n K) ^ F.mult a b :=
         Fintype.prod_prod_type _
 
 /-- **Step 2, the main theorem.** `P N.root (rootAdm N n)` equals `hom K F n`, given `F` has no
@@ -140,7 +142,7 @@ theorem P_root_eq_hom (hn0 : 0 < n) (hNI : NoIsolatedVertices F) :
       ∑ h : Adm F n (V N N.root), Gval N n (K := K) N.root h from rfl]
   rw [Fintype.sum_equiv (admRootEquiv N n (hVroot := hVroot))
     (Gval N n (K := K) N.root)
-    (fun p => ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MvPolynomial (Fin n × Fin n) K) ^ F.mult a b)
+    (fun p => ∏ a : F.A, ∏ b : F.B, (X (p.1 a, p.2 b) : MatrixPolynomial n K) ^ F.mult a b)
     (fun h => by
       show Gval N n (K := K) N.root h = _
       rw [show h = admOfPair N n (admRootEquiv N n (hVroot := hVroot) h) from

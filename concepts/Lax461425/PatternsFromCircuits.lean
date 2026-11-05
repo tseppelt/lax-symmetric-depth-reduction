@@ -13,6 +13,8 @@ size $\leq k$ and support depth $\leq \Delta$, then $p$ is a linear combination 
 polynomials $\hom_{F,n}$ for patterns $F$ with $\mathrm{fw}_\Delta(F) \leq k - 1$.
 -/
 
+open Lax461425.SymmetricFamilies (MatrixPolynomial)
+
 namespace Lax461425.PatternsFromCircuits
 
 open Circuits MatrixSymmetry Supports HomomorphismPolynomials Forestwidth
@@ -23,7 +25,7 @@ support depth `≤ Δ` is a linear combination of homomorphism polynomials of pa
 axiom mem_span_hom {K : Type*} [Field K] [CharZero K] {Δ k n : ℕ} (hΔ : 1 ≤ Δ) (hk : 2 ≤ k)
     (hn : 2 * k + 1 ≤ n) (C : Circuit (Fin n × Fin n) K)
     (hred : C.IsReduced) (hsym : IsMatrixSymmetric C) (hsize : supportSize C ≤ k)
-    (hdepth : supportDepth C ≤ Δ) {p : MvPolynomial (Fin n × Fin n) K} (hp : C.Computes p) :
+    (hdepth : supportDepth C ≤ Δ) {p : MatrixPolynomial n K} (hp : C.Computes p) :
     p ∈ Submodule.span K {q | ∃ F : Pattern, ForestwidthLE Δ (k - 1) F ∧ hom K F n = q}
 
 end Lax461425.PatternsFromCircuits
