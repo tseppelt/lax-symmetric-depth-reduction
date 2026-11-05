@@ -215,9 +215,6 @@ noncomputable def schedule : Schedule F k where
     simpa [hep] using h
   process_count := process_count D
 
-/-- Every finite path decomposition admits a processing schedule at the same width. -/
-theorem exists_schedule (D : PaddedPathDecomposition F k) : Nonempty (Schedule F k) := ⟨schedule D⟩
-
 /-- Append empty bags. Every new transition has label one and a single state, so the
 existing bag-ABP computation, symmetry, and orbit proofs apply without alteration. -/
 noncomputable def padSchedule (S : Schedule F k) (r : ℕ) : Schedule F k := by

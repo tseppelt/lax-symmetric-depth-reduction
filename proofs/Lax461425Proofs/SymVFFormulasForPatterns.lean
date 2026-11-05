@@ -66,11 +66,6 @@ variable [CharZero K]
 theorem goodTags_P (k : ℕ) (v : Vx F) (g : Vx F → Fin n) :
     FormulaTags.GoodTags (blk fo K (Q fo K k) v g) (fun j => tg K (key fo (k + 1) v j)) where
   nonzero j := tg_ne_zero K _
-  fresh i j hc := by
-    cases j with
-    | inl e => exact not_mem_constants_leaf K _ _ hc
-    | inr c =>
-      exact tg_not_low K (k := k) (by rw [key_fst]; omega) (constants_Q fo K k c.1 g _ hc)
   inverse_fresh i j hc := by
     cases j with
     | inl e => exact not_mem_constants_leaf K _ _ hc
@@ -121,7 +116,6 @@ theorem goodTags_top (t : ℕ) (h₀ : Vx F → Fin n) :
     FormulaTags.GoodTags (fun r : KidT fo none => Q fo K t r.1 h₀)
       (fun r => tg K (keyTop fo t r)) where
   nonzero r := tg_ne_zero K _
-  fresh i j hc := tg_not_low K (k := t) (by simp [keyTop]) (constants_Q fo K t _ h₀ _ hc)
   inverse_fresh i j hc :=
     tg_inv_not_low K (k := t) (by simp [keyTop]) (constants_Q fo K t _ h₀ _ hc)
   injective := (tg_injective K).comp (keyTop_injective fo t)

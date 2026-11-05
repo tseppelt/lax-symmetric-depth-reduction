@@ -96,21 +96,6 @@ theorem isFormula (e : V ≃ W) (C : Circuit V K) (hC : (IsFormula C)) :
   apply hC.2 g
   simpa only [rename, mapLabel_isInput] using hg
 
-theorem isSkew (e : V ≃ W) (C : Circuit V K) (hC : (IsSkew C)) :
-    (IsSkew (rename e C)) := by
-  intro g hg
-  have hm : C.label g = .mul := by
-    apply mapLabel_injective e
-    exact hg
-  have hs : (∑ h, if ((rename e C).label h).IsInput then 0 else
-      (rename e C).wire g h) =
-      ∑ h, if (C.label h).IsInput then 0 else C.wire g h := by
-    apply Finset.sum_congr rfl
-    intro h _
-    by_cases hi : (C.label h).IsInput <;> simp [rename, mapLabel_isInput, hi]
-  rw [hs]
-  exact hC g hm
-
 /-- Reindexing gives a correspondence of every extending automorphism, in both directions. -/
 theorem extends_iff (e : V ≃ W) (ρ : G →* Equiv.Perm V) (C : Circuit V K)
     (γ : G) (σ : C.Gate ≃ C.Gate) :

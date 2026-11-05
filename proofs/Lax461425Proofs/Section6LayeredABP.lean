@@ -10,6 +10,8 @@ namespace Lax461425Proofs.Section6LayeredABP
 
 open Lax461425.SymmetricABPs
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 structure Program (V K : Type*) where
   length : ℕ
   State : Type

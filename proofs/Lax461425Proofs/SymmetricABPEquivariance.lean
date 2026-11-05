@@ -49,45 +49,4 @@ def pathEquiv {σ : G.Vertex ≃ G.Vertex} {π : V → V} (hσ : G.Extends σ π
       rw [σ.apply_symm_apply]
       exact congrArg p.1.2 (Fin.ext hij)
 
-theorem pathWeight_rename {σ : G.Vertex ≃ G.Vertex} {π : V → V}
-    (hσ : G.Extends σ π) (p : G.Path) :
-    G.pathWeight (pathEquiv G hσ p) = MvPolynomial.rename π (G.pathWeight p) := by
-  classical
-  change (∏ i : Fin p.1.1.val,
-    (G.label (σ (p.1.2 i.castSucc)) (σ (p.1.2 i.succ))).polynomial) =
-    MvPolynomial.rename π (∏ i : Fin p.1.1.val,
-      (G.label (p.1.2 i.castSucc) (p.1.2 i.succ)).polynomial)
-  rw [map_prod]
-  apply Finset.prod_congr rfl
-  intro i hi
-  exact hσ.2.2.2 _ _ (p.2.2.2 i)
-
-theorem polynomial_rename {σ : G.Vertex ≃ G.Vertex} {π : V → V}
-    (hσ : G.Extends σ π) : MvPolynomial.rename π G.polynomial = G.polynomial := by
-  classical
-  change MvPolynomial.rename π (∑ p : G.Path, G.pathWeight p) =
-    ∑ p : G.Path, G.pathWeight p
-  rw [map_sum]
-  calc
-    (∑ p : G.Path, MvPolynomial.rename π (G.pathWeight p)) =
-        ∑ p : G.Path, G.pathWeight (pathEquiv G hσ p) := by
-      apply Finset.sum_congr rfl
-      intro p hp
-      exact (pathWeight_rename G hσ p).symm
-    _ = _ := (pathEquiv G hσ).sum_comp _
-
-theorem matrixInvariant {n : ℕ} (G : ABP (Fin n × Fin n) K)
-    (hG : G.IsMatrixSymmetric) : MatrixInvariant G.polynomial := by
-  intro γ
-  obtain ⟨σ, hσ⟩ := hG γ
-  exact polynomial_rename G hσ
-
-theorem inSymVBP_matrixInvariant {K : Type*} [CommSemiring K] {f : MatrixFamily K}
-    (hf : InSymVBP f) : ∀ n, MatrixInvariant (f n) := by
-  rcases hf with ⟨b, hb, hf⟩
-  intro n
-  obtain ⟨G, hcomp, hsym, hbound⟩ := hf n
-  rw [← hcomp]
-  exact matrixInvariant G hsym
-
 end Lax461425Proofs.SymmetricABPEquivariance

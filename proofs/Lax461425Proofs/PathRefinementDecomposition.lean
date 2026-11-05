@@ -32,6 +32,8 @@ theorem exists_entry {A : Type*} (parent : A → A) (root : A) (depth : ℕ)
   have hr : P root := by rw [← hdepth a]; exact hi depth
   exact (hstep root hr).1 rfl
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- The additional certificate attached to an existing root-exact decomposition. -/
 structure LinearDecomposition {ℓ r : ℕ} (G : LabelledPattern ℓ r) (depth width : ℕ) where
   tree : RootExactDecomposition G depth width
@@ -48,9 +50,6 @@ def composedBag (i : Fin (S.length + 1)) : Finset (G.F.A ⊕ G.F.B) :=
 theorem mem_composedBag {v : G.F.A ⊕ G.F.B} {i : Fin (S.length + 1)} :
     v ∈ composedBag D S i ↔ ∃ t, t ∈ S.bag i ∧ v ∈ D.bag t := by
   simp [composedBag]
-
-theorem composedBag_last : composedBag D S (Fin.last S.length) = G.labelSupport := by
-  simp [composedBag, S.last, D.bag_root]
 
 theorem composedBag_card (i : Fin (S.length + 1)) :
     (composedBag D S i).card ≤ 2 * width := by

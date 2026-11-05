@@ -14,6 +14,8 @@ namespace Lax461425Proofs
 open Lax461425.SymmetricABPs Lax461425.HomomorphismPolynomials
 open Lax461425.PatternWidths
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A finite path decomposition with empty endpoint bags and width at most `k`.
 The interval condition is the connectedness condition for occurrences of each vertex. -/
 structure PaddedPathDecomposition (F : Pattern) (k : ℕ) where

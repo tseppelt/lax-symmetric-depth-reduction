@@ -16,6 +16,8 @@ open scoped Classical
 def next {l : ℕ} (i : Fin (l + 1)) : Fin (l + 1) :=
   ⟨min (i.val + 1) l, Nat.lt_succ_of_le (Nat.min_le_right _ _)⟩
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A path decomposition augmented by single-edge processing steps. The count condition
 records parallel edges separately; a step without an edge only joins assignments. -/
 structure Schedule (F : Pattern) (k : ℕ) extends PaddedPathDecomposition F k where

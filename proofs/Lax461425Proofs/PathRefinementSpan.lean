@@ -175,12 +175,6 @@ theorem pad {K : Type*} [Field K] {Δ k n : ℕ}
       spanLinear K Δ k n (Finset.univ : Finset (Fin ℓ₁ ⊕ Fin r₁)) :=
   unrestrict (pad_restrict ι κ φ hφ)
 
-theorem one_mem (K : Type*) [Field K] (Δ k n : ℕ) (P : Finset (Fin ℓ ⊕ Fin r)) :
-    (fun (_ : Fin ℓ → Fin n) (_ : Fin r → Fin n) => (1 : MatrixPolynomial n K))
-      ∈ spanLinear K Δ k n P :=
-  PathRefinementClass.span_mono (Nat.zero_le Δ)
-    (star_span (by decide : 0 ≤ 1) (one_mem_span𝔗P K 0 k n P))
-
 theorem star_at_depth {K : Type*} [Field K] {Δ k n : ℕ} {P : Finset (Fin ℓ ⊕ Fin r)}
     {φ : (Fin ℓ → Fin n) → (Fin r → Fin n) → MatrixPolynomial n K}
     (hφ₁ : φ ∈ span𝔗P K 1 k n P) (hφΔ : φ ∈ span𝔗P K Δ k n P) :

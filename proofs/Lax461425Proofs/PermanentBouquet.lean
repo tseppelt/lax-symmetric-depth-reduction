@@ -68,7 +68,8 @@ lemma step_injective {d : B → ℕ} (b : B) : Function.Injective (step (d := d)
 noncomputable def cycle {d : B → ℕ} (b : B) : Equiv.Perm (Vertex B d) :=
   Equiv.ofBijective (step b) ⟨step_injective b, Finite.surjective_of_injective (step_injective b)⟩
 
-@[simp] lemma cycle_apply {d : B → ℕ} (b : B) (v : Vertex B d) : cycle b v = step b v := rfl
+@[simp] lemma cycle_apply {d : B → ℕ} (b : B) (v : Vertex B d) : cycle b v = step b v := by
+  unfold cycle; rfl
 
 lemma cycle_injective {d : B → ℕ} : Function.Injective (cycle (B := B) (d := d)) := by
   intro b c he

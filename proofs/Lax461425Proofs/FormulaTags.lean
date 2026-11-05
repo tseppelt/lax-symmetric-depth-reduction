@@ -36,7 +36,6 @@ variable {I : Type} [Fintype I]
 /-- Syntactic freshness sufficient to identify every inverse marker globally. -/
 structure GoodTags (F : I → Formula V K) (t : I → K) : Prop where
   nonzero : ∀ i, t i ≠ 0
-  fresh : ∀ i j, t i ∉ constants (F j)
   inverse_fresh : ∀ i j, (t i)⁻¹ ∉ constants (F j)
   injective : Function.Injective t
   inverse_ne_tag : ∀ i j, (t i)⁻¹ ≠ t j
@@ -50,9 +49,6 @@ theorem exists_goodTags [Infinite K] (F : I → Formula V K) : ∃ t, GoodTags F
   refine ⟨t, ?_⟩
   constructor
   · intro i; exact (hgood _ (e i).property).1
-  · intro i j hij
-    exact (hgood _ (e i).property).2.1
-      (Finset.mem_biUnion.mpr ⟨j, Finset.mem_univ _, hij⟩)
   · intro i j hij
     exact (hgood _ (e i).property).2.2
       (Finset.mem_biUnion.mpr ⟨j, Finset.mem_univ _, hij⟩)

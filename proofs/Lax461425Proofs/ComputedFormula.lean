@@ -19,6 +19,8 @@ section Semiring
 
 variable [CommSemiring K]
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A private-leaf formula with values satisfying the circuit computation rules. -/
 structure Formula (V K : Type*) [CommSemiring K] where
   tree : Tree V K
@@ -53,9 +55,11 @@ noncomputable def const (c : K) : Formula V K where
       add_eq := by intros g h; cases h
       mul_eq := by intros g h; cases h }
 
-@[simp] theorem polynomial_var (x : V) : polynomial (var (K := K) x) = MvPolynomial.X x := rfl
+@[simp] theorem polynomial_var (x : V) : polynomial (var (K := K) x) = MvPolynomial.X x := by
+  unfold polynomial; rfl
 
-@[simp] theorem polynomial_const (c : K) : polynomial (const (V := V) c) = MvPolynomial.C c := rfl
+@[simp] theorem polynomial_const (c : K) : polynomial (const (V := V) c) = MvPolynomial.C c := by
+  unfold polynomial; rfl
 
 /-- An unbounded sum or product of distinct formula occurrences. -/
 noncomputable def op {I : Type} [Fintype I] (mul : Bool) (F : I → Formula V K) : Formula V K where
@@ -63,7 +67,8 @@ noncomputable def op {I : Type} [Fintype I] (mul : Bool) (F : I → Formula V K)
   values := joinValues (fun i => (F i).tree) mul (fun i => (F i).values)
 
 @[simp] theorem polynomial_op {I : Type} [Fintype I] (mul : Bool) (F : I → Formula V K) :
-    polynomial (op mul F) = if mul then ∏ i, polynomial (F i) else ∑ i, polynomial (F i) := rfl
+    polynomial (op mul F) = if mul then ∏ i, polynomial (F i) else ∑ i, polynomial (F i) := by
+  unfold polynomial; rfl
 
 /-- Binary multiplication, with two private child occurrences. -/
 noncomputable def mul (F G : Formula V K) : Formula V K := op true (fun b : Bool => if b then F else G)

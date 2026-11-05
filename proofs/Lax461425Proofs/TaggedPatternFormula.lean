@@ -68,11 +68,6 @@ noncomputable def patternIso (m : Fin n → Fin n → ℕ) (t : BlockIndex m →
   | inl v => exact selectorIso γ v
   | inr e => exact edgeIso γ e.1 e.2.1
 
-theorem symmetric_patternFormula (m : Fin n → Fin n → ℕ) (t : BlockIndex m → K) :
-    Symmetric (jointAction (auxAction n)) (TreeFormulaCircuit.circuit (patternFormula m t).tree) := by
-  intro γ
-  exact ⟨(patternIso m t γ).equiv, TreeFormulaIsomorphism.extends_circuit (patternIso m t γ)⟩
-
 section Combination
 
 variable {R : Type} [Fintype R]

@@ -120,26 +120,6 @@ noncomputable def encodingEquiv : Fin n ≃ {e : Fin n → Bool // ∃! i, e i =
       · simp [encode, hji]
       · exact False.elim (hji (hu j hej))
 
-/-- Summing a function against the exactly-one selector enumerates image choices once. -/
-theorem sum_exactlyOne (f : (Fin n → Bool) → K) :
-    (∑ e : Fin n → Bool, exactlyOne e * f e) = ∑ i : Fin n, f (encode i) := by
-  let P (e : Fin n → Bool) := ∃! i, e i = true
-  have hsplit := Fintype.sum_subtype_add_sum_subtype P (fun e => exactlyOne (K := K) e * f e)
-  have hz : (∑ e : {e : Fin n → Bool // ¬P e}, exactlyOne (K := K) e.val * f e.val) = 0 := by
-    apply Finset.sum_eq_zero
-    intro e he
-    rw [exactlyOne_eq_indicator, if_neg e.property, zero_mul]
-  rw [hz, add_zero] at hsplit
-  rw [← hsplit]
-  calc
-    (∑ e : {e : Fin n → Bool // P e}, exactlyOne (K := K) e.val * f e.val) =
-        ∑ e : {e : Fin n → Bool // P e}, f e.val := by
-      apply Finset.sum_congr rfl
-      intro e he
-      rw [exactlyOne_eq_indicator, if_pos e.property, one_mul]
-    _ = ∑ i : Fin n, f (encode i) :=
-      (Equiv.sum_comp encodingEquiv (fun e => f e.val)).symm
-
 variable {A : Type*} [Fintype A]
 
 /-- The collection of image choices, encoded row by row. -/

@@ -15,6 +15,8 @@ namespace Lax461425Proofs.TreeFormulaCircuit
 open Lax461425.Circuits
 open scoped Classical
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- Finite tree data with an increasing rank towards the distinguished root. -/
 structure Tree (V K : Type*) where
   Gate : Type

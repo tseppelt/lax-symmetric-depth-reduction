@@ -12,6 +12,8 @@ open scoped Classical
 
 variable {V K : Type*} [CommSemiring K]
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A polynomial value at every gate with the actual circuit evaluation equations. -/
 structure Values (T : Tree V K) where
   val : T.Gate → MvPolynomial V K

@@ -21,7 +21,8 @@ def statePerm (γ : Γ n) : Equiv.Perm (State (F := F) n) :=
   Equiv.piCongrRight fun v => Equiv.optionCongr (imagePerm (F := F) n γ v)
 
 @[simp] theorem statePerm_apply (γ : Γ n) (s : State (F := F) n) (v : F.A ⊕ F.B) :
-    statePerm (F := F) n γ s v = (s v).map (imagePerm (F := F) n γ v) := rfl
+    statePerm (F := F) n γ s v = (s v).map (imagePerm (F := F) n γ v) := by
+  unfold statePerm; rfl
 
 theorem valid_statePerm (γ : Γ n) (i : Fin (D.length + 1)) (s : State (F := F) n) :
     Valid D n i (statePerm (F := F) n γ s) ↔ Valid D n i s := by

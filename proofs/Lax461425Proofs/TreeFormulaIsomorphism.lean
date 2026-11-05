@@ -12,12 +12,13 @@ open scoped Classical
 
 variable {V K : Type*}
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A parent-preserving formula-tree equivalence with variable renaming. -/
 structure Iso (π : V → V) (T S : Tree V K) where
   equiv : T.Gate ≃ S.Gate
   label_eq : ∀ g, S.label (equiv g) = (T.label g).map π
   parent_eq : ∀ g, S.parent (equiv g) = (T.parent g).map equiv
-  out_eq : equiv T.out = S.out
 
 /-- A tree self-isomorphism extends its variable renaming on the existing circuit model. -/
 theorem extends_circuit {π : V → V} {T : Tree V K} (e : Iso π T T) :
@@ -37,14 +38,12 @@ def varIso (π : V → V) (x : V) : Iso π (varInput (K := K) x) (varInput (π x
   equiv := Equiv.refl _
   label_eq _ := rfl
   parent_eq _ := rfl
-  out_eq := rfl
 
 /-- Constant leaves are unchanged. -/
 def constIso (π : V → V) (c : K) : Iso π (constant (V := V) c) (constant c) where
   equiv := Equiv.refl _
   label_eq _ := rfl
   parent_eq _ := rfl
-  out_eq := rfl
 
 /-- A reindexing of isomorphic child formulas extends to the whole operation tree. -/
 noncomputable def joinIso {I J : Type} [Fintype I] [Fintype J]
@@ -66,6 +65,5 @@ noncomputable def joinIso {I J : Type} [Fintype I] [Fintype J]
           (Equiv.sigmaCongr e (fun i => (h i).equiv))) (joinParent T (.inr ⟨i, g⟩))
       simp only [joinParent, (h i).parent_eq]
       cases (T i).parent g <;> rfl
-  out_eq := rfl
 
 end Lax461425Proofs.TreeFormulaIsomorphism

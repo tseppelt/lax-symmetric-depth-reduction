@@ -154,12 +154,4 @@ theorem hardness {K : Type u_1} [Field K] [CharZero K] :
   exact invariant_projection (Lax461425.SymmetricVNP.matrixAction n) (f n)
     (Lax461425.BooleanSumSymmetry.matrixInvariant_of_mem f hf n)
 
-/-- Theorem 7.7: membership and hardness together give completeness. -/
-theorem completeness (K : Type*) [Field K] [CharZero K] :
-    Lax461425.SymmetricVNP.InSymVNP (permanent K) ∧
-      ∀ f : Lax461425.SymmetricFamilies.MatrixFamily K,
-        Lax461425.SymmetricVNP.InSymVNP f → ∀ n,
-          IsSymmetricProjection (Lax461425.SymmetricVNP.matrixAction n) (f n) :=
-  ⟨Lax461425.PermanentCompleteness.membership, hardness⟩
-
 end Lax461425Proofs.PermanentProjection

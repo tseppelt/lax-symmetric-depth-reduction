@@ -17,6 +17,8 @@ noncomputable section
 variable {I V : Type} {K : Type*} [Fintype I] [Nonempty I] [Fintype V] [Field K]
 variable (G : I → ABP V K) (c : I → K)
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 inductive Vertex where
   | source
   | entry (i : I)

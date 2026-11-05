@@ -46,7 +46,7 @@ theorem recoverVertex_injective : Function.Injective (recoverVertex G τ π hτ)
   intro u v huv
   have h : τ (.vertex u) = τ (.vertex v) := by
     rw [recoverVertex_spec G τ π hτ, recoverVertex_spec G τ π hτ, huv]
-  exact Gate.vertex.inj (τ.injective h)
+  exact Gate.vertex_eq_vertex.mp (τ.injective h)
 
 /-- Every extending circuit automorphism permutes the ABP vertex sum gates. -/
 def recoverVertices : G.Vertex ≃ G.Vertex :=

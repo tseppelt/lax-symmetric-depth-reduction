@@ -207,14 +207,6 @@ theorem constants_Q (k : ℕ) : ∀ v (h : Vx F → Fin n) c,
         obtain ⟨x, hx, hcx⟩ := ih r.1 _ c hc
         exact ⟨x, by omega, hcx⟩
 
-/-- The tags at level `lvl` avoid the constants of lower levels. -/
-theorem tg_not_low {k : ℕ} {x : TagKey} (hx : k < x.1) : ¬ Low K k (tg K x) := by
-  rintro ⟨y, hy, h | h⟩
-  · have := tg_injective K h
-    subst this
-    omega
-  · exact tg_inv_ne K y x h.symm
-
 theorem tg_inv_not_low {k : ℕ} {x : TagKey} (hx : k < x.1) : ¬ Low K k (tg K x)⁻¹ := by
   rintro ⟨y, hy, h | h⟩
   · exact tg_inv_ne K x y h

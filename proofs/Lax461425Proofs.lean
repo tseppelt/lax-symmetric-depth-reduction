@@ -15,7 +15,6 @@ import Lax461425Proofs.BoundedDepthHomConst
 import Lax461425Proofs.BoundedDepthProdSum
 import Lax461425Proofs.BoundedDepthReducedFormula
 import Lax461425Proofs.BoundedDepthScSplit
-import Lax461425Proofs.CircuitEvaluation
 import Lax461425Proofs.CircuitFacts
 import Lax461425Proofs.CircuitFamilyFacts
 import Lax461425Proofs.CircuitReindex

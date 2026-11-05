@@ -41,9 +41,4 @@ theorem constant_isFormula (c : K) : (IsFormula (constant V c)) := by
   · intro g h; exact Nat.zero_le 1
   · intro g hg; exact (hg trivial).elim
 
-/-- Constant input circuits are skew. -/
-theorem constant_isSkew (c : K) : (IsSkew (constant V c)) := by
-  intro g hg
-  cases hg
-
 end Lax461425Proofs.CircuitFamilyFacts

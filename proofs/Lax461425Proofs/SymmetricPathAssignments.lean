@@ -54,12 +54,6 @@ theorem compatible_eq {a : ∀ i, BagAssignment D n i} (ha : Compatible D n a)
 def restrict (h : F.A ⊕ F.B → Fin n) : CompatibleAssignments D n :=
   ⟨fun _ v => h v.val, fun _ _ _ _ => rfl⟩
 
-theorem restrict_injective : Function.Injective (restrict D n) := by
-  intro h g hhg
-  funext v
-  obtain ⟨i, hi⟩ := D.covers_vertex v
-  exact congrArg (fun a : CompatibleAssignments D n => a.1 i ⟨v, hi⟩) hhg
-
 /-- Extend compatible bag assignments to all vertices by selecting any containing bag. -/
 noncomputable def extend (a : CompatibleAssignments D n) : F.A ⊕ F.B → Fin n :=
   fun v => a.1 (Classical.choose (D.covers_vertex v))
@@ -68,18 +62,6 @@ noncomputable def extend (a : CompatibleAssignments D n) : F.A ⊕ F.B → Fin n
 theorem extend_apply (a : CompatibleAssignments D n) (i : Fin (D.length + 1))
     (v : F.A ⊕ F.B) (hi : v ∈ D.bag i) : extend D n a v = a.1 i ⟨v, hi⟩ :=
   compatible_eq D n a.2 v (Classical.choose_spec (D.covers_vertex v)) hi
-
-theorem restrict_extend (a : CompatibleAssignments D n) : restrict D n (extend D n a) = a := by
-  apply Subtype.ext
-  funext i v
-  exact extend_apply D n a i v.val v.property
-
-/-- The path-state choices of a decomposition are exactly global vertex maps. -/
-noncomputable def assignmentEquiv : (F.A ⊕ F.B → Fin n) ≃ CompatibleAssignments D n where
-  toFun := restrict D n
-  invFun := extend D n
-  left_inv h := restrict_injective D n (restrict_extend D n (restrict D n h))
-  right_inv := restrict_extend D n
 
 /-- The state count of each bag is controlled by the pathwidth. -/
 theorem card_bagAssignment_le (hn : 1 ≤ n) (i : Fin (D.length + 1)) :

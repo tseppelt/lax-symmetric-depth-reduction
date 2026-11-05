@@ -6,6 +6,8 @@ namespace Lax461425Proofs.Section6Layering
 
 open Lax461425.SymmetricABPs
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A consecutive-layer certificate, retained when combining the ABPs of Section 6.
 Every source-to-sink path has length `layer G.sink`. -/
 structure Layering {V K : Type*} (G : ABP V K) where

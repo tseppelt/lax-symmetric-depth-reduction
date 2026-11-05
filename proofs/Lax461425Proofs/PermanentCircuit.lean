@@ -14,6 +14,8 @@ open Lax461425.Permanent
 open Lax461425Proofs.Permanent (ryserWitness)
 open scoped BigOperators Classical
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 inductive Gate (n : ℕ) where
   | x (i j : Fin n)
   | y (j : Fin n)

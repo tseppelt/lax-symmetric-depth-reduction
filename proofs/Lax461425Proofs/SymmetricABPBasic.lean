@@ -57,24 +57,4 @@ theorem orbit_sink : G.orbit G.sink = {G.sink} := by
     rw [h]
     exact extends_refl G
 
-theorem orbitSize_le_card : G.orbitSize ≤ Fintype.card G.Vertex := by
-  apply Finset.sup_le
-  intro v _
-  simpa only [Nat.card_eq_fintype_card] using Set.ncard_le_card (G.orbit v)
-
-/-- Every extending automorphism preserves the layer, so an orbit fits inside a layer. -/
-theorem orbit_subset_layer (layer : G.Vertex → ℕ)
-    (hstep : ∀ u v, G.edge u v → layer v = layer u + 1) (v : G.Vertex) :
-    G.orbit v ⊆ {w | layer w = layer v} := by
-  rintro w ⟨γ, σ, hσ, rfl⟩
-  exact layer_preserved G layer hstep hσ v
-
-/-- Section 6's layer bound, with all extending automorphisms quantified. -/
-theorem orbitSize_le_of_layer_bound (layer : G.Vertex → ℕ)
-    (hstep : ∀ u v, G.edge u v → layer v = layer u + 1) (B : ℕ)
-    (hB : ∀ i, ({v | layer v = i} : Set G.Vertex).ncard ≤ B) : G.orbitSize ≤ B := by
-  apply Finset.sup_le
-  intro v _
-  exact (Set.ncard_le_ncard (orbit_subset_layer G layer hstep v)).trans (hB _)
-
 end Lax461425Proofs.SymmetricABPBasic

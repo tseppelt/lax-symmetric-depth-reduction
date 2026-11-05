@@ -95,7 +95,7 @@ theorem recover_extends : G.Extends (recoverVertices G τ π hτ) π := by
   · have hh := PatternsSupportBasic.extends_fixes_out hτ
     change τ (.vertex G.sink) = .vertex G.sink at hh
     rw [recoverVertex_spec G τ π hτ] at hh
-    exact Gate.vertex.inj hh
+    exact Gate.vertex_eq_vertex.mp hh
   · intro u v huv
     let e : Edge G := ⟨(u, v), huv⟩
     have hc := recovered_coefficient G τ π hτ e none

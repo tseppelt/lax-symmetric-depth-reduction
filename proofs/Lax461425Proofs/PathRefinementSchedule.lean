@@ -13,6 +13,8 @@ namespace Lax461425Proofs.PathRefinementSchedule
 
 open scoped Classical
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- A path decomposition of a parent tree, with its root at the final endpoint. -/
 structure Schedule {A : Type*} (parent : A → A) (root : A) where
   length : ℕ

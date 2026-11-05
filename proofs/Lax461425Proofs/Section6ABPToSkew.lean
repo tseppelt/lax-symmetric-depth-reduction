@@ -26,6 +26,8 @@ abbrev Edge (G : ABP V K) := {uv : G.Vertex × G.Vertex // G.edge uv.1 uv.2}
 
 noncomputable instance (G : ABP V K) : Fintype (Edge G) := Fintype.ofFinite _
 
+set_option genInjectivity false in
+set_option genSizeOfSpec false in
 /-- The gates in the conversion. A `none` term is the constant term of an affine label. -/
 inductive Gate (G : ABP V K) where
   | vertex (v : G.Vertex)
@@ -33,6 +35,10 @@ inductive Gate (G : ABP V K) where
   | coeff (e : Edge G) (x : Option V)
   | inputVar (e : Edge G) (x : V)
   | sourceOne
+
+theorem Gate.vertex_eq_vertex {G : ABP V K} {u v : G.Vertex} :
+    (Gate.vertex u : Gate G) = .vertex v ↔ u = v :=
+  ⟨fun h => by cases h; rfl, fun h => h ▸ rfl⟩
 
 /-- An explicit finite enumeration of the five gate kinds. -/
 def gateEquiv (G : ABP V K) : Gate G ≃
@@ -205,20 +211,8 @@ theorem circuit_isSkew [One K] (G : ABP V K) : (IsSkew (circuit G)) := by
       _ ≤ ∑ h : Gate G, if h = Gate.vertex e.1.1 then 1 else 0 := by
         apply Finset.sum_le_sum
         intro h _
-        cases h <;> simp [label, GateLabel.IsInput, wire, eq_comm]
+        cases h <;> simp [label, GateLabel.IsInput, wire, eq_comm, Gate.vertex_eq_vertex]
       _ = 1 := by simp
-
-/-- The translation introduces no parallel wires. -/
-theorem circuit_wire_le_one [One K] (G : ABP V K) (g h : (circuit G).Gate) :
-    (circuit G).wire g h ≤ 1 := by
-  change wire G g h ≤ 1
-  cases g <;> cases h
-  all_goals try { simp only [wire]; split_ifs <;> omega }
-  all_goals try { simp only [wire]; omega }
-  case term.inputVar e x f y =>
-    cases x <;> simp only [wire]
-    · omega
-    · split_ifs <;> omega
 
 end
 end Lax461425Proofs.Section6ABPToSkew
